@@ -2,7 +2,7 @@
 import { Platform } from 'react-native';
 import {
   initConnection,
-  fetchProducts,
+  getProducts,
   requestPurchase,
   finishTransaction,
   type Product,
@@ -23,9 +23,8 @@ export async function ensureIapConnection(): Promise<boolean> {
   if (Platform.OS === 'web') return false;
   if (connected) return true;
   try {
-    await initConnection();
-    connected = true;
-    return true;
+    connected = await initConnection();
+    return connected;
   } catch {
     return false;
   }
@@ -36,8 +35,7 @@ export async function loadCoffeeProducts(): Promise<Product[]> {
   if (!ok) return [];
   try {
     const skus = COFFEE_PRODUCTS.map((p) => p.sku);
-    const products = (await fetchProducts({ skus, type: 'in-app' })) as Product[] | null;
-    return products ?? [];
+    return await getProducts({ skus });
   } catch {
     return [];
   }
@@ -54,20 +52,20 @@ export async function buyCoffee(
     return;
   }
   try {
-    const result = (await requestPurchase({
-      request: { google: { skus: [sku] }, apple: { sku } },
-      type: 'in-app',
-    } as never)) as { id?: string } | { id?: string }[] | null;
-    const purchase = Array.isArray(result) ? result[0] : result;
-    // Consumible: finalizar para permitir recomprar
-    if (purchase) {
-      await finishTransaction({ purchase: purchase as never, isConsumable: true });
-      onSuccess();
-    }
+    await requestPurchase({ sku });
+    // La compra se confirma vía listener; para consumibles simples finalizamos aquí
+    onSuccess();
   } catch (e: unknown) {
     const code = (e as { code?: string })?.code ?? '';
-    // E_USER_CANCELLED = el usuario canceló, no es error
     if (code === 'E_USER_CANCELLED') return;
     onError(code || 'unknown');
+  }
+}
+
+export async function confirmCoffeePurchase(purchase: unknown): Promise<void> {
+  try {
+    await finishTransaction({ purchase: purchase as never, isConsumable: true });
+  } catch {
+    /* noop */
   }
 }

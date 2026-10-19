@@ -26,8 +26,8 @@ export function TipsScreen() {
   }, []);
 
   const priceFor = (sku: string, fallback: number) => {
-    const prod = products.find((x) => x.id === sku);
-    return prod?.displayPrice ?? `$${fallback}.00`;
+    const prod = products.find((x) => x.productId === sku);
+    return prod?.localizedPrice ?? `$${fallback}.00`;
   };
 
   const handleBuy = (sku: string) => {
