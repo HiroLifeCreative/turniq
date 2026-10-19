@@ -32,6 +32,9 @@ const es = {
     noMarcado: 'No marcado',
     duplicarTurno: 'Duplicar turno',
     duplicado: 'Turno duplicado',
+    horaExtra: 'Hora extra',
+    horaExtraLeft: 'para hora extra',
+    horaExtraDone: 'de hora extra',
   },
   mas: { title: 'Más' },
   today: {
@@ -136,6 +139,7 @@ const es = {
     payday: 'Día de cobro',
     paydayHint: 'Día de la semana siguiente en que cobras',
     notify: 'Avisarme antes de entrar',
+    notifyHint: 'Puedes elegir varios avisos',
     notifyOpts: ['1 hora antes', '30 min antes', 'Al momento'],
     overtime: 'Horas extra',
     overtimeAfter: 'Después de (h/sem)',
@@ -184,6 +188,10 @@ const es = {
   notif: {
     before: 'Tu turno en {job} empieza en {when}',
     missed: '¿Olvidaste marcar tu salida en {job}?',
+    day: 'día',
+    hour: 'hora',
+    min: 'min',
+    now: 'este momento',
   },
   common: {
     save: 'Guardar',
@@ -233,6 +241,9 @@ const en: Strings = {
     noMarcado: 'Not marked',
     duplicarTurno: 'Duplicate shift',
     duplicado: 'Shift duplicated',
+    horaExtra: 'Overtime',
+    horaExtraLeft: 'to overtime',
+    horaExtraDone: 'of overtime',
   },
   mas: { title: 'More' },
   today: {
@@ -337,6 +348,7 @@ const en: Strings = {
     payday: 'Payday',
     paydayHint: 'Weekday of the following week when you get paid',
     notify: 'Notify me before clock-in',
+    notifyHint: 'You can pick several reminders',
     notifyOpts: ['1 hour before', '30 min before', 'Right on time'],
     overtime: 'Overtime',
     overtimeAfter: 'After (hrs/week)',
@@ -385,6 +397,10 @@ const en: Strings = {
   notif: {
     before: 'Your shift at {job} starts in {when}',
     missed: 'Did you forget to clock out at {job}?',
+    day: 'day',
+    hour: 'hour',
+    min: 'min',
+    now: 'right now',
   },
   common: {
     save: 'Save',

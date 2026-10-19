@@ -47,8 +47,8 @@ export default function App() {
     })();
     const upcoming = shifts.filter((s) => s.fecha >= from && s.fecha <= to);
     const strings = STR[idioma];
-    void scheduleShiftReminders(upcoming, jobsById(jobs), settings.avisoPrevioMin, strings.notif);
-  }, [shifts, jobs, settings.avisoPrevioMin, settings.idioma, idioma, ready]);
+    void scheduleShiftReminders(upcoming, jobsById(jobs), settings.avisosMin, strings.notif);
+  }, [shifts, jobs, settings.avisosMin, settings.idioma, idioma, ready]);
 
   if (!ready || !hydrated) {
     const p = darkMode ? dark : light;

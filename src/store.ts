@@ -39,7 +39,7 @@ export interface Settings {
   idioma: Lang;
   nombreUsuario: string;
   diaCobro: number; // 0=lunes..6=domingo (default 4=viernes)
-  avisoPrevioMin: 60 | 30 | 0;
+  avisosMin: number[]; // minutos antes: 1440=1 día, 60, 30, 15, 0=al momento
   umbralExtraHrs: number;
   multExtra: number;
   metaSemanal: number;
@@ -49,9 +49,20 @@ export interface Settings {
   formatoHora: '12h' | '24h';
 }
 
+export interface ShiftTemplate {
+  id: string;
+  nombre: string;
+  jobId: string;
+  estacionId?: string;
+  horaEntrada: string;
+  horaSalida: string;
+  breakMin: number;
+}
+
 interface State {
   jobs: Job[];
   shifts: Shift[];
+  templates: ShiftTemplate[];
   settings: Settings;
   hydrated: boolean;
   // jobs
@@ -64,6 +75,10 @@ interface State {
   deleteShift: (id: string) => void;
   duplicateShift: (id: string) => void;
   duplicateWeek: (weekMondayYmd: string) => number;
+  // templates
+  addTemplate: (t: Omit<ShiftTemplate, 'id'>) => string;
+  updateTemplate: (id: string, patch: Partial<ShiftTemplate>) => void;
+  deleteTemplate: (id: string) => void;
   // settings
   setSettings: (patch: Partial<Settings>) => void;
   resetAll: () => void;
@@ -79,7 +94,7 @@ const defaultSettings: Settings = {
   idioma: 'es',
   nombreUsuario: '',
   diaCobro: 4,
-  avisoPrevioMin: 30,
+  avisosMin: [30],
   umbralExtraHrs: 40,
   multExtra: 1.5,
   metaSemanal: 600,
@@ -94,6 +109,7 @@ export const useStore = create<State>()(
     (set, get) => ({
       jobs: [],
       shifts: [],
+      templates: [],
       settings: defaultSettings,
       hydrated: false,
 
@@ -150,14 +166,33 @@ export const useStore = create<State>()(
         return copies.length;
       },
 
+      // templates
+      addTemplate: (t) => {
+        const id = uid();
+        set((s) => ({ templates: [...s.templates, { ...t, id }] }));
+        return id;
+      },
+      updateTemplate: (id, patch) =>
+        set((s) => ({ templates: s.templates.map((t) => (t.id === id ? { ...t, ...patch } : t)) })),
+      deleteTemplate: (id) => set((s) => ({ templates: s.templates.filter((t) => t.id !== id) })),
+
       setSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
-      resetAll: () => set({ jobs: [], shifts: [], settings: defaultSettings }),
+      resetAll: () => set({ jobs: [], shifts: [], templates: [], settings: defaultSettings }),
       setHydrated: () => set({ hydrated: true }),
     }),
     {
       name: 'turniq-v1',
       storage: createJSONStorage(() => zustandStorage),
-      onRehydrateStorage: () => (state) => state?.setHydrated(),
+      onRehydrateStorage: () => (state) => {
+        // Migración: avisoPrevioMin (número) → avisosMin (array)
+        if (state && (state.settings as unknown as { avisoPrevioMin?: number }).avisoPrevioMin !== undefined) {
+          const old = (state.settings as unknown as { avisoPrevioMin: number }).avisoPrevioMin;
+          state.settings.avisosMin = [old];
+          delete (state.settings as unknown as { avisoPrevioMin?: number }).avisoPrevioMin;
+        }
+        if (state && !Array.isArray(state.templates)) state.templates = [];
+        state?.setHydrated();
+      },
     },
   ),
 );

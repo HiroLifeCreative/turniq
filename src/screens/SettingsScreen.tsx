@@ -94,11 +94,44 @@ export function SettingsScreen() {
             />
           </SettingRow>
           <SettingRow icon="clock" label={t.settings.notify} last={false}>
-            <Seg<60 | 30 | 0>
-              options={[60, 30, 0].map((m, i) => ({ value: m as 60 | 30 | 0, label: t.settings.notifyOpts[i] ?? '' }))}
-              value={settings.avisoPrevioMin}
-              onChange={(v) => setSettings({ avisoPrevioMin: v })}
-            />
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
+              {[
+                { v: 1440, label: `1 ${t.notif.day}` },
+                { v: 60, label: `1 ${t.notif.hour}` },
+                { v: 30, label: `30 ${t.notif.min}` },
+                { v: 15, label: `15 ${t.notif.min}` },
+                { v: 0, label: t.notif.now },
+              ].map((o) => {
+                const active = settings.avisosMin.includes(o.v);
+                return (
+                  <TouchableOpacity
+                    key={o.v}
+                    onPress={() => {
+                      const next = active
+                        ? settings.avisosMin.filter((m) => m !== o.v)
+                        : [...settings.avisosMin, o.v].sort((a, b) => b - a);
+                      setSettings({ avisosMin: next.length > 0 ? next : [0] });
+                    }}
+                    activeOpacity={0.7}
+                    style={{
+                      borderRadius: R.pill,
+                      paddingHorizontal: SP.lg,
+                      paddingVertical: SP.sm,
+                      backgroundColor: active ? p.primary : p.surface,
+                      borderWidth: 1,
+                      borderColor: active ? p.primary : p.line,
+                    }}
+                  >
+                    <Text style={{ color: active ? '#fff' : p.text2, fontWeight: active ? '700' : '400', fontSize: 13 }}>
+                      {o.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3, marginTop: SP.sm }}>
+              {t.settings.notifyHint}
+            </Text>
           </SettingRow>
           <SettingRow icon="clock" label={t.settings.overtime} last={false}>
             <View style={{ flexDirection: 'row', gap: SP.md }}>

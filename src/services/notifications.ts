@@ -1,4 +1,4 @@
-/** Notificaciones locales: aviso previo al turno + recordatorio de salida olvidada. */
+/** Notificaciones locales: avisos previos al turno + recordatorio de salida olvidada. */
 import { Platform } from 'react-native';
 import { hmToMin, parseYmd } from '../lib/dates';
 import type { Shift, Job } from '../store';
@@ -21,37 +21,60 @@ export async function ensureNotifPermission(): Promise<boolean> {
   return req.status === 'granted';
 }
 
-/** Programa avisos para los turnos futuros (id = shift.id). */
+export function avisoLabel(min: number, t: { day: string; hour: string; min: string; now: string }): string {
+  if (min >= 1440) {
+    const d = Math.round(min / 1440);
+    return d === 1 ? `1 ${t.day}` : `${d} ${t.day}s`;
+  }
+  if (min >= 60) {
+    const h = Math.round(min / 60);
+    return h === 1 ? `1 ${t.hour}` : `${h} ${t.hour}s`;
+  }
+  if (min > 0) return `${min} ${t.min}`;
+  return t.now;
+}
+
+/** Programa avisos para los turnos futuros (uno por cada minuto configurado). */
 export async function scheduleShiftReminders(
   shifts: Shift[],
   jobsById: Record<string, Job>,
-  avisoPrevioMin: 60 | 30 | 0,
-  t: { before: string; missed: string },
+  avisosMin: number[],
+  t: { before: string; missed: string; day: string; hour: string; min: string; now: string },
 ): Promise<void> {
   if (!Notifications) return;
   const ok = await ensureNotifPermission();
   if (!ok) return;
   const now = Date.now();
   for (const sh of shifts) {
-    const startMin = hmToMin(sh.horaEntrada) - avisoPrevioMin;
-    if (startMin < 0) continue;
-    const d = parseYmd(sh.fecha);
-    d.setHours(Math.floor(startMin / 60), startMin % 60, 0, 0);
-    if (d.getTime() <= now) continue;
     const job = jobsById[sh.jobId];
-    const when =
-      avisoPrevioMin === 60 ? '1 h' : avisoPrevioMin === 30 ? '30 min' : 'ahora mismo';
-    try {
-      await Notifications.scheduleNotificationAsync({
-        identifier: `turniq-${sh.id}`,
-        content: {
-          title: 'Turniq',
-          body: t.before.replace('{job}', job?.nombre ?? '').replace('{when}', when),
-        },
-        trigger: { type: 'date', date: d } as never,
-      });
-    } catch {
-      /* noop */
+    for (const avisoMin of avisosMin) {
+      const startMin = hmToMin(sh.horaEntrada) - avisoMin;
+      // Para avisos de 1+ día, restar días completos
+      const d = parseYmd(sh.fecha);
+      if (avisoMin >= 1440) {
+        const days = Math.floor(avisoMin / 1440);
+        const remMin = avisoMin % 1440;
+        d.setDate(d.getDate() - days);
+        const sm = hmToMin(sh.horaEntrada) - remMin;
+        d.setHours(Math.floor(sm / 60), sm % 60, 0, 0);
+      } else {
+        if (startMin < 0) continue;
+        d.setHours(Math.floor(startMin / 60), startMin % 60, 0, 0);
+      }
+      if (d.getTime() <= now) continue;
+      const when = avisoLabel(avisoMin, t);
+      try {
+        await Notifications.scheduleNotificationAsync({
+          identifier: `turniq-${sh.id}-${avisoMin}`,
+          content: {
+            title: 'Turniq',
+            body: t.before.replace('{job}', job?.nombre ?? '').replace('{when}', when),
+          },
+          trigger: { type: 'date', date: d } as never,
+        });
+      } catch {
+        /* noop */
+      }
     }
     // Recordatorio de salida olvidada: 10 h después de la entrada, si sigue abierto
     if (!sh.horaSalida) {
@@ -75,8 +98,12 @@ export async function scheduleShiftReminders(
 export async function cancelShiftReminder(shiftId: string): Promise<void> {
   if (!Notifications) return;
   try {
-    await Notifications.cancelScheduledNotificationAsync(`turniq-${shiftId}`);
-    await Notifications.cancelScheduledNotificationAsync(`turniq-missed-${shiftId}`);
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    for (const n of scheduled) {
+      if (n.identifier.startsWith(`turniq-${shiftId}`)) {
+        await Notifications.cancelScheduledNotificationAsync(n.identifier);
+      }
+    }
   } catch {
     /* noop */
   }

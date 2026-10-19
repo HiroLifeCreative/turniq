@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
+import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useStore, jobsById, type Shift } from '../store';
@@ -59,6 +60,8 @@ export function WeekScreen() {
 
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === key);
   const totals = calcWeekTotals(inWeek, byId, settings.umbralExtraHrs, settings.multExtra);
+  const otPct = settings.umbralExtraHrs > 0 ? Math.min(100, (totals.hours / settings.umbralExtraHrs) * 100) : 0;
+  const otLeft = Math.max(0, settings.umbralExtraHrs - totals.hours);
 
   const doDuplicate = () => {
     const n = duplicateWeek(key);
@@ -110,6 +113,30 @@ export function WeekScreen() {
               <Text style={{ color: p.primary }}>■ </Text>{t.week.locked}
             </Text>
             <Text style={{ color: p.text2, fontSize: 13, marginTop: 4 }}>{t.week.lockedMsg}</Text>
+          </Card>
+        )}
+
+        {/* Alerta hora extra */}
+        {settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
+          <Card style={{ marginBottom: SP.md }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>
+              <Label style={{ marginBottom: 0 }}>{t.semana.horaExtra}</Label>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
+                {fmtHoursDual(totals.hours)} / {fmtHoursDual(settings.umbralExtraHrs)}
+              </Text>
+            </View>
+            <View style={{ height: 12, borderRadius: 6, backgroundColor: p.surface, overflow: 'hidden' }}>
+              <MotiView
+                animate={{ width: `${otPct}%` }}
+                transition={{ type: 'timing', duration: 600 }}
+                style={{ height: 12, borderRadius: 6, backgroundColor: totals.overtimeHours > 0 ? '#E8830C' : p.primary }}
+              />
+            </View>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: SP.sm }}>
+              {totals.overtimeHours > 0
+                ? `${fmtHoursDual(totals.overtimeHours)} ${t.semana.horaExtraDone}`
+                : `${fmtHoursDual(otLeft)} ${t.semana.horaExtraLeft}`}
+            </Text>
           </Card>
         )}
 
