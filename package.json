@@ -7,7 +7,6 @@
     "start": "expo start",
     "web": "expo start --web",
     "android": "expo run:android",
-    "tsc": "tsc --noEmit",
     "ios": "expo run:ios"
   },
   "dependencies": {
@@ -42,7 +41,6 @@
   },
   "devDependencies": {
     "@types/react": "~18.3.12",
-    "eas-cli": "^25.2.0",
     "typescript": "5.6.3"
   }
 }
