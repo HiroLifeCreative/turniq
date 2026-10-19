@@ -249,7 +249,7 @@ export function Sheet({
               borderTopRightRadius: 24,
               paddingHorizontal: SP.xl,
               paddingTop: SP.md,
-              paddingBottom: SP.xxxl,
+              paddingBottom: SP.xl,
               maxHeight: '88%',
             }}
           >
@@ -371,14 +371,14 @@ export function Header({ title, onSettings }: { title: string; onSettings?: () =
   const p = useTheme();
   return (
     <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SP.lg, marginBottom: SP.sm }}>
-      <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h1, letterSpacing: -0.5, color: p.text }}>{title}</Text>
+      <Text style={{ fontFamily: FONT.headBold, fontSize: 20, letterSpacing: -0.4, color: p.text }}>{title}</Text>
       {onSettings && (
         <TouchableOpacity
           onPress={onSettings}
           hitSlop={12}
           style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
         >
-          <Icon name="settings" size={ICON.md} color={p.text2} />
+          <Icon name="settings" size={ICON.lg} color={p.text2} />
         </TouchableOpacity>
       )}
     </View>

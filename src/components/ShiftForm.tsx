@@ -28,7 +28,7 @@ export function ShiftForm({
   const [fecha, setFecha] = useState(defaultDate ?? todayYmd());
   const [entrada, setEntrada] = useState('09:00');
   const [salida, setSalida] = useState('');
-  const [breakMin, setBreakMin] = useState('30');
+  const [breakMin, setBreakMin] = useState('0');
   const [propinas, setPropinas] = useState('0');
   const [bono, setBono] = useState('0');
   const [notas, setNotas] = useState('');
@@ -51,7 +51,7 @@ export function ShiftForm({
         setFecha(defaultDate ?? todayYmd());
         setEntrada('09:00');
         setSalida('');
-        setBreakMin('30');
+        setBreakMin('0');
         setPropinas('0');
         setBono('0');
         setNotas('');
