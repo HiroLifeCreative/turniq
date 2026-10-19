@@ -11,7 +11,7 @@ function Row({ label, value, color }: { label: string; value: string; color?: st
   const p = useTheme();
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.sm }}>
-      <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, letterSpacing: 0.8, color: p.text3 }}>{label.toUpperCase()}</Text>
+      <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{label.toUpperCase()}</Text>
       <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: color ?? p.text }}>{value}</Text>
     </View>
   );

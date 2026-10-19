@@ -13,7 +13,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   const p = useTheme();
   return (
     <View style={{ marginBottom: SP.lg }}>
-      <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, letterSpacing: 1.2, color: p.text3, marginBottom: SP.sm, paddingHorizontal: SP.md }}>
+      <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginBottom: SP.sm, paddingHorizontal: SP.md }}>
         {title.toUpperCase()}
       </Text>
       <View style={{ backgroundColor: p.card, borderRadius: 24, borderWidth: 1, borderColor: p.line, overflow: 'hidden' }}>

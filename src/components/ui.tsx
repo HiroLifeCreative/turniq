@@ -35,7 +35,7 @@ export const Label = ({ children, style }: { children: React.ReactNode; style?: 
   return (
     <Text
       style={[
-        { fontFamily: FONT.mono, fontSize: 11, letterSpacing: 1.6, textTransform: 'uppercase', color: p.text3, marginBottom: SP.sm },
+        { fontFamily: FONT.mono, fontSize: 11, textTransform: 'uppercase', color: p.text3, marginBottom: SP.sm },
         style,
       ]}
     >
@@ -64,11 +64,11 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
           borderWidth: 1,
           borderColor: p.line,
           padding: SP.lg,
-          shadowColor: p.shadow,
-          shadowOpacity: 0.08,
-          shadowRadius: 10,
-          shadowOffset: { width: 0, height: 3 },
-          elevation: 3,
+          shadowColor: '#8A94A6',
+          shadowOpacity: 0.12,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: 4,
         },
         style,
       ]}

@@ -136,15 +136,12 @@ export function HomeScreen() {
           colors={[DARK_CARD_2, DARK_CARD]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 28, padding: SP.xl, overflow: 'hidden' }}
+          style={{ borderRadius: 28, padding: SP.xl, overflow: 'hidden', shadowColor: '#8A94A6', shadowOpacity: 0.15, shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 6 }}
         >
-          {/* Resplandor de estado */}
-          <View style={{ position: 'absolute', top: -60, right: -60, width: 200, height: 200, borderRadius: 100, backgroundColor: stateColor, opacity: 0.18 }} />
-          <View style={{ position: 'absolute', bottom: -80, left: -40, width: 180, height: 180, borderRadius: 90, backgroundColor: '#0064E0', opacity: 0.12 }} />
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 11, letterSpacing: 1.6, color: 'rgba(255,255,255,0.55)' }}>
-              {t.inicio.netoEstimado.toUpperCase()} · {t.inicio.estaSemana.toUpperCase()}
+            <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
+              {t.inicio.netoEstimado} · {t.inicio.estaSemana}
             </Text>
             {stateLabel !== '' && (
               <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingHorizontal: 12, paddingVertical: 6 }}>
@@ -159,35 +156,41 @@ export function HomeScreen() {
             )}
           </View>
 
-          <AnimatedRollingNumbers
-            value={totals.net}
-            toFixed={2}
-            useGrouping
-            textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+            <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
+            <AnimatedRollingNumbers
+              value={totals.net}
+              toFixed={2}
+              useGrouping
+              textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
+            />
+          </View>
 
           {/* Reloj en vivo */}
           {openShift && (
             <BlurView intensity={30} tint="dark" style={{ borderRadius: 20, overflow: 'hidden', marginTop: SP.md, padding: SP.lg }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View>
-                  <Text style={{ fontFamily: FONT.mono, fontSize: 11, letterSpacing: 1.2, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
-                    {openJob?.nombre?.toUpperCase()}
+                  <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
+                    {openJob?.nombre}
                   </Text>
-                  <Text style={{ fontFamily: FONT.mono, fontSize: 34, letterSpacing: 1, color: '#fff', fontVariant: ['tabular-nums'] }}>
+                  <Text style={{ fontFamily: FONT.mono, fontSize: 34, color: '#fff', fontVariant: ['tabular-nums'] }}>
                     {liveHH}:{liveMM}<Text style={{ color: stateColor }}>:{liveSS}</Text>
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
                   <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
-                    {t.inicio.netoEstimado.toUpperCase()}
+                    {t.inicio.netoEstimado}
                   </Text>
-                  <AnimatedRollingNumbers
-                    value={liveNet}
-                    toFixed={2}
-                    useGrouping
-                    textStyle={{ fontFamily: FONT.headBold, fontSize: 22, color: stateColor }}
-                  />
+                  <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                    <Text style={{ fontFamily: FONT.headBold, fontSize: 14, color: stateColor, marginRight: 1 }}>$</Text>
+                    <AnimatedRollingNumbers
+                      value={liveNet}
+                      toFixed={2}
+                      useGrouping
+                      textStyle={{ fontFamily: FONT.headBold, fontSize: 22, color: stateColor }}
+                    />
+                  </View>
                 </View>
               </View>
             </BlurView>
@@ -202,7 +205,7 @@ export function HomeScreen() {
             ].map((c, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center' }}>
                 <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
-                <Text style={{ fontFamily: FONT.mono, fontSize: 10, letterSpacing: 0.8, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l.toUpperCase()}</Text>
+                <Text style={{ fontFamily: FONT.mono, fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l}</Text>
               </View>
             ))}
           </View>

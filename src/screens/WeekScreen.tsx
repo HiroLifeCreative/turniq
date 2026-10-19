@@ -156,7 +156,7 @@ export function WeekScreen() {
                 }}>
                   {d.getDate()}
                 </Text>
-                <Text style={{ fontFamily: FONT.mono, fontSize: 11, letterSpacing: 1, color: isToday ? p.primary : p.text3 }}>
+                <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: isToday ? p.primary : p.text3 }}>
                   {t.week.days[i]?.toUpperCase()}
                 </Text>
               </View>
