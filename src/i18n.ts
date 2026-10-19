@@ -13,6 +13,9 @@ const es = {
     hoy: 'Hoy',
     manana: 'Mañana',
     turnosHoy: 'Turnos de hoy',
+    meta: 'Meta semanal',
+    proximo: 'Próximo turno',
+    estaSemana: 'esta semana',
   },
   semana: {
     turno: 'turno',
@@ -36,6 +39,7 @@ const es = {
     confirmDelete: '¿Eliminar este turno?',
     cancel: 'Cancelar',
     delete: 'Eliminar',
+    tapToStart: 'toca para empezar',
   },
   week: {
     title: 'Semana',
@@ -188,6 +192,9 @@ const en: Strings = {
     hoy: 'Today',
     manana: 'Tomorrow',
     turnosHoy: "Today's shifts",
+    meta: 'Weekly goal',
+    proximo: 'Next shift',
+    estaSemana: 'this week',
   },
   semana: {
     turno: 'shift',
@@ -211,6 +218,7 @@ const en: Strings = {
     confirmDelete: 'Delete this shift?',
     cancel: 'Cancel',
     delete: 'Delete',
+    tapToStart: 'tap to start',
   },
   week: {
     title: 'Week',
