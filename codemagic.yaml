@@ -6,6 +6,8 @@ workflows:
     environment:
       node: 20
       java: 21
+      android_signing:
+        - turniq
       vars:
         PACKAGE_NAME: "com.hirolifecreative.turniq"
     scripts:
