@@ -122,11 +122,11 @@ function TabsNavigator() {
                 backgroundColor: focused ? p.primary : 'transparent',
                 borderRadius: 999,
                 paddingVertical: 10,
-                paddingHorizontal: focused ? 16 : 8,
-                gap: 7,
+                paddingHorizontal: focused ? 20 : 8,
+                gap: focused ? 10 : 0,
               }}
             >
-              <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON.lg} color={fg} />
+              <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON.md} color={fg} />
               {focused && (
                 <Text
                   style={{ color: fg, fontFamily: FONT.headBold, fontSize: 12 }}
