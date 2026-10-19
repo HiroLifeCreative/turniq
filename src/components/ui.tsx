@@ -339,3 +339,48 @@ export function TopBar({ title, onBack }: { title: string; onBack: () => void })
     </Modal>
   );
 }
+
+/* ── Iconos SVG consistentes (16/20/24px) ─────────────────────────── */
+import Svg, { Path, Circle } from 'react-native-svg';
+import { ICON, TYPE } from '../theme/tokens';
+
+const ICON_PATHS: Record<string, string> = {
+  settings: 'M4 8h16M4 16h16',
+  plus: 'M12 5v14M5 12h14',
+  x: 'M6 6l12 12M18 6L6 18',
+  clock: 'M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
+  wallet: 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM16 13h.01',
+  edit: 'M4 20l4-1L20 7a2.4 2.4 0 0 0-3.4-3.4L5 15zM14 6l3 3',
+  trash: 'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0l-.8 12a2 2 0 0 1-2 1.8H8.8a2 2 0 0 1-2-1.8L6 7',
+  chevronRight: 'M9 6l6 6-6 6',
+  calendar: 'M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
+};
+
+export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {
+  const p = useTheme();
+  const d = ICON_PATHS[name] ?? ICON_PATHS.clock;
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color ?? p.text2} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <Path d={d} />
+    </Svg>
+  );
+}
+
+/* ── Header global: título + botón ajustes a la derecha ────────────── */
+export function Header({ title, onSettings }: { title: string; onSettings?: () => void }) {
+  const p = useTheme();
+  return (
+    <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SP.lg, marginBottom: SP.sm }}>
+      <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h1, letterSpacing: -0.5, color: p.text }}>{title}</Text>
+      {onSettings && (
+        <TouchableOpacity
+          onPress={onSettings}
+          hitSlop={12}
+          style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name="settings" size={ICON.md} color={p.text2} />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}

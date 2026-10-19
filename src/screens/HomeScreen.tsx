@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { Screen, Card, Label, Confirm, useTheme, useT } from '../components/ui';
+import { Screen, Card, Label, Confirm, Header, Icon, useTheme, useT } from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
+import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useStore, jobsById, type Shift } from '../store';
 import type { TabsParamList } from '../navigation/types';
-import { SP, R, FONT } from '../theme/tokens';
+import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, nowHm, hmToMin, hmTo12h, weekKey, parseYmd, startOfWeek, addDays, ymd, shortDate } from '../lib/dates';
 import { shiftHours, fmtHours, fmtMoney, calcWeekTotals } from '../lib/calc';
 
@@ -16,8 +17,10 @@ function MoneyChip({ icon, label, value, color }: { icon: string; label: string;
   const p = useTheme();
   return (
     <View style={{ flex: 1, alignItems: 'center', paddingVertical: SP.sm }}>
-      <Text style={{ fontSize: 18, color, marginBottom: 4 }}>{icon}</Text>
-      <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text }} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
+      <View style={{ marginBottom: 4 }}>
+        <Icon name={icon} size={ICON.md} color={color} />
+      </View>
+      <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: p.text }} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
       <Text style={{ fontFamily: FONT.mono, fontSize: 10, letterSpacing: 0.8, color: p.text3, marginTop: 2 }} numberOfLines={1}>{label.toUpperCase()}</Text>
     </View>
   );
@@ -39,6 +42,7 @@ export function HomeScreen() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Shift | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [detailShift, setDetailShift] = useState<Shift | null>(null);
   const [clockJobId, setClockJobId] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
@@ -93,29 +97,29 @@ export function HomeScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 140 }}>
-        {/* Saludo */}
-        <Text style={{ fontFamily: FONT.headBold, fontSize: 28, letterSpacing: -0.6, color: p.text, marginBottom: SP.md }}>
-          {t.inicio.greeting}{settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}
-        </Text>
+        <Header
+          title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
+          onSettings={() => nav.navigate('Mas' as never)}
+        />
 
         {/* HÉROE DINERO — estilo Mis Horarios: neto grande en verde */}
         <View style={{ backgroundColor: p.card, borderRadius: 26, borderWidth: 1, borderColor: p.line, padding: SP.xl, marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.sm }}>
             <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: p.surface, alignItems: 'center', justifyContent: 'center', marginRight: SP.md }}>
-              <Text style={{ fontSize: 22, color: p.success, fontWeight: '800' }}>$</Text>
+              <Icon name="wallet" size={ICON.lg} color={p.success} />
             </View>
             <View>
               <Text style={{ fontFamily: FONT.mono, fontSize: 11, letterSpacing: 1.6, color: p.text3 }}>{t.inicio.netoEstimado.toUpperCase()}</Text>
               <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.inicio.estaSemana}</Text>
             </View>
           </View>
-          <Text style={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.2, color: p.success }}>
+          <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.display, letterSpacing: -0.8, color: p.success }}>
             {fmtMoney(totals.net)}
           </Text>
           <View style={{ flexDirection: 'row', marginTop: SP.md, borderTopWidth: 1, borderTopColor: p.line, paddingTop: SP.sm }}>
-            <MoneyChip icon="◷" label={t.week.hours} value={`${totals.hours.toFixed(1)}h`} color={p.primary} />
-            <MoneyChip icon="$" label={t.inicio.bruto} value={fmtMoney(totals.gross)} color={p.warning} />
-            <MoneyChip icon="◈" label={t.inicio.taxes} value={fmtMoney(totals.gross - totals.net)} color={p.danger} />
+            <MoneyChip icon="clock" label={t.week.hours} value={`${totals.hours.toFixed(1)}h`} color={p.primary} />
+            <MoneyChip icon="wallet" label={t.inicio.bruto} value={fmtMoney(totals.gross)} color={p.warning} />
+            <MoneyChip icon="edit" label={t.inicio.taxes} value={fmtMoney(totals.gross - totals.net)} color={p.danger} />
           </View>
         </View>
 
@@ -232,6 +236,7 @@ export function HomeScreen() {
         )}
       </ScrollView>
 
+      <ShiftDetailSheet shift={detailShift} onClose={() => setDetailShift(null)} onEdit={(s) => { setEditing(s); setFormOpen(true); }} />
       <ShiftForm visible={formOpen} onClose={() => setFormOpen(false)} editing={editing} defaultDate={today} />
       <Confirm
         visible={confirmId !== null}

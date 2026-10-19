@@ -50,7 +50,20 @@ export const dark: Palette = {
 };
 
 export const SP = { xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xxxl: 32 } as const;
-export const R = { sm: 8, md: 12, lg: 16, xl: 20, pill: 999 } as const;
+export const R = { sm: 8, md: 12, lg: 16, xl: 20, xxl: 26, pill: 999 } as const;
+
+/** Escala tipográfica fija — 6 niveles, nada supera Display. */
+export const TYPE = {
+  display: 34, // héroe dinero
+  h1: 24,      // títulos de pantalla
+  h2: 18,      // títulos de tarjeta/sección
+  body: 15,    // texto principal
+  caption: 13, // texto secundario
+  mono: 11,    // etiquetas, badges
+} as const;
+
+/** Tamaños de icono fijos. */
+export const ICON = { sm: 16, md: 20, lg: 24 } as const;
 
 /** Fuentes: Switzer (titulares) + JetBrains Mono (etiquetas/números). */
 export const FONT = {
