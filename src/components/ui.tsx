@@ -224,7 +224,7 @@ export function Seg<T extends string | number>({
   );
 }
 
-/** Bottom sheet nativo (modal deslizante). */
+/** Bottom sheet fluido con Reanimated: spring al abrir, fade en el backdrop. */
 export function Sheet({
   visible,
   onClose,
@@ -237,35 +237,76 @@ export function Sheet({
   children: React.ReactNode;
 }) {
   const p = useTheme();
+  const [mounted, setMounted] = React.useState(visible);
+  const translateY = useSharedValue(600);
+  const backdrop = useSharedValue(0);
+
+  React.useEffect(() => {
+    if (visible) {
+      setMounted(true);
+      translateY.value = 600;
+      backdrop.value = 0;
+      translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
+      backdrop.value = withTiming(1, { duration: 220 });
+    } else if (mounted) {
+      translateY.value = withTiming(600, { duration: 240, easing: Easing.in(Easing.cubic) });
+      backdrop.value = withTiming(0, { duration: 200 }, () => {
+        runOnJS(setMounted)(false);
+      });
+    }
+  }, [visible]);
+
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: backdrop.value,
+  }));
+
+  if (!mounted) return null;
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.45)' }}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
+    <Modal visible transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
+      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+        <Animated.View style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' }, backdropStyle]}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
+        </Animated.View>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-          <View
-            style={{
-              backgroundColor: p.card,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              paddingHorizontal: SP.xl,
-              paddingTop: SP.md,
-              paddingBottom: SP.xl,
-              maxHeight: '88%',
-            }}
+          <Animated.View
+            style={[
+              {
+                backgroundColor: p.card,
+                borderTopLeftRadius: 26,
+                borderTopRightRadius: 26,
+                paddingHorizontal: SP.xl,
+                paddingTop: SP.sm,
+                paddingBottom: SP.xl,
+                maxHeight: '90%',
+                shadowColor: '#000',
+                shadowOpacity: 0.25,
+                shadowRadius: 24,
+                shadowOffset: { width: 0, height: -8 },
+                elevation: 16,
+              },
+              sheetStyle,
+            ]}
           >
-            <View style={{ alignItems: 'center', marginBottom: SP.md }}>
+            <View style={{ alignItems: 'center', paddingVertical: SP.sm, marginBottom: SP.xs }}>
               <View style={{ width: 44, height: 5, borderRadius: 3, backgroundColor: p.line }} />
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.lg }}>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, letterSpacing: -0.3, color: p.text }}>{title}</Text>
-              <TouchableOpacity onPress={onClose} hitSlop={12}>
-                <Text style={{ fontSize: 20, color: p.text3 }}>✕</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, letterSpacing: -0.3, color: p.text }}>{title}</Text>
+              <TouchableOpacity
+                onPress={onClose}
+                hitSlop={12}
+                style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.surface, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Icon name="x" size={ICON.sm} color={p.text2} />
               </TouchableOpacity>
             </View>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
               {children}
             </ScrollView>
-          </View>
+          </Animated.View>
         </KeyboardAvoidingView>
       </View>
     </Modal>
@@ -299,7 +340,8 @@ export function TopBar({ title, onBack }: { title: string; onBack: () => void })
   );
 }
 
-/** Diálogo de confirmación. */export function Confirm({
+/** Diálogo de confirmación con animación fluida. */
+export function Confirm({
   visible,
   message,
   onYes,
@@ -315,26 +357,59 @@ export function TopBar({ title, onBack }: { title: string; onBack: () => void })
   noLabel: string;
 }) {
   const p = useTheme();
+  const [mounted, setMounted] = React.useState(visible);
+  const scale = useSharedValue(0.92);
+  const opacity = useSharedValue(0);
+
+  React.useEffect(() => {
+    if (visible) {
+      setMounted(true);
+      scale.value = 0.92;
+      opacity.value = 0;
+      scale.value = withSpring(1, { damping: 22, stiffness: 340 });
+      opacity.value = withTiming(1, { duration: 180 });
+    } else if (mounted) {
+      scale.value = withTiming(0.94, { duration: 150 });
+      opacity.value = withTiming(0, { duration: 150 }, () => {
+        runOnJS(setMounted)(false);
+      });
+    }
+  }, [visible]);
+
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  if (!mounted) return null;
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onNo}>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: SP.xxl }}>
-        <View style={{ backgroundColor: p.card, borderRadius: R.xl, padding: SP.xl, width: '100%' }}>
-          <Text style={{ fontFamily: FONT.head, fontSize: 16, color: p.text, marginBottom: SP.xl }}>{message}</Text>
-          <View style={{ flexDirection: 'row', gap: SP.md }}>
+    <Modal visible transparent animationType="none" onRequestClose={onNo} statusBarTranslucent>
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: SP.xxl }}>
+        <Animated.View style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' }, backdropStyle]}>
+          <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onNo} activeOpacity={1} />
+        </Animated.View>
+        <Animated.View style={[{ backgroundColor: p.card, borderRadius: R.xl, padding: SP.xl, width: '100%', shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 20, elevation: 12 }, cardStyle]}>
+          <Text style={{ fontFamily: FONT.head, fontSize: TYPE.body, lineHeight: 22, color: p.text, marginBottom: SP.xl }}>{message}</Text>
+          <View style={{ flexDirection: 'row', gap: SP.sm }}>
             <TouchableOpacity
               onPress={onNo}
-              style={{ flex: 1, height: 48, borderRadius: R.pill, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+              activeOpacity={0.7}
+              style={{ flex: 1, height: 50, borderRadius: R.pill, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ color: p.text2, fontWeight: '600' }}>{noLabel}</Text>
+              <Text style={{ color: p.text2, fontWeight: '600', fontSize: TYPE.body }}>{noLabel}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onYes}
-              style={{ flex: 1, height: 48, borderRadius: R.pill, backgroundColor: p.danger, alignItems: 'center', justifyContent: 'center' }}
+              activeOpacity={0.85}
+              style={{ flex: 1, height: 50, borderRadius: R.pill, backgroundColor: p.danger, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ color: '#fff', fontWeight: '700' }}>{yesLabel}</Text>
+              <Text style={{ color: '#fff', fontWeight: '700', fontSize: TYPE.body }}>{yesLabel}</Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );
@@ -342,6 +417,14 @@ export function TopBar({ title, onBack }: { title: string; onBack: () => void })
 
 /* ── Iconos SVG consistentes (16/20/24px) ─────────────────────────── */
 import Svg, { Path, Circle } from 'react-native-svg';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  Easing,
+  runOnJS,
+} from 'react-native-reanimated';
 import { ICON, TYPE } from '../theme/tokens';
 
 const ICON_PATHS: Record<string, string> = {
@@ -354,6 +437,9 @@ const ICON_PATHS: Record<string, string> = {
   trash: 'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0l-.8 12a2 2 0 0 1-2 1.8H8.8a2 2 0 0 1-2-1.8L6 7',
   chevronRight: 'M9 6l6 6-6 6',
   calendar: 'M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
+  home: 'M3 10.5L12 3l9 7.5M5 9.5V21h5v-6h4v6h5V9.5',
+  briefcase: 'M4 8h16v12H4zM9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M4 13h16',
+  chart: 'M4 20V10M10 20V4M16 20v-8M22 20H2',
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {

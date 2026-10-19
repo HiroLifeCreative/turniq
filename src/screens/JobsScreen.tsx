@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import {Screen, H1, Card, Btn, Field, Label, Sheet, Confirm, useTheme, useT, Header} from '../components/ui';
 import { useStore, JOB_COLORS, type Job } from '../store';
-import { SP, R, FONT } from '../theme/tokens';
+import { SP, R, FONT, TYPE } from '../theme/tokens';
 import { uid } from '../lib/calc';
 
 export function JobsScreen() {
@@ -63,15 +63,13 @@ export function JobsScreen() {
     <Screen>
       <Header title={t.tabs.jobs} onSettings={() => nav.navigate('Mas' as never)} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
-          <H1>{t.jobs.title}</H1>
-          <TouchableOpacity
-            onPress={() => { setEditing(null); setOpen(true); }}
-            style={{ backgroundColor: p.primary, borderRadius: R.pill, paddingHorizontal: SP.lg, paddingVertical: SP.sm }}
-          >
-            <Text style={{ color: '#fff', fontWeight: '700' }}>+ {t.jobs.add}</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity
+          onPress={() => { setEditing(null); setOpen(true); }}
+          activeOpacity={0.85}
+          style={{ backgroundColor: p.primary, borderRadius: R.pill, paddingVertical: 15, alignItems: 'center', marginBottom: SP.md }}
+        >
+          <Text style={{ color: '#fff', fontFamily: FONT.headBold, fontSize: TYPE.body }}>+ {t.jobs.add}</Text>
+        </TouchableOpacity>
 
         {jobs.map((j) => (
           <Card key={j.id} style={{ marginBottom: SP.sm }}>

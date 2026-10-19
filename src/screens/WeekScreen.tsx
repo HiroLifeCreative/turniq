@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
 import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header} from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { useStore, jobsById, type Shift } from '../store';
-import { SP, R, FONT } from '../theme/tokens';
+import { SP, R, FONT, TYPE } from '../theme/tokens';
 import {
   startOfWeek, addDays, ymd, weekKey, isWeekLocked, parseYmd, shortDate, hmToMin, hmTo12h, todayYmd,
 } from '../lib/dates';
@@ -72,17 +72,29 @@ export function WeekScreen() {
       <Header title={t.tabs.week} onSettings={() => nav.navigate('Mas' as never)} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
-          <TouchableOpacity onPress={() => setOffset((o) => o - 1)} hitSlop={12}>
-            <Text style={{ fontSize: 24, color: p.primary }}>‹</Text>
+          <TouchableOpacity
+            onPress={() => setOffset((o) => o - 1)}
+            hitSlop={12}
+            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Text style={{ fontSize: 22, color: p.primary, fontWeight: '700' }}>‹</Text>
           </TouchableOpacity>
           <View style={{ alignItems: 'center' }}>
-            <H1>{t.tabs.week}</H1>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 2 }}>
+            <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, letterSpacing: -0.3, color: p.text }}>
               {shortDate(ymd(days[0]!), t.months)} – {shortDate(ymd(days[6]!), t.months)}
             </Text>
+            {offset !== 0 && (
+              <TouchableOpacity onPress={() => setOffset(0)} hitSlop={8}>
+                <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.primary, marginTop: 4 }}>{t.inicio.hoy.toUpperCase()}</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          <TouchableOpacity onPress={() => setOffset((o) => o + 1)} hitSlop={12}>
-            <Text style={{ fontSize: 24, color: p.primary }}>›</Text>
+          <TouchableOpacity
+            onPress={() => setOffset((o) => o + 1)}
+            hitSlop={12}
+            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Text style={{ fontSize: 22, color: p.primary, fontWeight: '700' }}>›</Text>
           </TouchableOpacity>
         </View>
 

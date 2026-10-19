@@ -5,8 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, useT } from '../components/ui';
-import { FONT } from '../theme/tokens';
+import { useTheme, useT, Icon } from '../components/ui';
+import { FONT, ICON } from '../theme/tokens';
 import type { TabsParamList, MasStackParamList, RootStackParamList } from './types';
 import { HomeScreen } from '../screens/HomeScreen';
 import { WeekScreen } from '../screens/WeekScreen';
@@ -22,11 +22,11 @@ const Tab = createBottomTabNavigator<TabsParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 const MasStack = createNativeStackNavigator<MasStackParamList>();
 
-const GLYPHS: Record<keyof TabsParamList, string> = {
-  Inicio: '⌂',
-  Semana: '▦',
-  Trabajos: '▤',
-  Ganancias: '$',
+const TAB_ICONS: Record<keyof TabsParamList, string> = {
+  Inicio: 'home',
+  Semana: 'calendar',
+  Trabajos: 'briefcase',
+  Ganancias: 'chart',
 };
 
 function MasNavigator() {
@@ -123,12 +123,10 @@ function TabsNavigator() {
                 borderRadius: 999,
                 paddingVertical: 10,
                 paddingHorizontal: 6,
-                gap: 5,
+                gap: 6,
               }}
             >
-              <Text style={{ color: fg, fontSize: 18, fontWeight: '700' }} numberOfLines={1}>
-                {GLYPHS[route.name as keyof TabsParamList]}
-              </Text>
+              <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON.md} color={fg} />
               {focused && (
                 <Text
                   style={{ color: fg, fontFamily: FONT.headBold, fontSize: 12 }}
