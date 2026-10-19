@@ -146,7 +146,7 @@ export function WeekScreen() {
                           {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'} · {fmtHoursDual(h)}
                         </Text>
                         <Text style={{ fontSize: 13, marginTop: 3, color: statusColor(st), fontWeight: st === 'now' ? '700' : '400' }}>
-                          {job?.nombre ?? ''}{est ? ` · ${est.nombre}` : ''} · {statusLabel(st)}
+                          {s.esLibre ? t.shift.freeDay : `${job?.nombre ?? ''}${est ? ` · ${est.nombre}` : ''}`} · {statusLabel(st)}
                         </Text>
                       </View>
                       {!locked && (

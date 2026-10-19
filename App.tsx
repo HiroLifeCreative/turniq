@@ -13,10 +13,9 @@ import { FONT, light, dark } from './src/theme/tokens';
 
 async function loadFonts(): Promise<void> {
   await Font.loadAsync({
-    [FONT.head]: require('./assets/fonts/switzer-500.ttf'),
-    [FONT.headBold]: require('./assets/fonts/switzer-800.ttf'),
-    [FONT.mono]: require('./assets/fonts/JetBrainsMono_400Regular.ttf'),
-    [FONT.monoBold]: require('./assets/fonts/JetBrainsMono_700Bold.ttf'),
+    [FONT.head]: require('./assets/fonts/Roboto-Regular.ttf'),
+    RobotoMedium: require('./assets/fonts/Roboto-Medium.ttf'),
+    [FONT.headBold]: require('./assets/fonts/Roboto-Bold.ttf'),
   });
 }
 

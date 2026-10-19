@@ -32,6 +32,7 @@ export function ShiftForm({
   const [propinas, setPropinas] = useState('0');
   const [bono, setBono] = useState('0');
   const [notas, setNotas] = useState('');
+  const [esLibre, setEsLibre] = useState(false);
 
   useEffect(() => {
     if (visible) {
@@ -45,6 +46,7 @@ export function ShiftForm({
         setPropinas(String(editing.propinas));
         setBono(String(editing.bono));
         setNotas(editing.notas);
+        setEsLibre(!!editing.esLibre);
       } else {
         setJobId(jobs[0]?.id ?? '');
         setEstacionId(undefined);
@@ -55,18 +57,20 @@ export function ShiftForm({
         setPropinas('0');
         setBono('0');
         setNotas('');
+        setEsLibre(false);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const job = jobs.find((j) => j.id === jobId);
-  const canSave = jobId !== '' && /^\d{2}:\d{2}$/.test(entrada);
+  const canSave = (esLibre || jobId !== '') && /^\d{2}:\d{2}$/.test(entrada);
 
   const save = () => {
     if (!canSave) return;
     const data = {
-      jobId,
+      jobId: esLibre ? '' : jobId,
+      esLibre,
       estacionId,
       fecha,
       horaEntrada: entrada,
@@ -83,7 +87,29 @@ export function ShiftForm({
 
   return (
     <Sheet visible={visible} onClose={onClose} title={editing ? t.shift.edit : t.shift.new}>
-      <Label>{t.shift.job}</Label>
+      <TouchableOpacity
+        onPress={() => setEsLibre((v) => !v)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: esLibre ? 'rgba(0,100,224,0.08)' : p.surface,
+          borderWidth: 1,
+          borderColor: esLibre ? p.primary : p.line,
+          borderRadius: 12,
+          padding: SP.md,
+          marginBottom: SP.md,
+        }}
+      >
+        <Text style={{ fontWeight: '700', fontSize: 15, color: esLibre ? p.primary : p.text }}>
+          {t.shift.freeDay}
+        </Text>
+        <View style={{ width: 48, height: 28, borderRadius: 14, backgroundColor: esLibre ? p.primary : p.line, justifyContent: 'center', paddingHorizontal: 3, alignItems: esLibre ? 'flex-end' : 'flex-start' }}>
+          <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: '#fff' }} />
+        </View>
+      </TouchableOpacity>
+      {!esLibre && <Label>{t.shift.job}</Label>}
+      {!esLibre && (
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.md }}>
         {jobs.map((j) => (
           <TouchableOpacity
@@ -108,6 +134,7 @@ export function ShiftForm({
           <Text style={{ color: p.text3, fontFamily: FONT.mono, fontSize: 13 }}>—</Text>
         )}
       </View>
+      )}
 
       {job && job.estaciones.length > 0 && (
         <>

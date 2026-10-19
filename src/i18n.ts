@@ -108,6 +108,7 @@ const es = {
     notes: 'Notas',
     save: 'Guardar turno',
     openNow: 'Turno abierto ahora — márcalo desde Hoy',
+    freeDay: 'Día libre (sin trabajo)',
   },
   reports: {
     title: 'Reportes',
@@ -299,6 +300,7 @@ const en: Strings = {
     notes: 'Notes',
     save: 'Save shift',
     openNow: 'Shift open now — clock it from Today',
+    freeDay: 'Day off (no work)',
   },
   reports: {
     title: 'Reports',

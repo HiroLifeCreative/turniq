@@ -10,6 +10,7 @@ export interface JobLike {
 export interface ShiftLike {
   id: string;
   jobId: string;
+  esLibre?: boolean;
   horaEntrada: string;
   horaSalida: string | null; // null = turno abierto
   breakMin: number;
@@ -50,6 +51,7 @@ export function calcWeekTotals(
   let weightedTax = 0;
 
   for (const s of shifts) {
+    if (s.esLibre) continue; // los días libres no cuentan como horas trabajadas
     const h = shiftHours(s);
     const job = jobsById[s.jobId];
     const rate = job?.sueldoHora ?? 0;

@@ -21,6 +21,7 @@ export interface Job {
 export interface Shift {
   id: string;
   jobId: string;
+  esLibre?: boolean; // turno libre (no atado a trabajo)
   estacionId?: string;
   fecha: string; // YYYY-MM-DD
   horaEntrada: string; // HH:MM

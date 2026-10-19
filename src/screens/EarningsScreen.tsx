@@ -1,6 +1,6 @@
 /** Pestaña Ganancias: tarjetas, comparativa, meta. */
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Screen, H1, Card, Label, useTheme, useT } from '../components/ui';
 import { useStore, jobsById } from '../store';
 import { SP, FONT } from '../theme/tokens';
@@ -9,13 +9,14 @@ import { calcWeekTotals, fmtMoney, fmtHours } from '../lib/calc';
 
 export function EarningsScreen() {
   const t = useT();
+  const [weekOff, setWeekOff] = React.useState(0);
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
   const shifts = useStore((s) => s.shifts);
   const settings = useStore((s) => s.settings);
   const byId = jobsById(jobs);
 
-  const thisMon = startOfWeek(new Date());
+  const thisMon = addDays(startOfWeek(new Date()), weekOff * 7);
   const lastMon = addDays(thisMon, -7);
   const wk = (mon: Date) => weekKey(mon);
   const inWk = (mon: Date) => shifts.filter((s) => weekKey(parseYmd(s.fecha)) === wk(mon));
@@ -57,7 +58,17 @@ export function EarningsScreen() {
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <H1 style={{ marginBottom: SP.md }}>{t.earnings.title}</H1>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
+          <H1 style={{ marginBottom: 0 }}>{t.earnings.title}</H1>
+          <View style={{ flexDirection: 'row', gap: SP.sm }}>
+            <TouchableOpacity onPress={() => setWeekOff((o) => o - 1)} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 18, color: p.primary, fontWeight: '700' }}>‹</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setWeekOff((o) => o + 1)} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 18, color: p.primary, fontWeight: '700' }}>›</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Meta semanal */}
         <Card style={{ marginBottom: SP.md }}>

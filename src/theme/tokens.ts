@@ -65,10 +65,10 @@ export const TYPE = {
 /** Tamaños de icono fijos. */
 export const ICON = { sm: 16, md: 20, lg: 24 } as const;
 
-/** Fuentes: Switzer (titulares) + JetBrains Mono (etiquetas/números). */
+/** Fuentes: Roboto para toda la app. */
 export const FONT = {
-  head: 'Switzer',
-  headBold: 'SwitzerBold',
-  mono: 'JetBrainsMono',
-  monoBold: 'JetBrainsMonoBold',
+  head: 'Roboto',
+  headBold: 'RobotoBold',
+  mono: 'Roboto',
+  monoBold: 'RobotoBold',
 } as const;
