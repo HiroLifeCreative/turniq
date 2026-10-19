@@ -8,8 +8,6 @@ workflows:
       java: 21
       vars:
         PACKAGE_NAME: "com.hirolifecreative.turniq"
-      groups:
-        - turniq_keystore
     scripts:
       - name: Install dependencies
         script: |
