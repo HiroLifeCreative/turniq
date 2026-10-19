@@ -8,6 +8,7 @@ import type { MasStackParamList } from '../navigation/types';
 
 const BADGE: Record<string, string> = {
   Reports: '#7C3AED',
+  Stats: '#0E9BD8',
   Settings: '#4B5563',
   CalendarSync: '#0E7C3E',
   Gmail: '#D13438',
@@ -18,6 +19,7 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
   const p = useTheme();
   const items: { key: keyof MasStackParamList; label: string }[] = [
     { key: 'Reports', label: t.more.reports },
+    { key: 'Stats', label: t.more.stats },
     { key: 'Settings', label: t.more.settings },
     { key: 'CalendarSync', label: t.more.calendar },
     { key: 'Gmail', label: t.more.gmail },

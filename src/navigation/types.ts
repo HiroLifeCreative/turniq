@@ -10,6 +10,7 @@ export type TabsParamList = {
 export type MasStackParamList = {
   MasHome: undefined;
   Reports: undefined;
+  Stats: undefined;
   Settings: undefined;
   CalendarSync: undefined;
   Gmail: undefined;
