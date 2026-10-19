@@ -1,9 +1,10 @@
 /** Pestaña Semana: estilo referencia SpotOn — columna día, tarjetas con doble formato de horas y estados. */
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header, Icon} from '../components/ui';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
+import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
@@ -42,6 +43,7 @@ export function WeekScreen() {
   const [editing, setEditing] = useState<Shift | null>(null);
   const [newDate, setNewDate] = useState<string | undefined>(undefined);
   const [menuShift, setMenuShift] = useState<Shift | null>(null);
+  const [detailShift, setDetailShift] = useState<Shift | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [dupMsg, setDupMsg] = useState(false);
 
@@ -158,8 +160,10 @@ export function WeekScreen() {
                   const st = shiftStatus(s, now);
                   const h = shiftHours(s);
                   return (
-                    <View
+                    <TouchableOpacity
                       key={s.id}
+                      onPress={() => setDetailShift(s)}
+                      activeOpacity={0.7}
                       style={{
                         backgroundColor: st === 'now' ? 'rgba(0,100,224,0.07)' : p.card,
                         borderRadius: R.lg,
@@ -184,7 +188,7 @@ export function WeekScreen() {
                           <Text style={{ fontSize: 18, color: p.primary, fontWeight: '800', letterSpacing: 1 }}>⋮</Text>
                         </TouchableOpacity>
                       )}
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
                 {!locked && ds.length === 0 && (
@@ -237,25 +241,35 @@ export function WeekScreen() {
         )}
       </ScrollView>
 
-      {/* Menú de 3 puntos */}
-      <Modal visible={menuShift !== null} transparent animationType="fade" onRequestClose={() => setMenuShift(null)}>
-        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} activeOpacity={1} onPress={() => setMenuShift(null)}>
-          <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: p.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: SP.xl, paddingBottom: 40 }}>
-            <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text, marginBottom: SP.md }}>
-              {menuShift ? `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}` : ''}
-            </Text>
-            {[
-              { label: t.common.edit, fn: () => { setEditing(menuShift); setNewDate(undefined); setMenuShift(null); setFormOpen(true); } },
-              { label: t.semana.duplicarTurno, fn: () => { if (menuShift) duplicateShift(menuShift.id); setMenuShift(null); } },
-              { label: t.common.delete, danger: true, fn: () => { if (menuShift) setConfirmId(menuShift.id); setMenuShift(null); } },
-            ].map((o) => (
-              <TouchableOpacity key={o.label} onPress={o.fn} style={{ paddingVertical: SP.md, borderTopWidth: 1, borderTopColor: p.line }}>
-                <Text style={{ fontSize: 16, color: o.danger ? p.danger : p.text, fontWeight: '600' }}>{o.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      {/* Menú de 3 puntos — sheet fluido con acciones */}
+      <Sheet
+        visible={menuShift !== null}
+        onClose={() => setMenuShift(null)}
+        title={menuShift ? `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}` : ''}
+      >
+        {[
+          { label: t.common.edit, icon: 'edit', fn: () => { setEditing(menuShift); setNewDate(undefined); setMenuShift(null); setFormOpen(true); } },
+          { label: t.semana.duplicarTurno, icon: 'plus', fn: () => { if (menuShift) duplicateShift(menuShift.id); setMenuShift(null); } },
+          { label: t.common.delete, icon: 'trash', danger: true, fn: () => { if (menuShift) setConfirmId(menuShift.id); setMenuShift(null); } },
+        ].map((o) => (
+          <TouchableOpacity
+            key={o.label}
+            onPress={o.fn}
+            activeOpacity={0.7}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: SP.md, borderTopWidth: 1, borderTopColor: p.line }}
+          >
+            <Icon name={o.icon} size={ICON.md} color={o.danger ? p.danger : p.text2} />
+            <Text style={{ fontSize: TYPE.body, color: o.danger ? p.danger : p.text, fontWeight: '600', marginLeft: SP.md }}>{o.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </Sheet>
+
+      {/* Detalle del turno al tocar la tarjeta */}
+      <ShiftDetailSheet
+        shift={detailShift}
+        onClose={() => setDetailShift(null)}
+        onEdit={(s) => { setEditing(s); setNewDate(undefined); setDetailShift(null); setFormOpen(true); }}
+      />
 
       <ShiftForm visible={formOpen} onClose={() => setFormOpen(false)} editing={editing} defaultDate={newDate} />
       <Confirm

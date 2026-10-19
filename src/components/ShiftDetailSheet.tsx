@@ -62,7 +62,10 @@ export function ShiftDetailSheet({
         <Row label={t.today.title} value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}`} />
         <Row label={t.week.hours} value={fmtHours(hrs)} color={p.primary} />
         {!!est && <Row label={t.inicio.proximo} value={est.nombre} />}
-        {!!shift.notas && <Row label={t.today.title} value={shift.notas} />}
+        {shift.breakMin > 0 && <Row label={t.shift.break} value={`${shift.breakMin} min`} />}
+        {shift.propinas > 0 && <Row label={t.shift.tips} value={fmtMoney(shift.propinas)} color={p.success} />}
+        {shift.bono > 0 && <Row label={t.shift.bonus} value={fmtMoney(shift.bono)} color={p.success} />}
+        {!!shift.notas && <Row label={t.shift.notes} value={shift.notas} />}
         <View style={{ height: 1, backgroundColor: p.line, marginVertical: SP.sm }} />
         <Row label={t.inicio.bruto} value={fmtMoney(gross)} color={p.warning} />
         <Row label={t.inicio.taxes} value={fmtMoney(gross - net)} color={p.danger} />
