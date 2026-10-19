@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Screen, Card, Label, useTheme, useT, Header, Icon } from '../components/ui';
+import { MotiView } from 'moti';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { startOfWeek, addDays, weekKey, parseYmd, ymd, todayYmd, hmToMin } from '../lib/dates';
@@ -26,6 +27,8 @@ export function EarningsScreen() {
   const nav = useNavigation();
   const [weekOff, setWeekOff] = React.useState(0);
   const [monthOff, setMonthOff] = React.useState(0);
+  const [yearOff, setYearOff] = React.useState(0);
+  const [showYear, setShowYear] = React.useState(false);
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
   const shifts = useStore((s) => s.shifts);
@@ -58,6 +61,20 @@ export function EarningsScreen() {
   const month = calcWeekTotals(monthShifts, byId, 1e9, 1);
   const monthName = t.months[refMonth.getMonth()] ?? '';
   const isCurrentMonth = monthOff === 0;
+
+  // ── Año seleccionado ──
+  const refYear = now.getFullYear() + yearOff;
+  const yearMonths: { label: string; net: number; gross: number; hours: number }[] = [];
+  for (let m = 0; m < 12; m++) {
+    const list = shifts.filter((s) => {
+      const d = parseYmd(s.fecha);
+      return d.getFullYear() === refYear && d.getMonth() === m;
+    });
+    const ym = calcWeekTotals(list, byId, 1e9, 1);
+    yearMonths.push({ label: (t.months[m] ?? '').slice(0, 3), net: ym.net, gross: ym.gross, hours: ym.hours });
+  }
+  const yearTotal = yearMonths.reduce((a, m) => ({ net: a.net + m.net, gross: a.gross + m.gross, hours: a.hours + m.hours }), { net: 0, gross: 0, hours: 0 });
+  const maxYearNet = Math.max(...yearMonths.map((m) => m.net), 1);
 
   // Por trabajo (semana seleccionada)
   const perJob = new Map<string, { h: number; g: number; n: number }>();
@@ -199,6 +216,59 @@ export function EarningsScreen() {
           <Stat label={t.earnings.perHour} value={fmtMoney(perHour)} sub={t.earnings.recorded} />
           <Stat label={t.earnings.perWeek} value={fmtMoney(cur.net)} sub={`${fmtHours(cur.hours)}`} />
         </View>
+
+        {/* ── AÑO ── */}
+        <TouchableOpacity
+          onPress={() => setShowYear((v) => !v)}
+          activeOpacity={0.7}
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md, marginTop: SP.sm }}
+        >
+          <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, letterSpacing: -0.3, color: p.text }}>
+            {t.earnings.perYear}
+          </Text>
+          <Icon name={showYear ? 'chevronDown' : 'chevronRight'} size={ICON.lg} color={p.primary} />
+        </TouchableOpacity>
+
+        {showYear && (
+          <Card style={{ marginBottom: SP.md }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.text }}>{refYear}</Text>
+              <View style={{ flexDirection: 'row', gap: SP.sm }}>
+                <TouchableOpacity onPress={() => setYearOff((o) => o - 1)} hitSlop={12} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="chevronLeft" size={ICON.md} color={p.primary} />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setYearOff((o) => o + 1)} hitSlop={12} style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="chevronRight" size={ICON.md} color={p.primary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: SP.md }}>
+              <View>
+                <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.net.toUpperCase()}</Text>
+                <Text style={{ fontFamily: FONT.headBold, fontSize: 24, color: p.text }}>{fmtMoney(yearTotal.net)}</Text>
+              </View>
+              <View style={{ alignItems: 'flex-end' }}>
+                <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.hours.toUpperCase()}</Text>
+                <Text style={{ fontFamily: FONT.headBold, fontSize: 24, color: p.text }}>{fmtHours(yearTotal.hours)}</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', height: 140 }}>
+              {yearMonths.map((m, i) => (
+                <View key={i} style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: 140 }}>
+                  <MotiView
+                    from={{ height: 0 }}
+                    animate={{ height: Math.max(3, (m.net / maxYearNet) * 100) }}
+                    transition={{ type: 'spring', delay: i * 50 }}
+                    style={{ width: '65%', borderRadius: 4, backgroundColor: m.net > 0 ? p.primary : p.surface }}
+                  />
+                  <Text style={{ fontFamily: FONT.mono, fontSize: 9, color: p.text3, marginTop: 4 }}>
+                    {m.label.slice(0, 1).toUpperCase()}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </Card>
+        )}
 
         {/* Por trabajo */}
         <Label>{t.earnings.perJob}</Label>

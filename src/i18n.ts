@@ -91,6 +91,7 @@ const es = {
     monthProjection: 'Proyección del mes',
     withTaxes: 'con taxes',
     withoutTaxes: 'sin taxes',
+    perYear: 'Por año',
   },
   more: {
     title: 'Más',
@@ -174,6 +175,12 @@ const es = {
     light: 'Claro',
     danger: 'Borrar todos los datos',
     dangerConfirm: '¿Borrar TODOS los datos? No se puede deshacer.',
+    backup: 'Respaldo local',
+    export: 'Exportar',
+    import: 'Importar',
+    importTitle: 'Importar respaldo',
+    importConfirm: '¿Reemplazar todos los datos actuales con el respaldo?',
+    importError: 'Archivo inválido.',
     weekdays: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
   },
   calendar: {
@@ -313,6 +320,7 @@ const en: Strings = {
     monthProjection: 'Month projection',
     withTaxes: 'after taxes',
     withoutTaxes: 'before taxes',
+    perYear: 'Per year',
   },
   more: {
     title: 'More',
@@ -396,6 +404,12 @@ const en: Strings = {
     light: 'Light',
     danger: 'Erase all data',
     dangerConfirm: 'Erase ALL data? This cannot be undone.',
+    backup: 'Local backup',
+    export: 'Export',
+    import: 'Import',
+    importTitle: 'Import backup',
+    importConfirm: 'Replace all current data with the backup?',
+    importError: 'Invalid file.',
     weekdays: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
   },
   calendar: {

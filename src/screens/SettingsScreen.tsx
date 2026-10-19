@@ -4,6 +4,7 @@ import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, Platform } fro
 import { Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, useTheme, useT } from '../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
+import { exportBackup, importBackup } from '../services/backup';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
 
@@ -185,6 +186,50 @@ export function SettingsScreen() {
 
         {/* DATOS */}
         <Section title={t.settings.datos}>
+          <SettingRow icon="wallet" label={t.settings.backup} last={false}>
+            <View style={{ flexDirection: 'row', gap: SP.sm }}>
+              <Btn
+                title={t.settings.export}
+                onPress={async () => {
+                  const s = useStore.getState();
+                  await exportBackup({
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    jobs: s.jobs,
+                    shifts: s.shifts,
+                    templates: s.templates,
+                    settings: s.settings,
+                  });
+                }}
+              />
+              <Btn
+                title={t.settings.import}
+                kind="ghost"
+                onPress={async () => {
+                  try {
+                    const data = await importBackup();
+                    if (!data) return;
+                    Alert.alert(t.settings.importTitle, t.settings.importConfirm, [
+                      { text: t.common.cancel, style: 'cancel' },
+                      {
+                        text: t.settings.import,
+                        onPress: () => {
+                          useStore.setState({
+                            jobs: data.jobs as never,
+                            shifts: data.shifts as never,
+                            templates: (data.templates ?? []) as never,
+                            settings: { ...useStore.getState().settings, ...(data.settings as object) },
+                          });
+                        },
+                      },
+                    ]);
+                  } catch {
+                    Alert.alert(t.settings.importTitle, t.settings.importError);
+                  }
+                }}
+              />
+            </View>
+          </SettingRow>
           <SettingRow icon="trash" label={t.settings.danger} last>
             <Btn title={t.settings.danger} kind="danger" onPress={() => setConfirmWipe(true)} />
           </SettingRow>
