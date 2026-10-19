@@ -33,6 +33,8 @@ export interface Shift {
   gcalEventId?: string;
 }
 
+export const DATA_VERSION = 1;
+
 export interface Settings {
   idioma: Lang;
   nombreUsuario: string;

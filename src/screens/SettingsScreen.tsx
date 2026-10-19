@@ -136,6 +136,13 @@ export function SettingsScreen() {
           )}
         </Section>
 
+        {/* ACERCA DE */}
+        <Section title={t.settings.acerca}>
+          <SettingRow icon="settings" label="Turniq" last>
+            <Text style={{ color: p.text3, fontSize: TYPE.caption }}>v1.0.0 (2)</Text>
+          </SettingRow>
+        </Section>
+
         {/* DATOS */}
         <Section title={t.settings.datos}>
           <SettingRow icon="trash" label={t.settings.danger} last>
