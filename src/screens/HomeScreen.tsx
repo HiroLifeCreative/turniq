@@ -121,7 +121,7 @@ export function HomeScreen() {
     <Screen>
       <Header
         title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
-        onSettings={() => nav.navigate('Mas' as never)}
+        onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })}
       />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 140 }}>
 

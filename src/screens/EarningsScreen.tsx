@@ -111,7 +111,7 @@ export function EarningsScreen() {
 
   return (
     <Screen>
-      <Header title={t.tabs.earnings} onSettings={() => nav.navigate('Mas' as never)} />
+      <Header title={t.tabs.earnings} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
 
         {/* ── SEMANA ── */}

@@ -78,7 +78,7 @@ export function WeekScreen() {
 
   return (
     <Screen>
-      <Header title={t.tabs.week} onSettings={() => nav.navigate('Mas' as never)} />
+      <Header title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
           <TouchableOpacity

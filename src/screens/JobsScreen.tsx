@@ -61,7 +61,7 @@ export function JobsScreen() {
 
   return (
     <Screen>
-      <Header title={t.tabs.jobs} onSettings={() => nav.navigate('Mas' as never)} />
+      <Header title={t.tabs.jobs} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <TouchableOpacity
           onPress={() => { setEditing(null); setOpen(true); }}

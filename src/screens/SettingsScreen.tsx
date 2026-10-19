@@ -8,7 +8,7 @@ import { exportBackup, importBackup } from '../services/backup';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
 
-/** Sección agrupada estilo iOS. */
+/** Sección agrupada estilo premium (#5): tarjetas muy redondeadas. */
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   const p = useTheme();
   return (
@@ -16,21 +16,31 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, letterSpacing: 1.2, color: p.text3, marginBottom: SP.sm, paddingHorizontal: SP.md }}>
         {title.toUpperCase()}
       </Text>
-      <View style={{ backgroundColor: p.card, borderRadius: R.lg, borderWidth: 1, borderColor: p.line, overflow: 'hidden' }}>
+      <View style={{ backgroundColor: p.card, borderRadius: 24, borderWidth: 1, borderColor: p.line, overflow: 'hidden' }}>
         {children}
       </View>
     </View>
   );
 }
 
-/** Fila dentro de una sección. */
+/** Colores de icono por sección, estilo iOS. */
+const ROW_COLORS: Record<string, string> = {
+  settings: '#8E8E93',
+  clock: '#FF9F0A',
+  wallet: '#30A46C',
+  trash: '#E5484D',
+};
+
+/** Fila dentro de una sección: icono redondeado de color + etiqueta. */
 function SettingRow({ icon, label, children, last }: { icon: string; label: string; children: React.ReactNode; last?: boolean }) {
   const p = useTheme();
   return (
     <View style={{ paddingHorizontal: SP.lg, paddingVertical: SP.md, borderBottomWidth: last ? 0 : 1, borderBottomColor: p.line }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.sm }}>
-        <Icon name={icon} size={ICON.md} color={p.text2} />
-        <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: p.text, marginLeft: SP.sm }}>{label}</Text>
+        <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: ROW_COLORS[icon] ?? p.primary, alignItems: 'center', justifyContent: 'center', marginRight: SP.sm }}>
+          <Icon name={icon} size={16} color="#fff" />
+        </View>
+        <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: p.text }}>{label}</Text>
       </View>
       {children}
     </View>
