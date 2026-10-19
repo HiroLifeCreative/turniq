@@ -38,21 +38,56 @@ class WebStorage implements KeyValueStorage {
   }
 }
 
+// AsyncStorage es asíncrono; lo adaptamos a la interfaz síncrona con caché en memoria.
+class AsyncStorageAdapter implements KeyValueStorage {
+  private cache = new Map<string, string>();
+  private loaded = false;
+  private AsyncStorage: any = null;
+
+  private ensure() {
+    if (!this.AsyncStorage) {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      this.AsyncStorage = require('@react-native-async-storage/async-storage').default;
+      this.AsyncStorage.getAllKeys().then((keys: string[]) => {
+        if (!keys.length) {
+          this.loaded = true;
+          return;
+        }
+        this.AsyncStorage.multiGet(keys).then((pairs: [string, string | null][]) => {
+          for (const [k, v] of pairs) if (v != null) this.cache.set(k, v);
+          this.loaded = true;
+        });
+      });
+    }
+  }
+
+  getString(key: string) {
+    this.ensure();
+    return this.cache.get(key);
+  }
+  set(key: string, value: string) {
+    this.ensure();
+    this.cache.set(key, value);
+    this.AsyncStorage?.setItem(key, value).catch(() => {});
+  }
+  delete(key: string) {
+    this.ensure();
+    this.cache.delete(key);
+    this.AsyncStorage?.removeItem(key).catch(() => {});
+  }
+  clearAll() {
+    this.ensure();
+    this.cache.clear();
+    this.AsyncStorage?.clear().catch(() => {});
+  }
+}
+
 let storage: KeyValueStorage;
 
 if (Platform.OS === 'web') {
   storage = new WebStorage();
 } else {
-  // MMKV solo existe en builds nativos; este require nunca corre en web
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { MMKV } = require('react-native-mmkv');
-  const mmkv = new MMKV({ id: 'turniq', encryptionKey: 'turniq-2026' });
-  storage = {
-    getString: (k: string) => mmkv.getString(k),
-    set: (k: string, v: string) => mmkv.set(k, v),
-    delete: (k: string) => mmkv.delete(k),
-    clearAll: () => mmkv.clearAll(),
-  };
+  storage = new AsyncStorageAdapter();
 }
 
 export { storage };
