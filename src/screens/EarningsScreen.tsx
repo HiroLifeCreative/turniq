@@ -1,35 +1,67 @@
-/** Pestaña Ganancias: tarjetas, comparativa, meta. */
+/** Pestaña Ganancias: semanal (programadas vs trabajadas), proyección mensual, por trabajo, meta. */
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import {Screen, H1, Card, Label, useTheme, useT, Header, Icon} from '../components/ui';
-import { useStore, jobsById } from '../store';
-import { SP, FONT, ICON } from '../theme/tokens';
-import { startOfWeek, addDays, weekKey, parseYmd, ymd } from '../lib/dates';
-import { calcWeekTotals, fmtMoney, fmtHours } from '../lib/calc';
+import { Screen, Card, Label, useTheme, useT, Header, Icon } from '../components/ui';
+import { useStore, jobsById, type Shift } from '../store';
+import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
+import { startOfWeek, addDays, weekKey, parseYmd, ymd, todayYmd, hmToMin } from '../lib/dates';
+import { calcWeekTotals, fmtMoney, fmtHours, shiftHours } from '../lib/calc';
+
+type WorkState = 'worked' | 'scheduled';
+
+function workState(s: Shift, now: Date): WorkState {
+  const today = ymd(now);
+  if (s.fecha < today) return 'worked';
+  if (s.fecha > today) return 'scheduled';
+  // Hoy: trabajado si ya tiene salida registrada
+  if (s.horaSalida) return 'worked';
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  // Si la hora de entrada ya pasó, cuenta como trabajada (en curso o por cerrar)
+  return nowMin >= hmToMin(s.horaEntrada) ? 'worked' : 'scheduled';
+}
 
 export function EarningsScreen() {
   const t = useT();
   const nav = useNavigation();
   const [weekOff, setWeekOff] = React.useState(0);
+  const [monthOff, setMonthOff] = React.useState(0);
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
   const shifts = useStore((s) => s.shifts);
   const settings = useStore((s) => s.settings);
   const byId = jobsById(jobs);
+  const now = new Date();
 
-  const thisMon = addDays(startOfWeek(new Date()), weekOff * 7);
+  // ── Semana seleccionada ──
+  const thisMon = addDays(startOfWeek(now), weekOff * 7);
   const lastMon = addDays(thisMon, -7);
   const wk = (mon: Date) => weekKey(mon);
   const inWk = (mon: Date) => shifts.filter((s) => weekKey(parseYmd(s.fecha)) === wk(mon));
+  const weekShifts = inWk(thisMon);
 
-  const cur = calcWeekTotals(inWk(thisMon), byId, settings.umbralExtraHrs, settings.multExtra);
+  const workedShifts = weekShifts.filter((s) => workState(s, now) === 'worked');
+  const scheduledShifts = weekShifts.filter((s) => workState(s, now) === 'scheduled');
+  const worked = calcWeekTotals(workedShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+  const scheduled = calcWeekTotals(scheduledShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+  const cur = calcWeekTotals(weekShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+
   const prev = calcWeekTotals(inWk(lastMon), byId, settings.umbralExtraHrs, settings.multExtra);
   const pct = prev.net > 0 ? ((cur.net - prev.net) / prev.net) * 100 : cur.net > 0 ? 100 : 0;
 
-  // Por trabajo (semana actual)
+  // ── Mes seleccionado (proyección) ──
+  const refMonth = new Date(now.getFullYear(), now.getMonth() + monthOff, 1);
+  const monthShifts = shifts.filter((s) => {
+    const d = parseYmd(s.fecha);
+    return d.getFullYear() === refMonth.getFullYear() && d.getMonth() === refMonth.getMonth();
+  });
+  const month = calcWeekTotals(monthShifts, byId, 1e9, 1);
+  const monthName = t.months[refMonth.getMonth()] ?? '';
+  const isCurrentMonth = monthOff === 0;
+
+  // Por trabajo (semana seleccionada)
   const perJob = new Map<string, { h: number; g: number; n: number }>();
-  for (const s of inWk(thisMon)) {
+  for (const s of weekShifts) {
     const one = calcWeekTotals([s], byId, 1e9, 1);
     const e = perJob.get(s.jobId) ?? { h: 0, g: 0, n: 0 };
     e.h += one.hours;
@@ -38,39 +70,76 @@ export function EarningsScreen() {
     perJob.set(s.jobId, e);
   }
 
-  // Por mes (mes actual)
-  const now = new Date();
-  const monthShifts = shifts.filter((s) => {
-    const d = parseYmd(s.fecha);
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-  });
-  const month = calcWeekTotals(monthShifts, byId, 1e9, 1);
-
   const perHour = cur.hours > 0 ? cur.net / cur.hours : 0;
   const goalPct = settings.metaSemanal > 0 ? Math.min(100, (cur.net / settings.metaSemanal) * 100) : 0;
 
-  const Stat = ({ label, value, sub }: { label: string; value: string; sub?: string }) => (
+  const Stat = ({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) => (
     <Card style={{ flex: 1, minWidth: '46%' }}>
       <Label>{label}</Label>
-      <Text style={{ fontFamily: FONT.headBold, fontSize: 24, letterSpacing: -0.5, color: p.text }}>{value}</Text>
+      <Text style={{ fontFamily: FONT.headBold, fontSize: 24, letterSpacing: -0.5, color: color ?? p.text }}>{value}</Text>
       {sub ? <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 4 }}>{sub}</Text> : null}
     </Card>
+  );
+
+  const NavArrows = ({ onPrev, onNext }: { onPrev: () => void; onNext: () => void }) => (
+    <View style={{ flexDirection: 'row', gap: SP.sm }}>
+      <TouchableOpacity onPress={onPrev} hitSlop={12} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name="chevronLeft" size={ICON.lg} color={p.primary} />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onNext} hitSlop={12} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+        <Icon name="chevronRight" size={ICON.lg} color={p.primary} />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
     <Screen>
       <Header title={t.tabs.earnings} onSettings={() => nav.navigate('Mas' as never)} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: SP.md }}>
-          <View style={{ flexDirection: 'row', gap: SP.sm }}>
-            <TouchableOpacity onPress={() => setWeekOff((o) => o - 1)} hitSlop={12} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="chevronLeft" size={ICON.lg} color={p.primary} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setWeekOff((o) => o + 1)} hitSlop={12} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="chevronRight" size={ICON.lg} color={p.primary} />
-            </TouchableOpacity>
-          </View>
+
+        {/* ── SEMANA ── */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
+          <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, letterSpacing: -0.3, color: p.text }}>
+            {t.earnings.perWeek}
+          </Text>
+          <NavArrows onPrev={() => setWeekOff((o) => o - 1)} onNext={() => setWeekOff((o) => o + 1)} />
         </View>
+
+        {/* Trabajadas vs programadas */}
+        <Card style={{ marginBottom: SP.md }}>
+          <View style={{ flexDirection: 'row', marginBottom: SP.md }}>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 26, color: p.success }}>{fmtHours(worked.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: 4 }}>{t.earnings.worked.toUpperCase()}</Text>
+            </View>
+            <View style={{ width: 1, backgroundColor: p.line, marginHorizontal: SP.md }} />
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 26, color: p.primary }}>{fmtHours(scheduled.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: 4 }}>{t.earnings.scheduled.toUpperCase()}</Text>
+            </View>
+            <View style={{ width: 1, backgroundColor: p.line, marginHorizontal: SP.md }} />
+            <View style={{ flex: 1, alignItems: 'center' }}>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 26, color: p.text }}>{fmtHours(cur.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: 4 }}>{t.earnings.total.toUpperCase()}</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: p.surface }}>
+            {cur.hours > 0 && (
+              <>
+                <View style={{ width: `${(worked.hours / cur.hours) * 100}%`, backgroundColor: p.success }} />
+                <View style={{ width: `${(scheduled.hours / cur.hours) * 100}%`, backgroundColor: p.primary }} />
+              </>
+            )}
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: SP.sm }}>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
+              {t.week.gross}: {fmtMoney(cur.gross)}
+            </Text>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 12, fontWeight: '700', color: p.text }}>
+              {t.week.net}: {fmtMoney(cur.net)}
+            </Text>
+          </View>
+        </Card>
 
         {/* Meta semanal */}
         <Card style={{ marginBottom: SP.md }}>
@@ -88,11 +157,47 @@ export function EarningsScreen() {
           </Text>
         </Card>
 
+        {/* ── MES (proyección) ── */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md, marginTop: SP.sm }}>
+          <View>
+            <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, letterSpacing: -0.3, color: p.text }}>
+              {monthName} {refMonth.getFullYear()}
+            </Text>
+            {!isCurrentMonth && (
+              <TouchableOpacity onPress={() => setMonthOff(0)} hitSlop={8}>
+                <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.primary, marginTop: 2 }}>{t.inicio.hoy.toUpperCase()}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <NavArrows onPrev={() => setMonthOff((o) => o - 1)} onNext={() => setMonthOff((o) => o + 1)} />
+        </View>
+
+        <Card style={{ marginBottom: SP.md, borderWidth: 1.5, borderColor: p.primary }}>
+          <Label>{t.earnings.monthProjection}</Label>
+          <Text style={{ fontFamily: FONT.headBold, fontSize: 34, letterSpacing: -1, color: p.text }}>
+            {fmtMoney(month.net)}
+          </Text>
+          <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 2 }}>
+            {t.week.net} · {t.earnings.withTaxes}
+          </Text>
+          <View style={{ height: 1, backgroundColor: p.line, marginVertical: SP.md }} />
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.gross.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.warning, marginTop: 2 }}>{fmtMoney(month.gross)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>{t.earnings.withoutTaxes}</Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.hours.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.text, marginTop: 2 }}>{fmtHours(month.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>{monthShifts.length} {t.semana.turnos.toLowerCase()}</Text>
+            </View>
+          </View>
+        </Card>
+
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.md }}>
-          <Stat label={t.earnings.perWeek} value={fmtMoney(cur.net)} sub={`${fmtHours(cur.hours)} · ${t.week.gross} ${fmtMoney(cur.gross)}`} />
-          <Stat label={t.earnings.perMonth} value={fmtMoney(month.net)} sub={`${fmtHours(month.hours)}`} />
           <Stat label={t.earnings.perHour} value={fmtMoney(perHour)} sub={t.earnings.recorded} />
-          <Stat label={t.week.net} value={fmtMoney(cur.net)} sub={`${ymd(thisMon).slice(5)} →`} />
+          <Stat label={t.earnings.perWeek} value={fmtMoney(cur.net)} sub={`${fmtHours(cur.hours)}`} />
         </View>
 
         {/* Por trabajo */}
