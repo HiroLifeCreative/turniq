@@ -1,10 +1,10 @@
 /** "Invítame un café": apoyo voluntario al desarrollo. */
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Linking, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Screen, Card, TopBar, useTheme, useT, Field } from '../components/ui';
+import { Screen, Card, TopBar, useTheme, useT } from '../components/ui';
 import { SP, R, FONT, TYPE } from '../theme/tokens';
-import { COFFEE_PRODUCTS, CUSTOM_TIP_URL, loadCoffeeProducts, buyCoffee } from '../services/tips';
+import { COFFEE_PRODUCTS, loadCoffeeProducts, buyCoffee } from '../services/tips';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
 import type { Product } from 'react-native-iap';
@@ -108,25 +108,6 @@ export function TipsScreen() {
         <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3, textAlign: 'center', marginTop: SP.md, lineHeight: 16 }}>
           {t.tips.note}
         </Text>
-
-        {/* Monto personalizado */}
-        <Card style={{ marginTop: SP.md, padding: SP.lg }}>
-          <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text, marginBottom: SP.sm }}>
-            {t.tips.customTitle}
-          </Text>
-          <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text3, marginBottom: SP.md, lineHeight: 18 }}>
-            {t.tips.customDesc}
-          </Text>
-          <TouchableOpacity
-            onPress={() => Linking.openURL(CUSTOM_TIP_URL)}
-            activeOpacity={0.8}
-            style={{ backgroundColor: p.surface, borderRadius: 16, borderWidth: 1, borderColor: p.line, padding: SP.lg, alignItems: 'center' }}
-          >
-            <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.primary }}>
-              {t.tips.customButton}
-            </Text>
-          </TouchableOpacity>
-        </Card>
       </ScrollView>
     </Screen>
   );
