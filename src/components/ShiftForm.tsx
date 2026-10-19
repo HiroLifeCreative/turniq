@@ -1,6 +1,6 @@
 /** Bottom sheet para crear/editar un turno. */
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Platform, ScrollView } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Sheet, Field, Label, Btn, Icon, useTheme, useT } from './ui';
 import { useStore, type Shift } from '../store';
@@ -107,6 +107,9 @@ export function ShiftForm({
   const t = useT();
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
+  const templates = useStore((s) => s.templates);
+  const addTemplate = useStore((s) => s.addTemplate);
+  const deleteTemplate = useStore((s) => s.deleteTemplate);
   const addShift = useStore((s) => s.addShift);
   const updateShift = useStore((s) => s.updateShift);
 
@@ -174,6 +177,41 @@ export function ShiftForm({
 
   return (
     <Sheet visible={visible} onClose={onClose} title={editing ? t.shift.edit : t.shift.new}>
+      {/* Plantillas */}
+      {templates.length > 0 && !editing && (
+        <View style={{ marginBottom: SP.md }}>
+          <Label>{t.shift.templates}</Label>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm }}>
+            {templates.map((tpl) => (
+              <TouchableOpacity
+                key={tpl.id}
+                onPress={() => {
+                  setJobId(tpl.jobId);
+                  setEstacionId(tpl.estacionId);
+                  setEntrada(tpl.horaEntrada);
+                  setSalida(tpl.horaSalida);
+                  setBreakMin(String(tpl.breakMin));
+                }}
+                onLongPress={() => deleteTemplate(tpl.id)}
+                activeOpacity={0.7}
+                style={{
+                  borderRadius: R.pill,
+                  paddingHorizontal: SP.lg,
+                  paddingVertical: SP.sm,
+                  backgroundColor: p.surface,
+                  borderWidth: 1,
+                  borderColor: p.line,
+                }}
+              >
+                <Text style={{ fontWeight: '600', fontSize: 13, color: p.text }}>{tpl.nombre}</Text>
+                <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>
+                  {tpl.horaEntrada}–{tpl.horaSalida}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
       <TouchableOpacity
         onPress={() => setEsLibre((v) => !v)}
         style={{
@@ -269,6 +307,27 @@ export function ShiftForm({
       </View>
       <Field label={t.shift.notes} value={notas} onChange={setNotas} />
       <Btn title={t.shift.save} onPress={save} disabled={!canSave} arrow style={{ marginTop: SP.sm }} />
+      {!editing && !esLibre && jobId !== '' && (
+        <TouchableOpacity
+          onPress={() => {
+            const job = jobs.find((j) => j.id === jobId);
+            addTemplate({
+              nombre: `${job?.nombre ?? ''} ${entrada}–${salida || '…'}`,
+              jobId,
+              estacionId,
+              horaEntrada: entrada,
+              horaSalida: salida.trim() === '' ? entrada : salida,
+              breakMin: Number(breakMin) || 0,
+            });
+          }}
+          activeOpacity={0.7}
+          style={{ marginTop: SP.sm, alignItems: 'center', paddingVertical: SP.sm }}
+        >
+          <Text style={{ color: p.primary, fontWeight: '600', fontSize: 14 }}>
+            + {t.shift.saveAsTemplate}
+          </Text>
+        </TouchableOpacity>
+      )}
     </Sheet>
   );
 }

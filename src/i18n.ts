@@ -119,6 +119,8 @@ const es = {
     save: 'Guardar turno',
     openNow: 'Turno abierto ahora — márcalo desde Hoy',
     freeDay: 'Día libre (sin trabajo)',
+    templates: 'Plantillas',
+    saveAsTemplate: 'Guardar como plantilla',
   },
   reports: {
     title: 'Reportes',
@@ -328,6 +330,8 @@ const en: Strings = {
     save: 'Save shift',
     openNow: 'Shift open now — clock it from Today',
     freeDay: 'Day off (no work)',
+    templates: 'Templates',
+    saveAsTemplate: 'Save as template',
   },
   reports: {
     title: 'Reports',
