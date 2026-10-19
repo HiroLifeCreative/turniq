@@ -415,8 +415,7 @@ export function Confirm({
   );
 }
 
-/* ── Iconos SVG consistentes (16/20/24px) ─────────────────────────── */
-import Svg, { Path, Circle } from 'react-native-svg';
+/* ── Iconos Lucide (16/20/24px) ─────────────────────────────────────── */
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -426,30 +425,40 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { ICON, TYPE } from '../theme/tokens';
+import {
+  Settings as LucideSettings,
+  Plus as LucidePlus,
+  X as LucideX,
+  Clock as LucideClock,
+  Wallet as LucideWallet,
+  Pencil as LucidePencil,
+  Trash2 as LucideTrash,
+  ChevronRight as LucideChevronRight,
+  Calendar as LucideCalendar,
+  House as LucideHome,
+  Briefcase as LucideBriefcase,
+  ChartColumn as LucideChart,
+} from 'lucide-react-native';
 
-const ICON_PATHS: Record<string, string> = {
-  settings: 'M4 8h16M4 16h16',
-  plus: 'M12 5v14M5 12h14',
-  x: 'M6 6l12 12M18 6L6 18',
-  clock: 'M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
-  wallet: 'M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM16 13h.01',
-  edit: 'M4 20l4-1L20 7a2.4 2.4 0 0 0-3.4-3.4L5 15zM14 6l3 3',
-  trash: 'M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0l-.8 12a2 2 0 0 1-2 1.8H8.8a2 2 0 0 1-2-1.8L6 7',
-  chevronRight: 'M9 6l6 6-6 6',
-  calendar: 'M8 3v4M16 3v4M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
-  home: 'M3 10.5L12 3l9 7.5M5 9.5V21h5v-6h4v6h5V9.5',
-  briefcase: 'M4 8h16v12H4zM9 8V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M4 13h16',
-  chart: 'M4 20V10M10 20V4M16 20v-8M22 20H2',
+const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
+  settings: LucideSettings,
+  plus: LucidePlus,
+  x: LucideX,
+  clock: LucideClock,
+  wallet: LucideWallet,
+  edit: LucidePencil,
+  trash: LucideTrash,
+  chevronRight: LucideChevronRight,
+  calendar: LucideCalendar,
+  home: LucideHome,
+  briefcase: LucideBriefcase,
+  chart: LucideChart,
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {
   const p = useTheme();
-  const d = ICON_PATHS[name] ?? ICON_PATHS.clock;
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color ?? p.text2} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-      <Path d={d} />
-    </Svg>
-  );
+  const Cmp = LUCIDE_ICONS[name] ?? LucideClock;
+  return <Cmp size={size} color={color ?? p.text2} strokeWidth={2} />;
 }
 
 /* ── Header global: título + botón ajustes a la derecha ────────────── */
