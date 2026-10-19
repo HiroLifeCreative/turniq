@@ -11,9 +11,13 @@ import {
 // IDs de producto — deben crearse igual en Google Play Console (productos gestionados, consumibles)
 export const COFFEE_PRODUCTS = [
   { sku: 'turniq_coffee_1', amount: 1 },
+  { sku: 'turniq_coffee_2', amount: 2 },
   { sku: 'turniq_coffee_3', amount: 3 },
   { sku: 'turniq_coffee_5', amount: 5 },
 ];
+
+// Enlace externo para monto personalizado (BuyMeACoffee, Ko-fi o PayPal.me del desarrollador)
+export const CUSTOM_TIP_URL = 'https://www.buymeacoffee.com/hirolifestudio';
 
 let connected = false;
 

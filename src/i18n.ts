@@ -57,6 +57,9 @@ const es = {
     errorTitle: 'Ups',
     errorMsg: 'No se pudo completar la compra. Inténtalo de nuevo.',
     note: 'Compra única. Puedes invitar las veces que quieras. Google procesa el pago de forma segura.',
+    customTitle: 'Otra cantidad',
+    customDesc: '¿Quieres dar más o una cantidad exacta? Hazlo aquí con el monto que tú quieras.',
+    customButton: 'Elegir mi cantidad →',
   },
   mas: { title: 'Más' },
   today: {
@@ -299,6 +302,9 @@ const en: Strings = {
     errorTitle: 'Oops',
     errorMsg: 'Could not complete the purchase. Please try again.',
     note: 'One-time purchase. You can treat as many times as you like. Google processes the payment securely.',
+    customTitle: 'Custom amount',
+    customDesc: 'Want to give more or an exact amount? Do it here with whatever amount you choose.',
+    customButton: 'Choose my amount →',
   },
   mas: { title: 'More' },
   today: {
