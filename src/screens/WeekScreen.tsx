@@ -12,15 +12,17 @@ import {
 } from '../lib/dates';
 import { calcWeekTotals, shiftHours, fmtMoney, fmtHoursDual } from '../lib/calc';
 
-type Status = 'past' | 'upcoming' | 'now';
+type Status = 'past' | 'upcoming' | 'now' | 'missed';
 
 function shiftStatus(s: Shift, now: Date): Status {
   const today = ymd(now);
+  // Sin salida y de un día anterior: nunca se marcó → rojo
+  if (!s.horaSalida && s.fecha < today) return 'missed';
   if (s.fecha < today) return 'past';
   if (s.fecha > today) return 'upcoming';
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const start = hmToMin(s.horaEntrada);
-  if (!s.horaSalida) return 'now';
+  if (!s.horaSalida) return nowMin < start ? 'upcoming' : 'now';
   const end = hmToMin(s.horaSalida);
   if (nowMin < start) return 'upcoming';
   if (nowMin >= (end < start ? end + 1440 : end)) return 'past';
@@ -66,8 +68,10 @@ export function WeekScreen() {
     }
   };
 
-  const statusColor = (st: Status): string => (st === 'now' ? p.primary : st === 'upcoming' ? p.success : p.text3);
-  const statusLabel = (st: Status): string => (st === 'now' ? t.semana.enCurso : st === 'upcoming' ? t.semana.proximo : t.semana.pasado);
+  const statusColor = (st: Status): string =>
+    st === 'now' ? '#E8830C' : st === 'missed' ? p.danger : st === 'upcoming' ? p.success : p.text3;
+  const statusLabel = (st: Status): string =>
+    st === 'now' ? t.semana.enCurso : st === 'missed' ? t.semana.noMarcado : st === 'upcoming' ? t.semana.proximo : t.semana.pasado;
 
   return (
     <Screen>
@@ -165,10 +169,10 @@ export function WeekScreen() {
                       onPress={() => setDetailShift(s)}
                       activeOpacity={0.7}
                       style={{
-                        backgroundColor: st === 'now' ? 'rgba(0,100,224,0.07)' : p.card,
+                        backgroundColor: st === 'past' ? p.surface : p.card,
                         borderRadius: R.lg,
-                        borderWidth: st === 'now' ? 1.5 : 1,
-                        borderColor: st === 'now' ? p.primary : p.line,
+                        borderWidth: st === 'past' ? 1 : 1.5,
+                        borderColor: st === 'past' ? p.line : statusColor(st),
                         padding: SP.md,
                         marginBottom: SP.sm,
                         flexDirection: 'row',
