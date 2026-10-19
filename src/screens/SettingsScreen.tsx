@@ -68,11 +68,18 @@ export function SettingsScreen() {
               <Switch value={settings.dark} onValueChange={(v) => setSettings({ dark: v })} trackColor={{ true: p.primary }} />
             </View>
           </SettingRow>
-          <SettingRow icon="settings" label={t.settings.language} last>
+          <SettingRow icon="clock" label={t.settings.language} last={false}>
             <Seg<Lang>
               options={[{ value: 'es', label: 'ES' }, { value: 'en', label: 'EN' }]}
               value={settings.idioma}
               onChange={(v) => setSettings({ idioma: v })}
+            />
+          </SettingRow>
+          <SettingRow icon="clock" label={t.settings.hora} last>
+            <Seg<'12h' | '24h'>
+              options={[{ value: '12h', label: '12h' }, { value: '24h', label: '24h' }]}
+              value={settings.formatoHora}
+              onChange={(v) => setSettings({ formatoHora: v })}
             />
           </SettingRow>
         </Section>

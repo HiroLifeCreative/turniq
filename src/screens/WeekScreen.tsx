@@ -2,10 +2,10 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header} from '../components/ui';
+import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header, Icon} from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { useStore, jobsById, type Shift } from '../store';
-import { SP, R, FONT, TYPE } from '../theme/tokens';
+import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
   startOfWeek, addDays, ymd, weekKey, isWeekLocked, parseYmd, shortDate, hmToMin, hmTo12h, todayYmd,
 } from '../lib/dates';
@@ -129,13 +129,28 @@ export function WeekScreen() {
               </View>
               {/* Contenido del día */}
               <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
                   <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
                     {ds.length === 1 ? `1 ${t.semana.turno}` : `${ds.length} ${t.semana.turnos}`}
                   </Text>
-                  <Text style={{ fontFamily: FONT.mono, fontSize: 12, fontWeight: '700', color: p.text }}>
-                    {fmtHoursDual(dh)}
-                  </Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.sm }}>
+                    <Text style={{ fontFamily: FONT.mono, fontSize: 12, fontWeight: '700', color: p.text }}>
+                      {fmtHoursDual(dh)}
+                    </Text>
+                    {!locked && ds.length > 0 && (
+                      <TouchableOpacity
+                        onPress={() => { setEditing(null); setNewDate(dk); setFormOpen(true); }}
+                        hitSlop={10}
+                        style={{
+                          width: 30, height: 30, borderRadius: 15,
+                          backgroundColor: p.surface, borderWidth: 1, borderColor: p.line,
+                          alignItems: 'center', justifyContent: 'center',
+                        }}
+                      >
+                        <Icon name="plus" size={ICON.sm} color={p.primary} />
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
                 {ds.map((s) => {
                   const job = byId[s.jobId];

@@ -1,10 +1,97 @@
 /** Bottom sheet para crear/editar un turno. */
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Sheet, Field, Label, Btn, useTheme, useT } from './ui';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { Sheet, Field, Label, Btn, Icon, useTheme, useT } from './ui';
 import { useStore, type Shift } from '../store';
-import { SP, R, FONT } from '../theme/tokens';
-import { todayYmd } from '../lib/dates';
+import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
+import { todayYmd, hmTo12h } from '../lib/dates';
+
+/** Campo de hora con picker nativo (respeta 12h/24h del ajuste). */
+function TimeField({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  const p = useTheme();
+  const t = useT();
+  const formatoHora = useStore((s) => s.settings.formatoHora);
+  const [show, setShow] = useState(false);
+
+  const toDate = (hm: string): Date => {
+    const d = new Date();
+    const m = /^(\d{1,2}):(\d{2})$/.exec(hm);
+    if (m) {
+      d.setHours(Number(m[1]), Number(m[2]), 0, 0);
+    }
+    return d;
+  };
+  const fromDate = (d: Date): string => {
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    return `${hh}:${mm}`;
+  };
+  const display = value
+    ? formatoHora === '12h'
+      ? hmTo12h(value, true)
+      : value
+    : placeholder ?? '--:--';
+  // En 12h, resaltar AM/PM con un badge
+  const ampm = formatoHora === '12h' && value ? (Number(value.split(':')[0]) >= 12 ? 'PM' : 'AM') : null;
+
+  const onPick = (e: DateTimePickerEvent, d?: Date) => {
+    if (Platform.OS === 'android') setShow(false);
+    if (e.type === 'set' && d) onChange(fromDate(d));
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Label>{label}</Label>
+      <TouchableOpacity
+        onPress={() => setShow(true)}
+        activeOpacity={0.7}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: p.surface,
+          borderRadius: R.md,
+          borderWidth: 1,
+          borderColor: p.line,
+          paddingHorizontal: SP.lg,
+          paddingVertical: SP.md,
+        }}
+      >
+        <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, color: value ? p.text : p.text3 }}>
+          {display}
+        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {ampm && (
+            <View style={{ backgroundColor: p.primary, borderRadius: R.pill, paddingHorizontal: 8, paddingVertical: 3 }}>
+              <Text style={{ color: '#fff', fontFamily: FONT.mono, fontSize: 11, fontWeight: '700' }}>{ampm}</Text>
+            </View>
+          )}
+          <Icon name="clock" size={ICON.md} color={p.text3} />
+        </View>
+      </TouchableOpacity>
+      {show && (
+        <DateTimePicker
+          value={toDate(value || '09:00')}
+          mode="time"
+          is24Hour={formatoHora === '24h'}
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={onPick}
+        />
+      )}
+    </View>
+  );
+}
 
 export function ShiftForm({
   visible,
@@ -169,12 +256,8 @@ export function ShiftForm({
         </View>
       </View>
       <View style={{ flexDirection: 'row', gap: SP.md }}>
-        <View style={{ flex: 1 }}>
-          <Field label={t.shift.start} value={entrada} onChange={setEntrada} placeholder="09:00" maxLength={5} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Field label={t.shift.end} value={salida} onChange={setSalida} placeholder="17:00" maxLength={5} />
-        </View>
+        <TimeField label={t.shift.start} value={entrada} onChange={setEntrada} placeholder="09:00" />
+        <TimeField label={t.shift.end} value={salida} onChange={setSalida} placeholder="17:00" />
       </View>
       <View style={{ flexDirection: 'row', gap: SP.md }}>
         <View style={{ flex: 1 }}>

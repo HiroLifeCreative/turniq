@@ -46,6 +46,7 @@ export interface Settings {
   pin: string | null;
   biometrico: boolean;
   dark: boolean;
+  formatoHora: '12h' | '24h';
 }
 
 interface State {
@@ -85,6 +86,7 @@ const defaultSettings: Settings = {
   pin: null,
   biometrico: false,
   dark: false,
+  formatoHora: '12h',
 };
 
 export const useStore = create<State>()(

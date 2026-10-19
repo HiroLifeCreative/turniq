@@ -13,7 +13,7 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store';
 import { STR } from '../i18n';
 import { light, dark, SP, R, FONT, type Palette } from '../theme/tokens';
@@ -237,6 +237,7 @@ export function Sheet({
   children: React.ReactNode;
 }) {
   const p = useTheme();
+  const insets = useSafeAreaInsets();
   const [mounted, setMounted] = React.useState(visible);
   const translateY = useSharedValue(600);
   const backdrop = useSharedValue(0);
@@ -279,8 +280,9 @@ export function Sheet({
                 borderTopRightRadius: 26,
                 paddingHorizontal: SP.xl,
                 paddingTop: SP.sm,
-                paddingBottom: SP.xl,
-                maxHeight: '90%',
+                paddingBottom: Math.max(SP.xl, insets.bottom + SP.md),
+                maxHeight: '92%',
+                marginBottom: -insets.bottom,
                 shadowColor: '#000',
                 shadowOpacity: 0.25,
                 shadowRadius: 24,
