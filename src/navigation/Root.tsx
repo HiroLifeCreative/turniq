@@ -83,12 +83,14 @@ function TabsNavigator() {
           bottom: 12 + insets.bottom,
           flexDirection: 'row',
           alignItems: 'center',
+          justifyContent: 'center',
           backgroundColor: p.card,
           borderRadius: 28,
           borderWidth: 1,
           borderColor: p.line,
           paddingVertical: 8,
-          paddingHorizontal: 8,
+          paddingHorizontal: 12,
+          gap: 4,
           shadowColor: '#000',
           shadowOpacity: 0.2,
           shadowRadius: 22,
@@ -114,17 +116,26 @@ function TabsNavigator() {
                   props.navigation.navigate(route.name as never);
                 }
               }}
-              style={{
-                flex: 1,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: focused ? p.primary : 'transparent',
-                borderRadius: 999,
-                paddingVertical: 10,
-                paddingHorizontal: focused ? 20 : 8,
-                gap: focused ? 10 : 0,
-              }}
+              style={
+                focused
+                  ? {
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor: p.primary,
+                      borderRadius: 999,
+                      paddingVertical: 10,
+                      paddingHorizontal: 20,
+                      gap: 10,
+                    }
+                  : {
+                      width: 52,
+                      height: 44,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 999,
+                    }
+              }
             >
               <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON.md} color={fg} />
               {focused && (
