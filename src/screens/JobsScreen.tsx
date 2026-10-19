@@ -1,13 +1,15 @@
 /** CRUD de trabajos + estaciones (bottom sheet). */
+import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Screen, H1, Card, Btn, Field, Label, Sheet, Confirm, useTheme, useT } from '../components/ui';
+import {Screen, H1, Card, Btn, Field, Label, Sheet, Confirm, useTheme, useT, Header} from '../components/ui';
 import { useStore, JOB_COLORS, type Job } from '../store';
 import { SP, R, FONT } from '../theme/tokens';
 import { uid } from '../lib/calc';
 
 export function JobsScreen() {
   const t = useT();
+  const nav = useNavigation();
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
   const addJob = useStore((s) => s.addJob);
@@ -59,6 +61,7 @@ export function JobsScreen() {
 
   return (
     <Screen>
+      <Header title={t.tabs.jobs} onSettings={() => nav.navigate('Mas' as never)} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.md }}>
           <H1>{t.jobs.title}</H1>

@@ -1,7 +1,8 @@
 /** Pestaña Semana: estilo referencia SpotOn — columna día, tarjetas con doble formato de horas y estados. */
+import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
-import { Screen, H1, Card, Btn, Label, Confirm, useTheme, useT } from '../components/ui';
+import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header} from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT } from '../theme/tokens';
@@ -27,6 +28,7 @@ function shiftStatus(s: Shift, now: Date): Status {
 
 export function WeekScreen() {
   const t = useT();
+  const nav = useNavigation();
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
   const shifts = useStore((s) => s.shifts);
@@ -67,6 +69,7 @@ export function WeekScreen() {
 
   return (
     <Screen>
+      <Header title={t.tabs.week} onSettings={() => nav.navigate('Mas' as never)} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
           <TouchableOpacity onPress={() => setOffset((o) => o - 1)} hitSlop={12}>

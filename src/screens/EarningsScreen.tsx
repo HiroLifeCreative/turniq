@@ -1,7 +1,8 @@
 /** Pestaña Ganancias: tarjetas, comparativa, meta. */
+import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Screen, H1, Card, Label, useTheme, useT } from '../components/ui';
+import {Screen, H1, Card, Label, useTheme, useT, Header} from '../components/ui';
 import { useStore, jobsById } from '../store';
 import { SP, FONT } from '../theme/tokens';
 import { startOfWeek, addDays, weekKey, parseYmd, ymd } from '../lib/dates';
@@ -9,6 +10,7 @@ import { calcWeekTotals, fmtMoney, fmtHours } from '../lib/calc';
 
 export function EarningsScreen() {
   const t = useT();
+  const nav = useNavigation();
   const [weekOff, setWeekOff] = React.useState(0);
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
@@ -57,9 +59,9 @@ export function EarningsScreen() {
 
   return (
     <Screen>
+      <Header title={t.tabs.earnings} onSettings={() => nav.navigate('Mas' as never)} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
-          <H1 style={{ marginBottom: 0 }}>{t.earnings.title}</H1>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>
             <TouchableOpacity onPress={() => setWeekOff((o) => o - 1)} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ fontSize: 18, color: p.primary, fontWeight: '700' }}>‹</Text>

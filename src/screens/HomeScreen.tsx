@@ -96,11 +96,11 @@ export function HomeScreen() {
 
   return (
     <Screen>
+      <Header
+        title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
+        onSettings={() => nav.navigate('Mas' as never)}
+      />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 140 }}>
-        <Header
-          title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
-          onSettings={() => nav.navigate('Mas' as never)}
-        />
 
         {/* HÉROE DINERO — estilo Mis Horarios: neto grande en verde */}
         <View style={{ backgroundColor: p.card, borderRadius: 26, borderWidth: 1, borderColor: p.line, padding: SP.xl, marginBottom: SP.md }}>

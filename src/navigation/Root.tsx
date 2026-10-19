@@ -126,15 +126,17 @@ function TabsNavigator() {
                 gap: 5,
               }}
             >
-              <Text style={{ color: fg, fontSize: 15, fontWeight: '700' }} numberOfLines={1}>
+              <Text style={{ color: fg, fontSize: 18, fontWeight: '700' }} numberOfLines={1}>
                 {GLYPHS[route.name as keyof TabsParamList]}
               </Text>
-              <Text
-                style={{ color: fg, fontFamily: FONT.mono, fontSize: 10, fontWeight: focused ? '700' : '400' }}
-                numberOfLines={1}
-              >
-                {labels[route.name as keyof TabsParamList]}
-              </Text>
+              {focused && (
+                <Text
+                  style={{ color: fg, fontFamily: FONT.headBold, fontSize: 12 }}
+                  numberOfLines={1}
+                >
+                  {labels[route.name as keyof TabsParamList]}
+                </Text>
+              )}
             </TouchableOpacity>
           );
         })}
