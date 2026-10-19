@@ -1,14 +1,8 @@
-/** "Invítame un café": compras dentro de la app (consumibles) para apoyar el desarrollo. */
+/** "Invítame un café": temporalmente deshabilitado (react-native-iap removido por conflicto de build).
+ *  Se reactivará cuando se resuelva la configuración de sabores de Gradle.
+ */
 import { Platform } from 'react-native';
-import {
-  initConnection,
-  getProducts,
-  requestPurchase,
-  finishTransaction,
-  type Product,
-} from 'react-native-iap';
 
-// IDs de producto — deben crearse igual en Google Play Console (productos gestionados, consumibles)
 export const COFFEE_PRODUCTS = [
   { sku: 'turniq_coffee_1', amount: 1 },
   { sku: 'turniq_coffee_2', amount: 2 },
@@ -17,55 +11,27 @@ export const COFFEE_PRODUCTS = [
   { sku: 'turniq_coffee_10', amount: 10 },
 ];
 
-let connected = false;
+export interface Product {
+  productId: string;
+  localizedPrice: string;
+}
 
 export async function ensureIapConnection(): Promise<boolean> {
-  if (Platform.OS === 'web') return false;
-  if (connected) return true;
-  try {
-    connected = await initConnection();
-    return connected;
-  } catch {
-    return false;
-  }
+  return false;
 }
 
 export async function loadCoffeeProducts(): Promise<Product[]> {
-  const ok = await ensureIapConnection();
-  if (!ok) return [];
-  try {
-    const skus = COFFEE_PRODUCTS.map((p) => p.sku);
-    return await getProducts({ skus });
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 export async function buyCoffee(
-  sku: string,
-  onSuccess: () => void,
+  _sku: string,
+  _onSuccess: () => void,
   onError: (msg: string) => void,
 ): Promise<void> {
-  const ok = await ensureIapConnection();
-  if (!ok) {
-    onError('store_unavailable');
-    return;
-  }
-  try {
-    await requestPurchase({ sku });
-    // La compra se confirma vía listener; para consumibles simples finalizamos aquí
-    onSuccess();
-  } catch (e: unknown) {
-    const code = (e as { code?: string })?.code ?? '';
-    if (code === 'E_USER_CANCELLED') return;
-    onError(code || 'unknown');
-  }
+  if (Platform.OS !== 'web') onError('store_unavailable');
 }
 
-export async function confirmCoffeePurchase(purchase: unknown): Promise<void> {
-  try {
-    await finishTransaction({ purchase: purchase as never, isConsumable: true });
-  } catch {
-    /* noop */
-  }
+export async function confirmCoffeePurchase(_purchase: unknown): Promise<void> {
+  /* noop */
 }

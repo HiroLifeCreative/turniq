@@ -4,10 +4,9 @@ import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } fr
 import { useNavigation } from '@react-navigation/native';
 import { Screen, Card, TopBar, useTheme, useT } from '../components/ui';
 import { SP, R, FONT, TYPE } from '../theme/tokens';
-import { COFFEE_PRODUCTS, loadCoffeeProducts, buyCoffee } from '../services/tips';
+import { COFFEE_PRODUCTS, loadCoffeeProducts, buyCoffee, type Product } from '../services/tips';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
-import type { Product } from 'react-native-iap';
 
 const COFFEE = '☕';
 
