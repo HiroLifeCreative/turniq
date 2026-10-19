@@ -2,9 +2,9 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import {Screen, H1, Card, Label, useTheme, useT, Header} from '../components/ui';
+import {Screen, H1, Card, Label, useTheme, useT, Header, Icon} from '../components/ui';
 import { useStore, jobsById } from '../store';
-import { SP, FONT } from '../theme/tokens';
+import { SP, FONT, ICON } from '../theme/tokens';
 import { startOfWeek, addDays, weekKey, parseYmd, ymd } from '../lib/dates';
 import { calcWeekTotals, fmtMoney, fmtHours } from '../lib/calc';
 
@@ -63,11 +63,11 @@ export function EarningsScreen() {
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>
-            <TouchableOpacity onPress={() => setWeekOff((o) => o - 1)} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 18, color: p.primary, fontWeight: '700' }}>‹</Text>
+            <TouchableOpacity onPress={() => setWeekOff((o) => o - 1)} hitSlop={12} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="chevronLeft" size={ICON.lg} color={p.primary} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setWeekOff((o) => o + 1)} hitSlop={12} style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ fontSize: 18, color: p.primary, fontWeight: '700' }}>›</Text>
+            <TouchableOpacity onPress={() => setWeekOff((o) => o + 1)} hitSlop={12} style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="chevronRight" size={ICON.lg} color={p.primary} />
             </TouchableOpacity>
           </View>
         </View>

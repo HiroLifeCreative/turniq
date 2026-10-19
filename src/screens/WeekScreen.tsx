@@ -77,7 +77,7 @@ export function WeekScreen() {
             hitSlop={12}
             style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ fontSize: 22, color: p.primary, fontWeight: '700' }}>‹</Text>
+            <Icon name="chevronLeft" size={ICON.lg} color={p.primary} />
           </TouchableOpacity>
           <View style={{ alignItems: 'center' }}>
             <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, letterSpacing: -0.3, color: p.text }}>
@@ -94,7 +94,7 @@ export function WeekScreen() {
             hitSlop={12}
             style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ fontSize: 22, color: p.primary, fontWeight: '700' }}>›</Text>
+            <Icon name="chevronRight" size={ICON.lg} color={p.primary} />
           </TouchableOpacity>
         </View>
 
