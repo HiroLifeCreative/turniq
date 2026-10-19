@@ -15,6 +15,7 @@ import { EarningsScreen } from '../screens/EarningsScreen';
 import { MasScreen } from '../screens/MasScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
 import { StatsScreen } from '../screens/StatsScreen';
+import { TipsScreen } from '../screens/TipsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { GmailScreen } from '../screens/GmailScreen';
@@ -48,6 +49,7 @@ function MasNavigator() {
       <MasStack.Screen name="MasHome" component={MasScreen} />
       <MasStack.Screen name="Reports" component={ReportsScreen} />
       <MasStack.Screen name="Stats" component={StatsScreen} />
+      <MasStack.Screen name="Tips" component={TipsScreen} />
       <MasStack.Screen name="Settings" component={SettingsScreen} />
       <MasStack.Screen name="CalendarSync" component={CalendarScreen} />
       <MasStack.Screen name="Gmail" component={GmailScreen} />

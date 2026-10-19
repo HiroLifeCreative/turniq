@@ -11,6 +11,7 @@ export type MasStackParamList = {
   MasHome: undefined;
   Reports: undefined;
   Stats: undefined;
+  Tips: undefined;
   Settings: undefined;
   CalendarSync: undefined;
   Gmail: undefined;
