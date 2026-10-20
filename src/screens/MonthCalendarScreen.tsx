@@ -7,7 +7,7 @@ import { ContentSheet,  Screen, TopBar, Card, TintedCard, Icon, Label, useTheme,
 import { useStore, jobsById } from '../store';
 import { SP, FONT, TYPE, ICON } from '../theme/tokens';
 import { parseYmd, ymd, hmTo12h, todayYmd } from '../lib/dates';
-import { calcWeekTotals, fmtHours, fmtMoney, shiftHours } from '../lib/calc';
+import { calcWeekTotals, fmtHours, fmtMoney, shiftHours, onlyWorked } from '../lib/calc';
 
 export function MonthCalendarScreen() {
   const p = useTheme();
@@ -30,7 +30,7 @@ export function MonthCalendarScreen() {
   const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
   const monthShifts = useMemo(() => shifts.filter((s) => s.fecha.startsWith(monthKey)), [shifts, monthKey]);
   const monthTotals = useMemo(
-    () => calcWeekTotals(monthShifts, byId, settings.umbralExtraHrs, settings.multExtra),
+    () => calcWeekTotals(onlyWorked(monthShifts), byId, settings.umbralExtraHrs, settings.multExtra),
     [monthShifts, byId, settings.umbralExtraHrs, settings.multExtra],
   );
 
@@ -53,7 +53,7 @@ export function MonthCalendarScreen() {
   while (cells.length % 7 !== 0) cells.push({ key: `a${cells.length}` });
 
   const selShifts = (selected ? byDate.get(selected) : undefined) ?? shifts.filter((s) => s.fecha === selected);
-  const selTotals = calcWeekTotals(selShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+  const selTotals = calcWeekTotals(onlyWorked(selShifts), byId, settings.umbralExtraHrs, settings.multExtra);
   const selDate = selected ? parseYmd(selected) : null;
   const today = todayYmd();
   const weekDays = es ? ['L', 'M', 'M', 'J', 'V', 'S', 'D'] : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];

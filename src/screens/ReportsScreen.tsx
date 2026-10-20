@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useStore, jobsById } from '../store';
 import { SP, FONT } from '../theme/tokens';
 import { startOfWeek, addDays, weekKey, parseYmd, ymd, shortDate } from '../lib/dates';
-import { fmtMoney, fmtHours } from '../lib/calc';
+import { fmtMoney, fmtHours, onlyWorked } from '../lib/calc';
 import { buildReport, reportToCsv, shareCsv, sharePdf } from '../services/export';
 
 type Mode = 'week' | 'month' | 'year';
@@ -43,7 +43,8 @@ export function ReportsScreen() {
     title = `${t.reports.year} ${yr}`;
   }
 
-  const { totals, rows } = buildReport(list, jobs, settings);
+  // Reportes: SOLO turnos trabajados (criterio global de la app).
+  const { totals, rows } = buildReport(onlyWorked(list), jobs, settings);
   const byId = jobsById(jobs);
 
   return (

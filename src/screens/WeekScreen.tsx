@@ -14,7 +14,7 @@ import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
   startOfWeek, addDays, ymd, weekKey, isWeekLocked, parseYmd, shortDate, hmToMin, hmTo12h, todayYmd,
 } from '../lib/dates';
-import { calcWeekTotals, shiftHours, fmtMoney, fmtHours, fmtHoursDual } from '../lib/calc';
+import { calcWeekTotals, shiftHours, fmtMoney, fmtHours, fmtHoursDual, onlyWorked } from '../lib/calc';
 
 type Status = 'past' | 'upcoming' | 'now' | 'missed';
 
@@ -69,7 +69,8 @@ export function WeekScreen() {
     .find(Boolean)?.id;
 
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === key);
-  const totals = calcWeekTotals(inWeek, byId, settings.umbralExtraHrs, settings.multExtra);
+  // Totales de la semana: SOLO turnos ya trabajados (criterio global de la app).
+  const totals = calcWeekTotals(onlyWorked(inWeek), byId, settings.umbralExtraHrs, settings.multExtra);
   const otPct = settings.umbralExtraHrs > 0 ? Math.min(100, (totals.hours / settings.umbralExtraHrs) * 100) : 0;
   const otLeft = Math.max(0, settings.umbralExtraHrs - totals.hours);
 

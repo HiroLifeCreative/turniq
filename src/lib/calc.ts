@@ -21,6 +21,14 @@ export function workState(
   return 'scheduled';
 }
 
+/** Filtra una lista de turnos dejando SOLO los ya trabajados. */
+export function onlyWorked<T extends { fecha: string; horaEntradaReal?: string | null; horaSalida: string | null }>(
+  shifts: T[],
+  now: Date = new Date(),
+): T[] {
+  return shifts.filter((s) => workState(s, now) === 'worked');
+}
+
 export interface JobLike {
   id: string;
   sueldoHora: number;

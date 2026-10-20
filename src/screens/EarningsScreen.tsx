@@ -7,7 +7,7 @@ import { MotiView } from 'moti';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { startOfWeek, addDays, weekKey, parseYmd, ymd, todayYmd, hmToMin } from '../lib/dates';
-import { calcWeekTotals, fmtMoney, fmtHours, shiftHours, workState } from '../lib/calc';
+import { calcWeekTotals, fmtMoney, fmtHours, shiftHours, workState, onlyWorked } from '../lib/calc';
 
 export function EarningsScreen() {
   const t = useT();
@@ -34,7 +34,8 @@ export function EarningsScreen() {
   const scheduledShifts = weekShifts.filter((s) => workState(s, now) === 'scheduled');
   const worked = calcWeekTotals(workedShifts, byId, settings.umbralExtraHrs, settings.multExtra);
   const scheduled = calcWeekTotals(scheduledShifts, byId, settings.umbralExtraHrs, settings.multExtra);
-  const cur = calcWeekTotals(weekShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+  const cur = calcWeekTotals(workedShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+  const totalHours = worked.hours + scheduled.hours;
 
   const prev = calcWeekTotals(inWk(lastMon), byId, settings.umbralExtraHrs, settings.multExtra);
   const pct = prev.net > 0 ? ((cur.net - prev.net) / prev.net) * 100 : cur.net > 0 ? 100 : 0;
@@ -45,7 +46,7 @@ export function EarningsScreen() {
     const d = parseYmd(s.fecha);
     return d.getFullYear() === refMonth.getFullYear() && d.getMonth() === refMonth.getMonth();
   });
-  const month = calcWeekTotals(monthShifts, byId, 1e9, 1);
+  const month = calcWeekTotals(onlyWorked(monthShifts), byId, 1e9, 1);
   const monthName = t.months[refMonth.getMonth()] ?? '';
   const isCurrentMonth = monthOff === 0;
 
@@ -57,15 +58,15 @@ export function EarningsScreen() {
       const d = parseYmd(s.fecha);
       return d.getFullYear() === refYear && d.getMonth() === m;
     });
-    const ym = calcWeekTotals(list, byId, 1e9, 1);
+    const ym = calcWeekTotals(onlyWorked(list), byId, 1e9, 1);
     yearMonths.push({ label: (t.months[m] ?? '').slice(0, 3), net: ym.net, gross: ym.gross, hours: ym.hours });
   }
   const yearTotal = yearMonths.reduce((a, m) => ({ net: a.net + m.net, gross: a.gross + m.gross, hours: a.hours + m.hours }), { net: 0, gross: 0, hours: 0 });
   const maxYearNet = Math.max(...yearMonths.map((m) => m.net), 1);
 
-  // Por trabajo (semana seleccionada)
+  // Por trabajo (semana seleccionada, SOLO trabajados)
   const perJob = new Map<string, { h: number; g: number; n: number }>();
-  for (const s of weekShifts) {
+  for (const s of workedShifts) {
     const one = calcWeekTotals([s], byId, 1e9, 1);
     const e = perJob.get(s.jobId) ?? { h: 0, g: 0, n: 0 };
     e.h += one.hours;
@@ -132,10 +133,10 @@ export function EarningsScreen() {
             </View>
           </View>
           <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.14)', marginTop: SP.md }}>
-            {cur.hours > 0 && (
+            {totalHours > 0 && (
               <>
-                <MotiView animate={{ width: `${(worked.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: '#32C46D' }} />
-                <MotiView animate={{ width: `${(scheduled.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: '#5EA9FF' }} />
+                <MotiView animate={{ width: `${(worked.hours / totalHours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: '#32C46D' }} />
+                <MotiView animate={{ width: `${(scheduled.hours / totalHours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: '#5EA9FF' }} />
               </>
             )}
           </View>
@@ -147,7 +148,7 @@ export function EarningsScreen() {
             <View style={{ width: 1, backgroundColor: 'rgba(255,255,255,0.14)', marginHorizontal: SP.md }} />
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.earnings.total.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: '#FFFFFF', marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(cur.hours)}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: '#FFFFFF', marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(totalHours)}</Text>
             </View>
           </View>
         </TintedCard>
@@ -216,7 +217,7 @@ export function EarningsScreen() {
             <View style={{ alignItems: 'flex-end' }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.week.hours.toUpperCase()}</Text>
               <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: '#FFFFFF', marginTop: 2 }}>{fmtHours(month.hours)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{monthShifts.length} {t.semana.turnos.toLowerCase()}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{onlyWorked(monthShifts).length} {t.semana.turnos.toLowerCase()}</Text>
             </View>
           </View>
         </TintedCard>
@@ -305,10 +306,10 @@ export function EarningsScreen() {
         <Card>
           <Label>{t.earnings.recorded}</Label>
           <Text style={{ fontFamily: FONT.headBold, fontSize: 34, letterSpacing: -1, color: p.text }}>
-            {fmtMoney(shifts.reduce((a, s) => a + calcWeekTotals([s], byId, 1e9, 1).net, 0))}
+            {fmtMoney(onlyWorked(shifts).reduce((a, s) => a + calcWeekTotals([s], byId, 1e9, 1).net, 0))}
           </Text>
           <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 4 }}>
-            {shifts.length} turnos · {fmtHours(shifts.reduce((a, s) => a + calcWeekTotals([s], byId, 1e9, 1).hours, 0))}
+            {onlyWorked(shifts).length} turnos · {fmtHours(onlyWorked(shifts).reduce((a, s) => a + calcWeekTotals([s], byId, 1e9, 1).hours, 0))}
           </Text>
         </Card>
       </ScrollView>
