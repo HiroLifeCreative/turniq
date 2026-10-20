@@ -95,25 +95,36 @@ function TabsNavigator() {
     const activeIdx = props.state.index;
     const PAD = 6;
     const segW = trackW > 0 ? (trackW - PAD * 2) / n : 0;
-    const activeFg = dark ? '#FFFFFF' : '#111318';
+    const activeFg = '#C4E9FF';
     return (
       <>
         {/* Blur PROGRESIVO inferior: el contenido se disuelve en niebla
             al acercarse al dock (efecto de expo-ios-visual-blur, recreado
-            con BlurView + degradado al color de fondo; sirve en Android). */}
+            en Android). NO es un solo BlurView: un BlurView único es un
+            rectángulo con intensidad constante y su borde superior deja
+            una LÍNEA RECTA donde empieza el difuminado. Por eso se apilan
+            6 franjas con intensidad creciente (5→45): el blur SUBE de
+            forma gradual y no hay borde visible. */}
         <View
           pointerEvents="none"
           style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 132 }}
         >
-          <BlurView
-            intensity={45}
-            tint={dark ? 'dark' : 'light'}
-            experimentalBlurMethod="dimezisBlurView"
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-          />
+          {[5, 11, 18, 26, 35, 45].map((inten, i) => (
+            <BlurView
+              key={i}
+              intensity={inten}
+              tint={dark ? 'dark' : 'light'}
+              experimentalBlurMethod="dimezisBlurView"
+              style={{ position: 'absolute', left: 0, right: 0, top: i * 22, height: 22 }}
+            />
+          ))}
           <LinearGradient
-            colors={dark ? ['rgba(11,11,12,0)', 'rgba(11,11,12,0.96)'] : ['rgba(255,255,255,0)', 'rgba(255,255,255,0.96)']}
-            locations={[0.1, 0.78]}
+            colors={
+              dark
+                ? ['rgba(11,11,12,0)', 'rgba(11,11,12,0.45)', 'rgba(11,11,12,0.94)']
+                : ['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0.94)']
+            }
+            locations={[0, 0.55, 1]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
@@ -161,9 +172,9 @@ function TabsNavigator() {
                   width: segW - 6,
                   height: 54,
                   borderRadius: 999,
-                  backgroundColor: dark ? '#2E2E33' : '#FFFFFF',
-                  shadowColor: '#000',
-                  shadowOpacity: 0.16,
+                  backgroundColor: '#0392FF',
+                  shadowColor: '#0392FF',
+                  shadowOpacity: 0.38,
                   shadowRadius: 10,
                   shadowOffset: { width: 0, height: 3 },
                   elevation: 4,
