@@ -1,9 +1,9 @@
 /** Calendario mensual — círculos oscuros en días con turnos (estilo referencia),
  *  resumen del mes en tarjeta oscura y detalle del día seleccionado. */
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import {  View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Screen, TopBar, Card, TintedCard, Icon, Label, useTheme, useT } from '../components/ui';
+import { ContentSheet,  Screen, TopBar, Card, TintedCard, Icon, Label, useTheme, useT } from '../components/ui';
 import { useStore, jobsById } from '../store';
 import { SP, FONT, TYPE, ICON } from '../theme/tokens';
 import { parseYmd, ymd, hmTo12h, todayYmd } from '../lib/dates';
@@ -59,9 +59,10 @@ export function MonthCalendarScreen() {
   const weekDays = es ? ['L', 'M', 'M', 'J', 'V', 'S', 'D'] : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.calendario.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 60 }}>
-        <TopBar title={t.calendario.title} onBack={() => nav.goBack()} />
 
         {/* Resumen del mes (tarjeta oscura) */}
         <TintedCard accent="#0064E0" style={{ marginBottom: SP.md }}>
@@ -208,6 +209,7 @@ export function MonthCalendarScreen() {
           )}
         </Card>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

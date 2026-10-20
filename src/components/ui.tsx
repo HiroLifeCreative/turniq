@@ -550,8 +550,61 @@ export function Sheet({
 }
 
 /** Barra superior con atrás (para pantallas del stack "Más"). */
-export function TopBar({ title, onBack }: { title: string; onBack: () => void }) {
+export function TopBar({
+  title,
+  onBack,
+  onDark = false,
+}: {
+  title: string;
+  onBack: () => void;
+  /** onDark: barra fija sobre la banda oscura (botón de cristal,
+   *  título blanco centrado vertical real). */
+  onDark?: boolean;
+}) {
   const p = useTheme();
+  if (onDark) {
+    return (
+      <View
+        style={{
+          height: 60,
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: SP.lg,
+        }}
+      >
+        <TouchableOpacity
+          onPress={onBack}
+          hitSlop={12}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            backgroundColor: 'rgba(255,255,255,0.12)',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.18)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: SP.md,
+          }}
+        >
+          <Icon name="chevronLeft" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text
+          style={{
+            fontFamily: FONT.headBold,
+            fontSize: 21,
+            lineHeight: 26,
+            letterSpacing: -0.4,
+            includeFontPadding: false,
+            textAlignVertical: 'center',
+            color: '#FFFFFF',
+          }}
+        >
+          {title}
+        </Text>
+      </View>
+    );
+  }
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.md }}>
       <TouchableOpacity

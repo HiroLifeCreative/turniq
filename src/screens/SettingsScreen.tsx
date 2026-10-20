@@ -1,7 +1,7 @@
 /** Ajustes — secciones estilo iOS: Apariencia, Trabajo, Seguridad, Datos. */
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
-import { Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, IosSwitch, useTheme, useT } from '../components/ui';
+import {  View, Text, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
+import { ContentSheet,  Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, IosSwitch, useTheme, useT } from '../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
@@ -70,9 +70,10 @@ export function SettingsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.settings.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.settings.title} onBack={() => nav.goBack()} />
 
         {/* PERFIL */}
         <Section title={t.settings.perfil}>
@@ -269,6 +270,7 @@ export function SettingsScreen() {
           </SettingRow>
         </Section>
       </ScrollView>
+      </ContentSheet>
 
       <Confirm
         visible={confirmWipe}

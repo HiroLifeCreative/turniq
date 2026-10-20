@@ -1,7 +1,7 @@
 /** Estadísticas: mejor día, promedios, gráficos con moti. */
 import React from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
-import { Screen, Card, Label, TopBar, useTheme, useT } from '../components/ui';
+import {  View, Text, ScrollView, Dimensions } from 'react-native';
+import { ContentSheet,  Screen, Card, Label, TopBar, useTheme, useT } from '../components/ui';
 import { useStore, jobsById } from '../store';
 import { SP, FONT, TYPE, R } from '../theme/tokens';
 import { parseYmd } from '../lib/dates';
@@ -76,9 +76,10 @@ export function StatsScreen() {
   );
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.stats.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.stats.title} onBack={() => nav.goBack()} />
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.md }}>
           <Stat label={t.stats.bestDay} value={t.week.daysFull[bestDow] ?? ''} sub={`${fmtMoney(byDow[bestDow]?.n ?? 0)} ${t.stats.total}`} />
@@ -133,6 +134,7 @@ export function StatsScreen() {
           </View>
         </Card>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

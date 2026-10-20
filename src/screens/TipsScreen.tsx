@@ -1,8 +1,8 @@
 /** "Invítame un café": apoyo voluntario al desarrollo. */
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import {  View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Screen, Card, TopBar, useTheme, useT } from '../components/ui';
+import { ContentSheet,  Screen, Card, TopBar, useTheme, useT } from '../components/ui';
 import { SP, R, FONT, TYPE } from '../theme/tokens';
 import { COFFEE_PRODUCTS, loadCoffeeProducts, buyCoffee, type Product } from '../services/tips';
 import { MotiView } from 'moti';
@@ -47,9 +47,10 @@ export function TipsScreen() {
   };
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.tips.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.tips.title} onBack={() => nav.goBack()} />
 
         <MotiView from={{ opacity: 0, translateY: 16 }} animate={{ opacity: 1, translateY: 0 }}>
           <Card style={{ alignItems: 'center', padding: SP.xl, marginBottom: SP.md }}>
@@ -108,6 +109,7 @@ export function TipsScreen() {
           {t.tips.note}
         </Text>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

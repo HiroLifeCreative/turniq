@@ -1,7 +1,7 @@
 /** Reportes por semana/mes/año + exportar PDF/CSV. */
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { Screen, Card, Btn, Label, Seg, TopBar, useTheme, useT } from '../components/ui';
+import {  View, Text, ScrollView } from 'react-native';
+import { ContentSheet,  Screen, Card, Btn, Label, Seg, TopBar, useTheme, useT } from '../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { useStore, jobsById } from '../store';
 import { SP, FONT } from '../theme/tokens';
@@ -47,9 +47,10 @@ export function ReportsScreen() {
   const byId = jobsById(jobs);
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.reports.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.reports.title} onBack={() => nav.goBack()} />
         <Seg<Mode>
           options={[
             { value: 'week', label: t.reports.week },
@@ -108,6 +109,7 @@ export function ReportsScreen() {
           </View>
         </View>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

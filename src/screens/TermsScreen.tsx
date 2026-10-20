@@ -1,8 +1,8 @@
 /** Términos y condiciones + política de datos locales. */
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import {  View, Text, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Screen, TopBar, useTheme, useT } from '../components/ui';
+import { ContentSheet,  Screen, TopBar, useTheme, useT } from '../components/ui';
 import { useStore } from '../store';
 import { SP, FONT, TYPE } from '../theme/tokens';
 
@@ -150,9 +150,10 @@ export function TermsScreen() {
   const content = CONTENT[idioma === 'en' ? 'en' : 'es'];
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.more.terms} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.more.terms} onBack={() => nav.goBack()} />
         <Text style={{ fontSize: TYPE.caption, color: p.text3, marginBottom: SP.lg }}>{content.updated}</Text>
         {content.sections.map((s) => (
           <View key={s.h} style={{ marginBottom: SP.lg }}>
@@ -165,6 +166,7 @@ export function TermsScreen() {
           </View>
         ))}
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

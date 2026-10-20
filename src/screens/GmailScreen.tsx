@@ -1,7 +1,7 @@
 /** Gmail: lista correos de nómina como referencia de cobros. */
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { Screen, Card, Btn, Label, TopBar, useTheme, useT } from '../components/ui';
+import {  View, Text, ScrollView } from 'react-native';
+import { ContentSheet,  Screen, Card, Btn, Label, TopBar, useTheme, useT } from '../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { SP, FONT } from '../theme/tokens';
 import { getToken, fetchPayrollEmails, type GmailMsg } from '../services/google';
@@ -33,9 +33,10 @@ export function GmailScreen() {
   };
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.gmail.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.gmail.title} onBack={() => nav.goBack()} />
         <Card style={{ marginBottom: SP.md }}>
           <Label>{t.gmail.hint}</Label>
           <Btn title={loading ? '…' : t.gmail.connect} onPress={load} disabled={loading} arrow />
@@ -67,6 +68,7 @@ export function GmailScreen() {
         )}
         <View style={{ height: SP.md }} />
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

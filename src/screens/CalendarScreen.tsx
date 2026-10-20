@@ -1,7 +1,7 @@
 /** Calendario Google: OAuth + sincronizar eventos de la semana. */
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput } from 'react-native';
-import { Screen, Card, Btn, Label, TopBar, useTheme, useT } from '../components/ui';
+import {  View, Text, ScrollView, TextInput } from 'react-native';
+import { ContentSheet,  Screen, Card, Btn, Label, TopBar, useTheme, useT } from '../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { useStore, jobsById } from '../store';
 import { SP, FONT } from '../theme/tokens';
@@ -61,9 +61,10 @@ export function CalendarScreen() {
   };
 
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.calendar.title} onBack={() => nav.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.calendar.title} onBack={() => nav.goBack()} />
         <Card>
           <Label>{t.calendar.hint}</Label>
           {!connected ? (
@@ -106,6 +107,7 @@ export function CalendarScreen() {
           )}
         </Card>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }

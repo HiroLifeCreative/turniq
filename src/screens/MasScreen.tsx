@@ -1,7 +1,7 @@
 /** Menú "Más" (modal): Reportes, Ajustes, Calendario, Gmail. */
 import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { Screen, Card, TopBar, useTheme, useT } from '../components/ui';
+import {  View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { ContentSheet,  Screen, Card, TopBar, useTheme, useT } from '../components/ui';
 import { SP, FONT } from '../theme/tokens';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MasStackParamList } from '../navigation/types';
@@ -28,9 +28,10 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
     { key: 'Terms', label: t.more.terms },
   ];
   return (
-    <Screen>
+    <Screen banded>
+      <TopBar onDark title={t.mas.title} onBack={() => navigation.goBack()} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
-        <TopBar title={t.mas.title} onBack={() => navigation.goBack()} />
         {items.map((it) => (
           <TouchableOpacity key={it.key} onPress={() => navigation.navigate(it.key as never)} activeOpacity={0.7}>
             <Card style={{ marginBottom: SP.sm, flexDirection: 'row', alignItems: 'center' }}>
@@ -54,6 +55,7 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
           Turniq 1.0.0
         </Text>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }
