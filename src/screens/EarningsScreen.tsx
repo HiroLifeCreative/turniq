@@ -126,9 +126,9 @@ export function EarningsScreen() {
         <TintedCard accent="#30A46C" style={{ marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1, marginRight: SP.md }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.worked.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.earnings.worked.toUpperCase()}</Text>
               <Text
-                style={{ fontFamily: FONT.headBold, fontSize: 30, color: p.success, marginTop: 2 }}
+                style={{ fontFamily: FONT.headBold, fontSize: 30, color: '#32C46D', marginTop: 2 }}
                 numberOfLines={1}
                 adjustsFontSizeToFit
                 minimumFontScale={0.7}
@@ -137,29 +137,29 @@ export function EarningsScreen() {
               </Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.gross.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text, marginTop: 2 }}>{fmtMoney(cur.gross)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: SP.sm }}>{t.week.net.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.success, marginTop: 2 }}>{fmtMoney(cur.net)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.week.gross.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#FFFFFF', marginTop: 2 }}>{fmtMoney(cur.gross)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)', marginTop: SP.sm }}>{t.week.net.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: '#32C46D', marginTop: 2 }}>{fmtMoney(cur.net)}</Text>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: p.surface, marginTop: SP.md }}>
+          <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.14)', marginTop: SP.md }}>
             {cur.hours > 0 && (
               <>
-                <MotiView animate={{ width: `${(worked.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: p.success }} />
-                <MotiView animate={{ width: `${(scheduled.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: p.primary }} />
+                <MotiView animate={{ width: `${(worked.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: '#32C46D' }} />
+                <MotiView animate={{ width: `${(scheduled.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: '#5EA9FF' }} />
               </>
             )}
           </View>
           <View style={{ flexDirection: 'row', marginTop: SP.md }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.scheduled.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.primary, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(scheduled.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.earnings.scheduled.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: '#5EA9FF', marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(scheduled.hours)}</Text>
             </View>
-            <View style={{ width: 1, backgroundColor: p.line, marginHorizontal: SP.md }} />
+            <View style={{ width: 1, backgroundColor: 'rgba(255,255,255,0.14)', marginHorizontal: SP.md }} />
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.total.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(cur.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.earnings.total.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: '#FFFFFF', marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(cur.hours)}</Text>
             </View>
           </View>
         </TintedCard>
@@ -198,24 +198,24 @@ export function EarningsScreen() {
         </View>
 
         <TintedCard accent="#0064E0" style={{ marginBottom: SP.md }} delay={60}>
-          <Label>{t.earnings.monthProjection}</Label>
-          <Text style={{ fontFamily: FONT.headBold, fontSize: 34, letterSpacing: -1, color: p.text }}>
+          <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)', marginBottom: SP.sm }}>{t.earnings.monthProjection.toUpperCase()}</Text>
+          <Text style={{ fontFamily: FONT.headBold, fontSize: 34, letterSpacing: -1, color: '#FFFFFF' }}>
             {fmtMoney(month.net)}
           </Text>
-          <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 2 }}>
+          <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
             {t.week.net} · {t.earnings.withTaxes}
           </Text>
-          <View style={{ height: 1, backgroundColor: p.line, marginVertical: SP.md }} />
+          <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.14)', marginVertical: SP.md }} />
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <View>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.gross.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.warning, marginTop: 2 }}>{fmtMoney(month.gross)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>{t.earnings.withoutTaxes}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.week.gross.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: '#F5A623', marginTop: 2 }}>{fmtMoney(month.gross)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{t.earnings.withoutTaxes}</Text>
             </View>
             <View style={{ alignItems: 'flex-end' }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.hours.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.text, marginTop: 2 }}>{fmtHours(month.hours)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>{monthShifts.length} {t.semana.turnos.toLowerCase()}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: 'rgba(255,255,255,0.55)' }}>{t.week.hours.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: '#FFFFFF', marginTop: 2 }}>{fmtHours(month.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>{monthShifts.length} {t.semana.turnos.toLowerCase()}</Text>
             </View>
           </View>
         </TintedCard>

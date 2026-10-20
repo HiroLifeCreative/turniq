@@ -128,19 +128,19 @@ export function WeekScreen() {
         {settings.mostrarHoraExtra && settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
           <TintedCard accent="#E8830C" style={{ marginBottom: SP.md }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>
-              <Label style={{ marginBottom: 0 }}>{t.semana.horaExtra}</Label>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>{t.semana.horaExtra.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>
                 {fmtHoursDual(totals.hours)} / {fmtHoursDual(settings.umbralExtraHrs)}
               </Text>
             </View>
-            <View style={{ height: 12, borderRadius: 6, backgroundColor: p.surface, overflow: 'hidden' }}>
+            <View style={{ height: 12, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.14)', overflow: 'hidden' }}>
               <MotiView
                 animate={{ width: `${otPct}%` }}
                 transition={{ type: 'timing', duration: 600 }}
-                style={{ height: 12, borderRadius: 6, backgroundColor: totals.overtimeHours > 0 ? '#E8830C' : p.primary }}
+                style={{ height: 12, borderRadius: 6, backgroundColor: totals.overtimeHours > 0 ? '#F5A623' : '#5EA9FF' }}
               />
             </View>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: SP.sm }}>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: SP.sm }}>
               {totals.overtimeHours > 0
                 ? `${fmtHoursDual(totals.overtimeHours)} ${t.semana.horaExtraDone}`
                 : `${fmtHoursDual(otLeft)} ${t.semana.horaExtraLeft}`}
@@ -305,23 +305,23 @@ export function WeekScreen() {
 
         {/* Total semanal */}
         <TintedCard accent="#0064E0" style={{ marginTop: SP.sm }}>
-          <Label>{t.week.total}</Label>
+          <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: SP.sm }}>{t.week.total.toUpperCase()}</Text>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.week.hours}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text }} numberOfLines={1} adjustsFontSizeToFit>{fmtHoursDual(totals.hours)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{t.week.hours}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#FFFFFF' }} numberOfLines={1} adjustsFontSizeToFit>{fmtHoursDual(totals.hours)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.week.gross}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text }} numberOfLines={1} adjustsFontSizeToFit>{fmtMoney(totals.gross)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{t.week.gross}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#FFFFFF' }} numberOfLines={1} adjustsFontSizeToFit>{fmtMoney(totals.gross)}</Text>
             </View>
             <View style={{ flex: 1, alignItems: 'flex-end' }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.week.net}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.success }} numberOfLines={1} adjustsFontSizeToFit>{fmtMoney(totals.net)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)' }}>{t.week.net}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#32C46D' }} numberOfLines={1} adjustsFontSizeToFit>{fmtMoney(totals.net)}</Text>
             </View>
           </View>
           {totals.overtimeHours > 0 && (
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginTop: SP.sm }}>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: SP.sm }}>
               +{fmtHoursDual(totals.overtimeHours)} extra ×{settings.multExtra}
             </Text>
           )}

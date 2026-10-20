@@ -116,8 +116,8 @@ function mixHex(hex: string, target: string, amt: number): string {
   return `rgb(${ch(16)}, ${ch(8)}, ${ch(0)})`;
 }
 
-/** Tarjeta destacada: degradado tintado SÓLIDO por acento + entrada animada.
- *  (Sin alfa: en Android la sombra se transparentaba y creaba doble recuadro.) */
+/** Tarjeta destacada OSCURA (estilo referencia: negro protagonista, texto claro).
+ *  Degradado oscuro sólido con un toque del acento; funciona en ambos temas. */
 export const TintedCard = ({
   accent,
   children,
@@ -129,11 +129,7 @@ export const TintedCard = ({
   style?: ViewStyle;
   delay?: number;
 }) => {
-  const p = useTheme();
-  const darkMode = p.bg === '#0B0B0C';
-  const colors: [string, string] = darkMode
-    ? [mixHex(accent, '#000000', 0.68), p.card]
-    : [mixHex(accent, '#FFFFFF', 0.88), '#FFFFFF'];
+  const colors: [string, string] = [mixHex(accent, '#101216', 0.8), '#14161A'];
   return (
     <MotiView
       from={{ opacity: 0, translateY: 14 }}
@@ -148,10 +144,10 @@ export const TintedCard = ({
         style={{
           borderRadius: R.lg,
           borderWidth: 0.5,
-          borderColor: darkMode ? '#2E2E33' : '#EDEFF2',
+          borderColor: 'rgba(255,255,255,0.09)',
           padding: SP.lg,
-          shadowColor: '#6B7A99',
-          shadowOpacity: 0.22,
+          shadowColor: '#000000',
+          shadowOpacity: 0.28,
           shadowRadius: 18,
           shadowOffset: { width: 0, height: 8 },
           elevation: 6,
