@@ -15,7 +15,7 @@ import { useStore, jobsById, type Shift } from '../store';
 import type { TabsParamList } from '../navigation/types';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, nowHm, hmToMin, hmTo12h, weekKey, parseYmd, startOfWeek, ymd } from '../lib/dates';
-import { fmtHours, fmtMoney, calcWeekTotals, workState } from '../lib/calc';
+import { fmtHours, fmtMoney, calcWeekTotals, workState, isOvernight } from '../lib/calc';
 import { MotiView } from 'moti';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -216,7 +216,7 @@ export function HomeScreen() {
       <Header
         onDark
         title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
-        onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })}
+        onSettings={() => (nav.navigate as any)('Mas', { state: { index: 1, routes: [{ name: 'MasHome' }, { name: 'Settings' }] } })}
       />
       <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 140 }}>
@@ -391,7 +391,7 @@ export function HomeScreen() {
                   </Text>
                   <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginTop: 2 }} numberOfLines={1}>
                     {nextJob?.nombre} · {nextDayLabel} · {hmTo12h(nextShift.horaEntrada, esFmt)}
-                    {nextShift.horaSalida ? ` – ${hmTo12h(nextShift.horaSalida, esFmt)}` : ''}
+                    {nextShift.horaSalida ? ` – ${hmTo12h(nextShift.horaSalida, esFmt)}` : ''}{isOvernight(nextShift.horaEntrada, nextShift.horaSalida) ? ` ${t.shift.nextDay}` : ''}
                   </Text>
                 </View>
                 <Icon name="chevronRight" size={ICON.md} color={p.text3} />
@@ -417,7 +417,7 @@ export function HomeScreen() {
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: job?.color ?? p.primary, marginRight: SP.md }} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
-                      {job?.nombre ?? ''} · {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}
+                      {job?.nombre ?? ''} · {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}{isOvernight(s.horaEntrada, s.horaSalida) ? ` ${t.shift.nextDay}` : ''}
                     </Text>
                   </View>
                   <Icon name="chevronRight" size={18} color={p.text3} />
@@ -474,7 +474,7 @@ export function HomeScreen() {
                         <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text }} numberOfLines={1}>{job?.nombre}</Text>
                       </View>
                       <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text2, marginTop: 4 }}>
-                        {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}
+                        {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}{isOvernight(s.horaEntrada, s.horaSalida) ? ` ${t.shift.nextDay}` : ''}
                       </Text>
                       {!!estNames.length && <Text style={{ fontSize: 13, color: p.text3, marginTop: 2 }}>{estNames.join(', ')}</Text>}
                     </View>

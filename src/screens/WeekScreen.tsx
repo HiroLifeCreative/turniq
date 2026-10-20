@@ -14,7 +14,7 @@ import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
   startOfWeek, addDays, ymd, weekKey, isWeekLocked, parseYmd, shortDate, hmToMin, hmTo12h, todayYmd,
 } from '../lib/dates';
-import { calcWeekTotals, shiftHours, fmtMoney, fmtHours, fmtHoursDual, onlyWorked } from '../lib/calc';
+import { calcWeekTotals, shiftHours, fmtMoney, fmtHours, fmtHoursDual, onlyWorked, isOvernight } from '../lib/calc';
 
 type Status = 'past' | 'upcoming' | 'now' | 'missed';
 
@@ -97,7 +97,7 @@ export function WeekScreen() {
 
   return (
     <Screen banded>
-      <Header onDark title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+      <Header onDark title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { state: { index: 1, routes: [{ name: 'MasHome' }, { name: 'Settings' }] } })} />
       <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
@@ -294,7 +294,7 @@ export function WeekScreen() {
                       <View style={{ flex: 1 }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
                           <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }} numberOfLines={1}>
-                            {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}
+                            {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}{isOvernight(s.horaEntrada, s.horaSalida) ? ` ${t.shift.nextDay}` : ''}
                           </Text>
                           <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: statusColor(st), marginLeft: SP.sm }} numberOfLines={1}>
                             {fmtHours(h)}
@@ -380,7 +380,7 @@ export function WeekScreen() {
         title={menuShift ? (() => {
           const job = byId[menuShift.jobId];
           const estList = (menuShift.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
-          return `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}`;
+          return `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}${isOvernight(menuShift.horaEntrada, menuShift.horaSalida) ? ` ${t.shift.nextDay}` : ''}`;
         })() : ''}
       >
         {menuShift && (() => {

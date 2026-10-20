@@ -5,6 +5,7 @@ import { Sheet, Field, Label, Btn, Icon, useTheme, useT } from './ui';
 import { useToast } from './Toast';
 import { IosTimePicker, IosDatePicker } from './IosPickers';
 import { useStore, type Shift } from '../store';
+import { fmtHours } from '../lib/calc';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, hmTo12h } from '../lib/dates';
 
@@ -78,7 +79,7 @@ export function TimeField({
 }
 
 /** Campo de fecha con picker estilo iOS. */
-function DateField({
+export function DateField({
   label,
   value,
   onChange,
@@ -222,6 +223,20 @@ export function ShiftForm({
   }, [shifts, fecha, entrada, salida, editing]);
 
   const [showOverlap, setShowOverlap] = useState(false);
+
+  // Turno que cruza medianoche: duración real contando el día siguiente.
+  const overnightDur = (() => {
+    if (!/^\d{2}:\d{2}$/.test(entrada) || !/^\d{2}:\d{2}$/.test(salida)) return null;
+    const toM = (hm: string) => {
+      const [h, m] = hm.split(':').map(Number);
+      return (h ?? 0) * 60 + (m ?? 0);
+    };
+    const st = toM(entrada);
+    let en = toM(salida);
+    if (en > st) return null;
+    en += 1440;
+    return Math.max(0, en - st - (Number(breakMin) || 0)) / 60;
+  })();
 
   const save = () => {
     if (!canSave) return;
@@ -372,6 +387,11 @@ export function ShiftForm({
         <TimeField label={t.shift.start} value={entrada} onChange={setEntrada} placeholder="09:00" />
         <TimeField label={t.shift.end} value={salida} onChange={setSalida} placeholder="17:00" />
       </View>
+      {overnightDur != null && (
+        <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.primary, marginTop: SP.sm }}>
+          🌙 {t.shift.endsNextDay} · {fmtHours(overnightDur)}
+        </Text>
+      )}
       <View style={{ flexDirection: 'row', gap: SP.md }}>
         <View style={{ flex: 1 }}>
           <Field label={t.shift.tips} value={propinas} onChange={setPropinas} keyboardType="decimal-pad" />

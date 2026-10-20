@@ -99,7 +99,7 @@ export function EarningsScreen() {
 
   return (
     <Screen banded>
-      <Header onDark title={t.tabs.earnings} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+      <Header onDark title={t.tabs.earnings} onSettings={() => (nav.navigate as any)('Mas', { state: { index: 1, routes: [{ name: 'MasHome' }, { name: 'Settings' }] } })} />
       <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
 

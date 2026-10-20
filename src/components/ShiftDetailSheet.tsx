@@ -5,7 +5,7 @@ import { Sheet, Icon, Confirm, useTheme, useT } from './ui';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { hmTo12h, parseYmd, shortDate } from '../lib/dates';
-import { scheduledHours, workedHours, fmtHours, fmtMoney } from '../lib/calc';
+import { scheduledHours, workedHours, fmtHours, fmtMoney, isOvernight } from '../lib/calc';
 import { TimeField } from './ShiftForm';
 
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
@@ -78,12 +78,12 @@ export function ShiftDetailSheet({
 
         <StackRow
           label={t.shift.scheduled}
-          value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}`}
+          value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}${isOvernight(shift.horaEntrada, shift.horaSalida) ? ` ${t.shift.nextDay}` : ''}`}
           sub={fmtHours(hrsProg)}
         />
         <StackRow
           label={t.shift.worked}
-          value={hasWorked ? `${hmTo12h(shift.horaEntradaReal!, esFmt)} – ${shift.horaSalidaReal ? hmTo12h(shift.horaSalidaReal, esFmt) : '…'}` : '—'}
+          value={hasWorked ? `${hmTo12h(shift.horaEntradaReal!, esFmt)} – ${shift.horaSalidaReal ? hmTo12h(shift.horaSalidaReal, esFmt) : '…'}${shift.horaSalidaReal && isOvernight(shift.horaEntradaReal!, shift.horaSalidaReal) ? ` ${t.shift.nextDay}` : ''}` : '—'}
           sub={hasWorked ? fmtHours(hrsWork) : undefined}
           color={hasWorked ? p.success : undefined}
         />

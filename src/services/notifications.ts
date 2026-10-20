@@ -154,6 +154,8 @@ export async function scheduleShiftReminders(
     } else {
       const d2 = parseYmd(sh.fecha);
       if (sh.horaSalida) {
+        // Turno overnight (salida <= entrada): la salida cae al día siguiente.
+        if (hmToMin(sh.horaSalida) <= hmToMin(sh.horaEntrada)) d2.setDate(d2.getDate() + 1);
         const endMin = hmToMin(sh.horaSalida) + 15;
         d2.setHours(Math.floor(endMin / 60), endMin % 60, 0, 0);
       } else {

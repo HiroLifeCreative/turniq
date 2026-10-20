@@ -103,13 +103,22 @@ export async function syncShiftEvent(
   prevEventId?: string,
 ): Promise<string | undefined> {
   if (!shift.horaSalida) return prevEventId;
+  // Turno overnight (salida <= entrada): el evento termina al día siguiente.
+  const overnight = shift.horaSalida <= shift.horaEntrada;
+  let endFecha = shift.fecha;
+  if (overnight) {
+    const [y, m, d] = shift.fecha.split('-').map(Number);
+    const dt = new Date(y ?? 1970, (m ?? 1) - 1, (d ?? 1) + 1);
+    const p = (n: number) => String(n).padStart(2, '0');
+    endFecha = `${dt.getFullYear()}-${p(dt.getMonth() + 1)}-${p(dt.getDate())}`;
+  }
   const body = {
     summary: `Turno — ${job?.nombre ?? ''}`,
     description: [shift.notas, shift.propinas ? `Propinas: $${shift.propinas}` : '', shift.bono ? `Bono: $${shift.bono}` : '']
       .filter(Boolean)
       .join('\n'),
     start: { dateTime: toRfc(shift.fecha, shift.horaEntrada) },
-    end: { dateTime: toRfc(shift.fecha, shift.horaSalida) },
+    end: { dateTime: toRfc(endFecha, shift.horaSalida) },
   };
   try {
     if (prevEventId) {

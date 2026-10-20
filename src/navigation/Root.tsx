@@ -19,6 +19,7 @@ import { EarningsScreen } from '../screens/EarningsScreen';
 import { MasScreen } from '../screens/MasScreen';
 import { ReportsScreen } from '../screens/ReportsScreen';
 import { StatsScreen } from '../screens/StatsScreen';
+import { TemplatesScreen } from '../screens/TemplatesScreen';
 import { TipsScreen } from '../screens/TipsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
@@ -43,7 +44,7 @@ function MasNavigator() {
   let initial: keyof MasStackParamList = 'MasHome';
   try {
     const v = localStorage.getItem('turniq-test-screen');
-    if (v === 'Reports' || v === 'Settings' || v === 'CalendarSync' || v === 'Gmail') initial = v;
+    if (v === 'Reports' || v === 'Settings' || v === 'CalendarSync' || v === 'Gmail' || v === 'Templates') initial = v;
   } catch {
     /* no web */
   }
@@ -60,6 +61,7 @@ function MasNavigator() {
       <MasStack.Screen name="MasHome" component={MasScreen} />
       <MasStack.Screen name="Reports" component={ReportsScreen} />
       <MasStack.Screen name="Stats" component={StatsScreen} />
+      <MasStack.Screen name="Templates" component={TemplatesScreen} />
       <MasStack.Screen name="Tips" component={TipsScreen} />
       <MasStack.Screen name="Settings" component={SettingsScreen} />
       <MasStack.Screen name="CalendarSync" component={CalendarScreen} />

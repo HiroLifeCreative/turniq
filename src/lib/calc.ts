@@ -1,6 +1,11 @@
 /** Cálculos de horas y dinero. */
 import { hmToMin, ymd } from './dates';
 
+/** ¿El rango cruza medianoche? (salida definida y <= entrada) */
+export function isOvernight(entrada: string, salida: string | null): boolean {
+  return salida != null && hmToMin(salida) <= hmToMin(entrada);
+}
+
 export type WorkState = 'worked' | 'scheduled';
 
 /**
@@ -9,20 +14,23 @@ export type WorkState = 'worked' | 'scheduled';
  * Futuros = no.
  */
 export function workState(
-  s: { fecha: string; horaEntradaReal?: string | null; horaSalida: string | null },
+  s: { fecha: string; horaEntrada: string; horaEntradaReal?: string | null; horaSalida: string | null },
   now: Date,
 ): WorkState {
   const today = ymd(now);
   if (s.fecha < today) return 'worked';
   if (s.fecha > today) return 'scheduled';
   if (s.horaEntradaReal) return 'worked';
+  // Turno que cruza medianoche: hoy NO puede darse por trabajado solo
+  // porque ya pasó la hora de salida — esa hora es de mañana.
+  if (isOvernight(s.horaEntrada, s.horaSalida)) return 'scheduled';
   const nowMin = now.getHours() * 60 + now.getMinutes();
   if (s.horaSalida && nowMin >= hmToMin(s.horaSalida)) return 'worked';
   return 'scheduled';
 }
 
 /** Filtra una lista de turnos dejando SOLO los ya trabajados. */
-export function onlyWorked<T extends { fecha: string; horaEntradaReal?: string | null; horaSalida: string | null }>(
+export function onlyWorked<T extends { fecha: string; horaEntrada: string; horaEntradaReal?: string | null; horaSalida: string | null }>(
   shifts: T[],
   now: Date = new Date(),
 ): T[] {
