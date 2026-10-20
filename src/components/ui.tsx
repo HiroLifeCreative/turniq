@@ -104,7 +104,20 @@ const Arrow = ({ color }: { color: string }) => (
   </View>
 );
 
-/** Tarjeta destacada: degradado tintado por acento + entrada animada. */
+/** Mezcla un color hex con otro (amt 0..1 hacia el destino). */
+function mixHex(hex: string, target: string, amt: number): string {
+  const a = parseInt(hex.slice(1), 16);
+  const b = parseInt(target.slice(1), 16);
+  const ch = (shift: number) => {
+    const va = (a >> shift) & 255;
+    const vb = (b >> shift) & 255;
+    return Math.round(va + (vb - va) * amt);
+  };
+  return `rgb(${ch(16)}, ${ch(8)}, ${ch(0)})`;
+}
+
+/** Tarjeta destacada: degradado tintado SÓLIDO por acento + entrada animada.
+ *  (Sin alfa: en Android la sombra se transparentaba y creaba doble recuadro.) */
 export const TintedCard = ({
   accent,
   children,
@@ -119,8 +132,8 @@ export const TintedCard = ({
   const p = useTheme();
   const darkMode = p.bg === '#0B0B0C';
   const colors: [string, string] = darkMode
-    ? [`${accent}30`, p.card]
-    : [`${accent}1F`, p.card];
+    ? [mixHex(accent, '#000000', 0.68), p.card]
+    : [mixHex(accent, '#FFFFFF', 0.88), '#FFFFFF'];
   return (
     <MotiView
       from={{ opacity: 0, translateY: 14 }}

@@ -99,7 +99,7 @@ function TabsNavigator() {
         }}
       >
         <BlurView
-          intensity={55}
+          intensity={70}
           tint={dark ? 'dark' : 'light'}
           experimentalBlurMethod="dimezisBlurView"
           style={{ borderRadius: 28, overflow: 'hidden' }}
@@ -109,7 +109,7 @@ function TabsNavigator() {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: dark ? 'rgba(23,23,26,0.68)' : 'rgba(255,255,255,0.68)',
+              backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
               paddingVertical: 8,
               paddingHorizontal: 12,
               gap: 4,
