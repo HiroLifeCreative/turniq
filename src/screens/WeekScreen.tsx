@@ -236,11 +236,11 @@ export function WeekScreen() {
                       style={{
                         marginBottom: SP.sm,
                         borderRadius: R.lg,
-                        shadowColor: '#8A94A6',
-                        shadowOpacity: 0.1,
-                        shadowRadius: 12,
-                        shadowOffset: { width: 0, height: 4 },
-                        elevation: 3,
+                        shadowColor: '#6B7A99',
+                        shadowOpacity: 0.2,
+                        shadowRadius: 14,
+                        shadowOffset: { width: 0, height: 6 },
+                        elevation: 5,
                       }}
                     >
                       <LinearGradient
@@ -249,8 +249,8 @@ export function WeekScreen() {
                         end={{ x: 0, y: 1 }}
                         style={{
                           borderRadius: R.lg,
-                          borderWidth: 1,
-                          borderColor: statusBorder(st),
+                          borderWidth: 0.5,
+                          borderColor: p.bg === '#0B0B0C' ? '#2E2E33' : '#E8EAEE',
                           padding: SP.md,
                           flexDirection: 'row',
                           alignItems: 'center',

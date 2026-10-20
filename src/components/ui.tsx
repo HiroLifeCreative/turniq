@@ -69,14 +69,14 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
       style={[
         {
           borderRadius: R.lg,
-          borderWidth: 1,
-          borderColor: p.line,
+          borderWidth: 0.5,
+          borderColor: darkMode ? '#2E2E33' : '#EDEFF2',
           padding: SP.lg,
-          shadowColor: '#8A94A6',
-          shadowOpacity: 0.12,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: 4,
+          shadowColor: '#6B7A99',
+          shadowOpacity: 0.22,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 6,
         },
         style,
       ]}
@@ -484,11 +484,11 @@ export function Header({ title, onSettings }: { title: string; onSettings?: () =
   return (
     <View style={{
       backgroundColor: p.bg,
-      shadowColor: '#8A94A6',
-      shadowOpacity: 0.1,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 3,
+      shadowColor: '#6B7A99',
+      shadowOpacity: 0.18,
+      shadowRadius: 14,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 4,
       zIndex: 10,
     }}>
       <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SP.lg, marginBottom: SP.sm }}>
