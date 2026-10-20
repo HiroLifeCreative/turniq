@@ -276,8 +276,24 @@ export function WeekScreen() {
       <Sheet
         visible={menuShift !== null}
         onClose={() => setMenuShift(null)}
-        title={menuShift ? `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}` : ''}
+        title={menuShift ? (() => {
+          const job = byId[menuShift.jobId];
+          const est = job?.estaciones.find((e) => e.id === menuShift.estacionId);
+          return `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}`;
+        })() : ''}
       >
+        {menuShift && (() => {
+          const job = byId[menuShift.jobId];
+          const est = job?.estaciones.find((e) => e.id === menuShift.estacionId);
+          return (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.md }}>
+              <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: job?.color ?? p.primary, marginRight: 8 }} />
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>
+                {[job?.nombre, est?.nombre].filter(Boolean).join(' · ')}
+              </Text>
+            </View>
+          );
+        })()}
         {[
           { label: t.common.edit, icon: 'edit', fn: () => { setEditing(menuShift); setNewDate(undefined); setMenuShift(null); setFormOpen(true); } },
           { label: t.semana.duplicarTurno, icon: 'plus', fn: () => { if (menuShift) duplicateShift(menuShift.id); setMenuShift(null); } },
