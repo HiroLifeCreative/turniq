@@ -7,6 +7,7 @@ import { useStore, jobsById } from './src/store';
 import { STR } from './src/i18n';
 import { RootNavigator } from './src/navigation/Root';
 import { ToastProvider } from './src/components/Toast';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { PinLock } from './src/screens/PinLock';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { scheduleShiftReminders } from './src/services/notifications';
@@ -84,9 +85,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style={darkMode ? 'light' : 'dark'} />
-      <ToastProvider>
-        <RootNavigator />
-      </ToastProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <ToastProvider>
+          <RootNavigator />
+        </ToastProvider>
+      </GestureHandlerRootView>
     </SafeAreaProvider>
   );
 }

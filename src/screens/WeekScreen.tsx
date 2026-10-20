@@ -1,13 +1,14 @@
 /** Pestaña Semana: estilo referencia SpotOn — columna día, tarjetas con doble formato de horas y estados. */
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {Screen, H1, Card, TintedCard, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
 import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
+import { SwipeRow } from '../components/SwipeRow';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
@@ -60,6 +61,12 @@ export function WeekScreen() {
   const locked = isWeekLocked(key);
   const days = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
   const byId = jobsById(jobs);
+  // Solo para la vista previa web: montar abierta la primera fila de turnos
+  const swipeTest =
+    Platform.OS === 'web' && typeof localStorage !== 'undefined' && localStorage.getItem('turniq-test-swipe') === '1';
+  const firstShiftId = days
+    .map((d) => shifts.find((s) => s.fecha === ymd(d)))
+    .find(Boolean)?.id;
 
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === key);
   const totals = calcWeekTotals(inWeek, byId, settings.umbralExtraHrs, settings.multExtra);
@@ -254,12 +261,22 @@ export function WeekScreen() {
                       ? ['#F1F8F2', '#E6F2E8'] as const
                       : ['#FFFFFF', '#F8F9FB'] as const;
                   return (
-                    <TouchableOpacity
+                    <SwipeRow
                       key={s.id}
+                      disabled={locked}
+                      labels={{ edit: t.swipe.edit, duplicate: t.swipe.duplicate, delete: t.swipe.delete }}
+                      onEdit={() => setDetailShift(s)}
+                      onDuplicate={() => {
+                        duplicateShift(s.id);
+                        toast.success(t.toast.shiftDuplicated);
+                      }}
+                      onDelete={() => setConfirmId(s.id)}
+                      startOpen={swipeTest && s.id === firstShiftId}
+                    >
+                    <TouchableOpacity
                       onPress={() => setDetailShift(s)}
                       activeOpacity={0.7}
                       style={{
-                        marginBottom: SP.sm,
                         borderRadius: R.lg,
                         shadowColor: '#6B7A99',
                         shadowOpacity: 0.2,
@@ -310,6 +327,7 @@ export function WeekScreen() {
                       )}
                       </LinearGradient>
                     </TouchableOpacity>
+                    </SwipeRow>
                   );
                 })}
                 {!locked && ds.length === 0 && (

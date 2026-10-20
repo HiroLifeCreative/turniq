@@ -50,9 +50,15 @@ const es = {
     clockOut: 'Salida marcada',
     shiftSaved: 'Turno guardado',
     shiftDeleted: 'Turno eliminado',
+    shiftDuplicated: 'Turno duplicado',
     weekDuplicated: 'Semana duplicada',
     backupExported: 'Respaldo exportado',
     backupImported: 'Datos importados',
+  },
+  swipe: {
+    edit: 'Editar',
+    duplicate: 'Duplicar',
+    delete: 'Eliminar',
   },
   stats: {
     title: 'Estadísticas',
@@ -354,9 +360,15 @@ const en: Strings = {
     clockOut: 'Clocked out',
     shiftSaved: 'Shift saved',
     shiftDeleted: 'Shift deleted',
+    shiftDuplicated: 'Shift duplicated',
     weekDuplicated: 'Week duplicated',
     backupExported: 'Backup exported',
     backupImported: 'Data imported',
+  },
+  swipe: {
+    edit: 'Edit',
+    duplicate: 'Duplicate',
+    delete: 'Delete',
   },
   stats: {
     title: 'Statistics',
