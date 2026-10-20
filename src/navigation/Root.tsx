@@ -1,6 +1,6 @@
 /** Navegación: bottom tabs (Inicio/Semana/Trabajos/Ganancias) + stack modal "Más". */
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
@@ -8,7 +8,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, useT, Icon } from '../components/ui';
+import { useTheme, useT, Icon, bandColor } from '../components/ui';
 import { useStore } from '../store';
 import { FONT, ICON } from '../theme/tokens';
 import type { TabsParamList, MasStackParamList, RootStackParamList } from './types';
@@ -50,7 +50,12 @@ function MasNavigator() {
   return (
     <MasStack.Navigator
       initialRouteName={initial}
-      screenOptions={{ headerShown: false, contentStyle: { backgroundColor: p.bg } }}
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: bandColor(p.bg === '#0B0B0C') },
+        animation: 'slide_from_right',
+        animationDuration: 250,
+      }}
     >
       <MasStack.Screen name="MasHome" component={MasScreen} />
       <MasStack.Screen name="Reports" component={ReportsScreen} />
@@ -85,7 +90,19 @@ function TabsNavigator() {
   const DockBar = (props: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
     const activeIdx = props.state.index;
-    const PAD = 6;
+    // Responsive: el dock escala con el ancho del teléfono (base 412dp)
+    // y parte de un tamaño más compacto que antes (Nelson: en su
+    // teléfono se veía muy grande).
+    const { width: winW } = useWindowDimensions();
+    const s = Math.min(1, Math.max(0.8, winW / 412));
+    const BTN_H = Math.round(48 * s);
+    const W_ON = Math.round(58 * s);
+    const W_OFF = Math.round(48 * s);
+    const GAP = Math.round(12 * s);
+    const PADX = Math.round(12 * s);
+    const PAD = 5;
+    const GLASS_R = Math.round(30 * s);
+    const ICON_SZ = Math.round(23 * s);
     const activeFg = '#C4E9FF';
     return (
       <>
@@ -101,7 +118,7 @@ function TabsNavigator() {
       >
       <View
         style={{
-          borderRadius: 32,
+          borderRadius: GLASS_R,
           shadowColor: '#000',
           shadowOpacity: 0.18,
           shadowRadius: 22,
@@ -113,16 +130,16 @@ function TabsNavigator() {
           intensity={70}
           tint={dark ? 'dark' : 'light'}
           experimentalBlurMethod="dimezisBlurView"
-          style={{ borderRadius: 32, overflow: 'hidden' }}
+          style={{ borderRadius: GLASS_R, overflow: 'hidden' }}
         >
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 15,
+              gap: GAP,
               backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
-              paddingHorizontal: 15,
+              paddingHorizontal: PADX,
               paddingVertical: PAD,
             }}
           >
@@ -134,10 +151,10 @@ function TabsNavigator() {
               return (
                 <MotiView
                   key={route.key}
-                  animate={{ width: focused ? 66 : 54 }}
+                  animate={{ width: focused ? W_ON : W_OFF }}
                   transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                   style={{
-                    height: 54,
+                    height: BTN_H,
                     borderRadius: 999,
                     overflow: 'hidden',
                     backgroundColor: focused ? '#0392FF' : 'transparent',
@@ -172,7 +189,7 @@ function TabsNavigator() {
                       borderRadius: 999,
                     }}
                   >
-                    <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={25} color={fg} />
+                    <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON_SZ} color={fg} />
                   </TouchableOpacity>
                 </MotiView>
               );
@@ -203,7 +220,14 @@ export function RootNavigator() {
   const p = useTheme();
   return (
     <NavigationContainer>
-      <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: p.bg } }}>
+      <RootStack.Navigator
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: bandColor(p.bg === '#0B0B0C') },
+          animation: 'slide_from_right',
+          animationDuration: 250,
+        }}
+      >
         <RootStack.Screen name="Tabs" component={TabsNavigator} />
         <RootStack.Screen name="MonthCalendar" component={MonthCalendarScreen} />
         <RootStack.Screen

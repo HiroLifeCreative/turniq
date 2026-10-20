@@ -17,7 +17,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginBottom: SP.sm, paddingHorizontal: SP.md }}>
         {title.toUpperCase()}
       </Text>
-      <View style={{ backgroundColor: p.card, borderRadius: 24, borderWidth: 1, borderColor: p.line, overflow: 'hidden' }}>
+      <View style={{ backgroundColor: p.card, borderRadius: 20, borderWidth: 0.5, borderColor: p.line, overflow: 'hidden' }}>
         {children}
       </View>
     </View>
@@ -139,9 +139,9 @@ export function SettingsScreen() {
                       borderRadius: R.pill,
                       paddingHorizontal: SP.lg,
                       paddingVertical: SP.sm,
-                      backgroundColor: active ? p.primary : p.surface,
+                      backgroundColor: active ? '#0392FF' : p.surface,
                       borderWidth: 1,
-                      borderColor: active ? p.primary : p.line,
+                      borderColor: active ? '#0392FF' : p.line,
                     }}
                   >
                     <Text style={{ color: active ? '#fff' : p.text2, fontWeight: active ? '700' : '400', fontSize: 13 }}>
@@ -188,7 +188,7 @@ export function SettingsScreen() {
                 </View>
                 <TouchableOpacity
                   onPress={savePin}
-                  style={{ backgroundColor: p.primary, borderRadius: R.md, paddingHorizontal: SP.lg, height: 50, justifyContent: 'center' }}
+                  style={{ backgroundColor: '#0392FF', borderRadius: R.pill, paddingHorizontal: SP.lg, height: 50, justifyContent: 'center' }}
                 >
                   <Text style={{ color: '#fff', fontWeight: '700' }}>{t.common.save}</Text>
                 </TouchableOpacity>

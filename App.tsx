@@ -8,11 +8,19 @@ import { STR } from './src/i18n';
 import { RootNavigator } from './src/navigation/Root';
 import { ToastProvider } from './src/components/Toast';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { enableFreeze } from 'react-native-screens';
 import { PinLock } from './src/screens/PinLock';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { scheduleShiftReminders } from './src/services/notifications';
 import { parseYmd, addDays, todayYmd } from './src/lib/dates';
 import { FONT, light, dark } from './src/theme/tokens';
+
+// Congela las pantallas inactivas: entrar a Ajustes/Calendario se
+// siente fluido porque los tabs dejan de renderizar detrás.
+enableFreeze(true);
+
+/** Tiempo mínimo visible de la pantalla de carga (splash). */
+const SPLASH_MIN_MS = 3500;
 
 async function loadFonts(): Promise<void> {
   await Font.loadAsync({
@@ -24,6 +32,7 @@ async function loadFonts(): Promise<void> {
 
 export default function App() {
   const [ready, setReady] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [onboardingVisible, setOnboardingVisible] = useState(true);
   const hydrated = useStore((s) => s.hydrated);
@@ -41,6 +50,12 @@ export default function App() {
       .finally(() => setReady(true));
   }, []);
 
+  // Splash: visible al menos SPLASH_MIN_MS aunque todo cargue antes.
+  useEffect(() => {
+    const id = setTimeout(() => setSplashDone(true), SPLASH_MIN_MS);
+    return () => clearTimeout(id);
+  }, []);
+
   // Programa avisos de turnos próximos (solo nativo)
   useEffect(() => {
     if (Platform.OS === 'web' || !ready) return;
@@ -55,11 +70,12 @@ export default function App() {
     void scheduleShiftReminders(upcoming, jobsById(jobs), settings.avisosMin, strings.notif);
   }, [shifts, jobs, settings.avisosMin, settings.idioma, idioma, ready]);
 
-  if (!ready || !hydrated) {
-    const p = darkMode ? dark : light;
+  if (!ready || !hydrated || !splashDone) {
     return (
-      <View style={{ flex: 1, backgroundColor: p.bg, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 34, fontWeight: '800', color: p.primary }}>Turniq</Text>
+      <View style={{ flex: 1, backgroundColor: '#14161A', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ fontSize: 38, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 }}>
+          Turniq<Text style={{ color: '#0392FF' }}>.</Text>
+        </Text>
       </View>
     );
   }
