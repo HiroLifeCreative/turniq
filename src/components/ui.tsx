@@ -56,10 +56,10 @@ export const Screen = ({ children, style }: { children: React.ReactNode; style?:
 
 export const Card = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => {
   const p = useTheme();
-  const darkMode = p.bg === '#000000' || p.bg === '#0A0A0B';
-  // Degradado súper suave: de blanco/transparente sutil al color de tarjeta
+  const darkMode = p.bg === '#0B0B0C';
+  // Degradado súper suave según tema
   const gradColors: [string, string] = darkMode
-    ? ['#1A1D23', p.card]
+    ? ['#1E1E22', p.card]
     : ['#FFFFFF', p.card];
   return (
     <LinearGradient

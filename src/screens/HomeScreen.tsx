@@ -354,7 +354,7 @@ export function HomeScreen() {
               <MotiView key={s.id} from={{ opacity: 0, translateY: 12 }} animate={{ opacity: 1, translateY: 0 }} transition={{ delay: idx * 80 }}>
                 <TouchableOpacity onPress={goWeek} activeOpacity={0.7} style={{ marginBottom: SP.sm, borderRadius: 20, shadowColor: '#8A94A6', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}>
                   <LinearGradient
-                    colors={['#FFFFFF', '#F8F9FB']}
+                    colors={p.bg === '#0B0B0C' ? ['#1E1E22', '#17171A'] : ['#FFFFFF', '#F8F9FB']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={{ borderRadius: 20, borderWidth: 1, borderColor: p.line, padding: SP.lg, flexDirection: 'row', alignItems: 'center' }}

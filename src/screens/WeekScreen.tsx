@@ -78,7 +78,9 @@ export function WeekScreen() {
   const statusBg = (st: Status): string =>
     st === 'now' ? '#FFF4E5' : st === 'missed' ? '#FDECEA' : st === 'upcoming' ? '#E8F5E9' : p.surface;
   const statusBorder = (st: Status): string =>
-    st === 'now' ? '#FFB74D' : st === 'missed' ? '#F5A5A5' : st === 'upcoming' ? '#A5D6A7' : p.line;
+    p.bg === '#0B0B0C'
+      ? st === 'now' ? '#5A3A1A' : st === 'missed' ? '#5A2A2A' : st === 'upcoming' ? '#2A4A2E' : '#2A2A2E'
+      : st === 'now' ? '#FFB74D' : st === 'missed' ? '#F5A5A5' : st === 'upcoming' ? '#A5D6A7' : p.line;
   const statusLabel = (st: Status): string =>
     st === 'now' ? t.semana.enCurso : st === 'missed' ? t.semana.noMarcado : st === 'upcoming' ? t.semana.proximo : t.semana.pasado;
 
@@ -196,14 +198,23 @@ export function WeekScreen() {
                   const estNames = (s.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
                   const st = shiftStatus(s, now);
                   const h = shiftHours(s);
-                  // Degradado súper suave por estado
-                  const grad = st === 'now'
-                    ? ['#FFF8EE', '#FFF1DC'] as const
-                    : st === 'missed'
-                    ? ['#FEF2F1', '#FDE8E6'] as const
-                    : st === 'upcoming'
-                    ? ['#F1F8F2', '#E6F2E8'] as const
-                    : ['#FFFFFF', '#F8F9FB'] as const;
+                  const darkMode = p.bg === '#0B0B0C';
+                  // Degradado súper suave por estado (respeta modo oscuro)
+                  const grad: readonly [string, string] = darkMode
+                    ? st === 'now'
+                      ? ['#2A2118', '#241D14'] as const
+                      : st === 'missed'
+                      ? ['#2A1E1E', '#241B1B'] as const
+                      : st === 'upcoming'
+                      ? ['#1B261D', '#182119'] as const
+                      : ['#1E1E22', '#17171A'] as const
+                    : st === 'now'
+                      ? ['#FFF8EE', '#FFF1DC'] as const
+                      : st === 'missed'
+                      ? ['#FEF2F1', '#FDE8E6'] as const
+                      : st === 'upcoming'
+                      ? ['#F1F8F2', '#E6F2E8'] as const
+                      : ['#FFFFFF', '#F8F9FB'] as const;
                   return (
                     <TouchableOpacity
                       key={s.id}
