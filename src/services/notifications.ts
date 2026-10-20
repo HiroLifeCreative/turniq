@@ -6,6 +6,7 @@
 import { Platform } from 'react-native';
 import { hmToMin, parseYmd } from '../lib/dates';
 import type { Shift, Job } from '../store';
+import { alarmNativeAvailable, nativeScheduleAlarm, nativeCancelAllAlarms } from './alarmNative';
 
 export type AlarmSoundKey = 'clasica' | 'suave' | 'fuerte';
 
@@ -97,6 +98,12 @@ export async function scheduleShiftReminders(
   const ok = await ensureNotifPermission();
   if (!ok) return;
   await ensureChannels();
+  // En Android los avisos van por la ALARMA NATIVA (setAlarmClock +
+  // pantalla completa); expo-notifications queda para iOS y para el
+  // resto (salida olvidada, estado). Se limpia el set anterior y se
+  // reprograma fresco (las pospuestas se conservan).
+  const useNative = Platform.OS === 'android' && alarmNativeAvailable;
+  if (useNative) await nativeCancelAllAlarms();
   const now = Date.now();
   for (const sh of shifts) {
     const job = jobsById[sh.jobId];
@@ -115,12 +122,17 @@ export async function scheduleShiftReminders(
       }
       if (d.getTime() <= now) continue;
       const when = avisoLabel(avisoMin, t);
+      const body = t.before.replace('{job}', job?.nombre ?? '').replace('{when}', when);
+      if (useNative) {
+        await nativeScheduleAlarm(`aviso-${sh.id}-${avisoMin}`, d.getTime(), sh.id, 'Turniq', body, sound);
+        continue;
+      }
       try {
         await Notifications.scheduleNotificationAsync({
           identifier: `turniq-${sh.id}-${avisoMin}`,
           content: {
             title: 'Turniq',
-            body: t.before.replace('{job}', job?.nombre ?? '').replace('{when}', when),
+            body,
             data: { type: 'aviso', shiftId: sh.id, avisoMin },
             sound: ALARM_FILES[sound],
           },
@@ -177,6 +189,11 @@ export async function scheduleSnooze(
   if (!Notifications) return;
   await ensureChannels();
   const when = avisoLabel(0, t);
+  const body = t.before.replace('{job}', job?.nombre ?? '').replace('{when}', when);
+  if (Platform.OS === 'android' && alarmNativeAvailable) {
+    await nativeScheduleAlarm(`snooze-${shift.id}`, Date.now() + minutes * 60000, shift.id, 'Turniq', body, sound);
+    return;
+  }
   try {
     await Notifications.scheduleNotificationAsync({
       identifier: `turniq-snooze-${shift.id}`,
@@ -202,6 +219,10 @@ export async function scheduleTestAlarm(
   const ok = await ensureNotifPermission();
   if (!ok) return false;
   await ensureChannels();
+  // La prueba va por la misma vía real de la alarma (nativa en Android)
+  if (Platform.OS === 'android' && alarmNativeAvailable) {
+    return nativeScheduleAlarm('prueba', Date.now() + 3000, '', t.testTitle, t.testBody, sound);
+  }
   try {
     await Notifications.scheduleNotificationAsync({
       identifier: 'turniq-test',

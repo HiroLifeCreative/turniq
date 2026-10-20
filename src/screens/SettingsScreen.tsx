@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import {  View, Text, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { ContentSheet,  Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, IosSwitch, useTheme, useT } from '../components/ui';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
 import { scheduleTestAlarm, type AlarmSoundKey } from '../services/notifications';
+import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings } from '../services/alarmNative';
 import { useToast } from '../components/Toast';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
@@ -61,6 +62,16 @@ export function SettingsScreen() {
 
   const [pinInput, setPinInput] = useState('');
   const [confirmWipe, setConfirmWipe] = useState(false);
+  const [fsiOk, setFsiOk] = useState<boolean | null>(null);
+
+  // Permiso de alarma a pantalla completa (solo Android con módulo)
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS === 'android' && alarmNativeAvailable) {
+        void nativeCanUseFullScreenIntent().then(setFsiOk);
+      }
+    }, []),
+  );
 
   const savePin = () => {
     if (/^\d{4}$/.test(pinInput)) {
@@ -201,6 +212,19 @@ export function SettingsScreen() {
               onChange={(v) => setSettings({ posponerMin: v })}
             />
           </SettingRow>
+          {Platform.OS === 'android' && alarmNativeAvailable && (
+            <SettingRow icon="bell" label={t.alarma.fullScreen} last={false}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3, marginBottom: SP.sm }}>{t.alarma.fullScreenHint}</Text>
+              {fsiOk ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.sm }}>
+                  <Icon name="check" size={ICON.md} color="#30A46C" />
+                  <Text style={{ color: '#30A46C', fontWeight: '700', fontSize: 14 }}>{t.alarma.active}</Text>
+                </View>
+              ) : (
+                <Btn title={t.alarma.allow} kind="ghost" onPress={() => void nativeOpenFullScreenIntentSettings()} />
+              )}
+            </SettingRow>
+          )}
           <SettingRow icon="bell" label={t.alarma.test} last>
             <Btn
               title={t.alarma.test}

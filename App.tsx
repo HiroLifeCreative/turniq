@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, AppState } from 'react-native';
 import * as Font from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,6 +12,7 @@ import { enableFreeze } from 'react-native-screens';
 import { PinLock } from './src/screens/PinLock';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { scheduleShiftReminders, getNotifications, presentWorkingNotification, dismissWorkingNotification, scheduleSnooze } from './src/services/notifications';
+import { nativeGetPendingAlarm, nativeClearPendingAlarm } from './src/services/alarmNative';
 import { parseYmd, addDays, todayYmd, hmTo12h } from './src/lib/dates';
 import { AlarmScreen } from './src/screens/AlarmScreen';
 import { FONT, light, dark } from './src/theme/tokens';
@@ -101,6 +102,31 @@ export default function App() {
       subResp.remove();
     };
   }, []);
+
+  // Alarma NATIVA (Android): si el receiver disparó una alarma del
+  // sistema, dejó el shiftId guardado; al entrar/enfocar la app se
+  // abre la pantalla de Alarma.
+  useEffect(() => {
+    if (Platform.OS !== 'android' || !ready) return;
+    let alive = true;
+    const check = async () => {
+      const shiftId = await nativeGetPendingAlarm();
+      if (alive && shiftId) {
+        setAlarmShiftId(shiftId);
+        void nativeClearPendingAlarm();
+      }
+    };
+    void check();
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') void check();
+    });
+    const iv = setInterval(check, 15000);
+    return () => {
+      alive = false;
+      sub.remove();
+      clearInterval(iv);
+    };
+  }, [ready]);
 
   // Notificación fija "Estás trabajando" mientras haya turno abierto
   const openShift = shifts.find((s) => s.horaEntradaReal && !s.horaSalidaReal);
