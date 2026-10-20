@@ -10,6 +10,7 @@ import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, useTheme, useT } from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
+import { useToast } from '../components/Toast';
 import { useStore, jobsById, type Shift } from '../store';
 import type { TabsParamList } from '../navigation/types';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
@@ -27,6 +28,7 @@ export function HomeScreen() {
   const t = useT();
   const p = useTheme();
   const nav = useNavigation<BottomTabNavigationProp<TabsParamList>>();
+  const toast = useToast();
   const goWeek = () => nav.navigate('Semana' as never);
   const goJobs = () => nav.navigate('Trabajos' as never);
   const jobs = useStore((s) => s.jobs);
@@ -195,11 +197,13 @@ export function HomeScreen() {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     updateShift(shiftId, { horaEntradaReal: nowHm() });
     setClockSheetOpen(false);
+    toast.success(t.toast.clockIn);
   };
   const clockOut = () => {
     if (openShift) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       updateShift(openShift.id, { horaSalidaReal: nowHm() });
+      toast.success(t.toast.clockOut);
     }
   };
 

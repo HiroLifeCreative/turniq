@@ -5,6 +5,7 @@ import { Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, IosSwitch, useTh
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
+import { useToast } from '../components/Toast';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
 
@@ -50,6 +51,7 @@ function SettingRow({ icon, label, children, last }: { icon: string; label: stri
 
 export function SettingsScreen() {
   const t = useT();
+  const toast = useToast();
   const p = useTheme();
   const nav = useNavigation();
   const settings = useStore((s) => s.settings);
@@ -230,6 +232,7 @@ export function SettingsScreen() {
                     templates: s.templates,
                     settings: s.settings,
                   });
+                  toast.success(t.toast.backupExported);
                 }}
               />
               <Btn
@@ -250,6 +253,7 @@ export function SettingsScreen() {
                             templates: (data.templates ?? []) as never,
                             settings: { ...useStore.getState().settings, ...(data.settings as object) },
                           });
+                          toast.success(t.toast.backupImported);
                         },
                       },
                     ]);

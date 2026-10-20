@@ -7,6 +7,7 @@ import {Screen, H1, Card, TintedCard, Btn, Label, Confirm, useTheme, useT, Heade
 import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
+import { useToast } from '../components/Toast';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
@@ -35,6 +36,7 @@ export function WeekScreen() {
   const t = useT();
   const nav = useNavigation();
   const p = useTheme();
+  const toast = useToast();
   const jobs = useStore((s) => s.jobs);
   const shifts = useStore((s) => s.shifts);
   const settings = useStore((s) => s.settings);
@@ -69,6 +71,7 @@ export function WeekScreen() {
     if (n > 0) {
       setDupMsg(true);
       setTimeout(() => setDupMsg(false), 2500);
+      toast.success(t.toast.weekDuplicated);
     }
   };
 
@@ -411,7 +414,7 @@ export function WeekScreen() {
         message={t.today.confirmDelete}
         yesLabel={t.today.delete}
         noLabel={t.today.cancel}
-        onYes={() => { if (confirmId) deleteShift(confirmId); setConfirmId(null); }}
+        onYes={() => { if (confirmId) { deleteShift(confirmId); toast.success(t.toast.shiftDeleted); } setConfirmId(null); }}
         onNo={() => setConfirmId(null)}
       />
     </Screen>

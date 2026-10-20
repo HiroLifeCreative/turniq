@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, ScrollView } from 'react-native';
 import { Sheet, Field, Label, Btn, Icon, useTheme, useT } from './ui';
+import { useToast } from './Toast';
 import { IosTimePicker, IosDatePicker } from './IosPickers';
 import { useStore, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
@@ -145,6 +146,7 @@ export function ShiftForm({
 }) {
   const t = useT();
   const p = useTheme();
+  const toast = useToast();
   const jobs = useStore((s) => s.jobs);
   const templates = useStore((s) => s.templates);
   const addTemplate = useStore((s) => s.addTemplate);
@@ -244,6 +246,7 @@ export function ShiftForm({
     else addShift(data);
     setShowOverlap(false);
     onClose();
+    toast.success(t.toast.shiftSaved);
   };
 
   return (

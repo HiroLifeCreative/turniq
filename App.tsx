@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore, jobsById } from './src/store';
 import { STR } from './src/i18n';
 import { RootNavigator } from './src/navigation/Root';
+import { ToastProvider } from './src/components/Toast';
 import { PinLock } from './src/screens/PinLock';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { scheduleShiftReminders } from './src/services/notifications';
@@ -83,7 +84,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style={darkMode ? 'light' : 'dark'} />
-      <RootNavigator />
+      <ToastProvider>
+        <RootNavigator />
+      </ToastProvider>
     </SafeAreaProvider>
   );
 }

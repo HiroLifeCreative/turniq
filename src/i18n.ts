@@ -45,6 +45,15 @@ const es = {
     sinTurnos: 'Sin turnos este día',
     totalDia: 'Total del día',
   },
+  toast: {
+    clockIn: 'Entrada marcada',
+    clockOut: 'Salida marcada',
+    shiftSaved: 'Turno guardado',
+    shiftDeleted: 'Turno eliminado',
+    weekDuplicated: 'Semana duplicada',
+    backupExported: 'Respaldo exportado',
+    backupImported: 'Datos importados',
+  },
   stats: {
     title: 'Estadísticas',
     bestDay: 'Mejor día',
@@ -339,6 +348,15 @@ const en: Strings = {
     title: 'Calendar',
     sinTurnos: 'No shifts this day',
     totalDia: 'Day total',
+  },
+  toast: {
+    clockIn: 'Clocked in',
+    clockOut: 'Clocked out',
+    shiftSaved: 'Shift saved',
+    shiftDeleted: 'Shift deleted',
+    weekDuplicated: 'Week duplicated',
+    backupExported: 'Backup exported',
+    backupImported: 'Data imported',
   },
   stats: {
     title: 'Statistics',
