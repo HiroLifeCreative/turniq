@@ -380,7 +380,7 @@ export function HomeScreen() {
         {/* RECORDATORIO: próximo turno con cuenta atrás */}
         {nextShift && (
           <TouchableOpacity onPress={() => nav.navigate('Semana')} activeOpacity={0.85} style={{ marginBottom: SP.md }}>
-            <Card style={{ marginBottom: 0 }}>
+            <Card style={{ marginBottom: 0, borderRadius: 20 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(3,146,255,0.12)', alignItems: 'center', justifyContent: 'center', marginRight: SP.md }}>
                   <Icon name="bell" size={ICON.md} color="#0392FF" />
