@@ -268,6 +268,16 @@ export function SettingsScreen() {
           )}
         </Section>
 
+        {/* GOOGLE */}
+        <Section title={t.settings.google}>
+          <SettingRow icon="calendar" label={t.more.calendar} last={false}>
+            <Btn title={t.more.calendar} onPress={() => (nav.navigate as any)('CalendarSync')} kind="ghost" />
+          </SettingRow>
+          <SettingRow icon="mail" label={t.more.gmail} last>
+            <Btn title={t.more.gmail} onPress={() => (nav.navigate as any)('Gmail')} kind="ghost" />
+          </SettingRow>
+        </Section>
+
         {/* ACERCA DE */}
         <Section title={t.settings.acerca}>
           <SettingRow icon="settings" label="Turniq" last={false}>
