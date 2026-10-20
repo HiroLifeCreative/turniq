@@ -112,7 +112,7 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
       end={{ x: 0, y: 1 }}
       style={[
         {
-          borderRadius: R.lg,
+          borderRadius: 20,
           borderWidth: 0.5,
           borderColor: darkMode ? '#2E2E33' : '#EDEFF2',
           padding: SP.lg,
@@ -183,7 +183,7 @@ export const TintedCard = ({
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
-          borderRadius: R.lg,
+          borderRadius: 20,
           borderWidth: 0.5,
           borderColor: 'rgba(255,255,255,0.09)',
           padding: SP.lg,

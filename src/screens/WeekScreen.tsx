@@ -245,22 +245,12 @@ export function WeekScreen() {
                     return a1 < b2 && b1 < a2;
                   });
                   const darkMode = p.bg === '#0B0B0C';
-                  // Degradado súper suave por estado (respeta modo oscuro)
+                  // Mismo diseño que la tarjeta de recordatorio y las de
+                  // Próximos turnos: blanca limpia (sin tinte por estado);
+                  // el estado lo cuentan la barra lateral y los textos.
                   const grad: readonly [string, string] = darkMode
-                    ? st === 'now'
-                      ? ['#2A2118', '#241D14'] as const
-                      : st === 'missed'
-                      ? ['#2A1E1E', '#241B1B'] as const
-                      : st === 'upcoming'
-                      ? ['#1B261D', '#182119'] as const
-                      : ['#1E1E22', '#17171A'] as const
-                    : st === 'now'
-                      ? ['#FFF8EE', '#FFF1DC'] as const
-                      : st === 'missed'
-                      ? ['#FEF2F1', '#FDE8E6'] as const
-                      : st === 'upcoming'
-                      ? ['#F1F8F2', '#E6F2E8'] as const
-                      : ['#FFFFFF', '#F8F9FB'] as const;
+                    ? (['#1E1E22', '#17171A'] as const)
+                    : (['#FFFFFF', '#F8F9FB'] as const);
                   return (
                     <SwipeRow
                       key={s.id}
@@ -278,7 +268,7 @@ export function WeekScreen() {
                       onPress={() => setDetailShift(s)}
                       activeOpacity={0.7}
                       style={{
-                        borderRadius: R.lg,
+                        borderRadius: 20,
                         shadowColor: '#6B7A99',
                         shadowOpacity: 0.2,
                         shadowRadius: 14,
@@ -291,10 +281,10 @@ export function WeekScreen() {
                         start={{ x: 0, y: 0 }}
                         end={{ x: 0, y: 1 }}
                         style={{
-                          borderRadius: R.lg,
+                          borderRadius: 20,
                           borderWidth: 0.5,
-                          borderColor: p.bg === '#0B0B0C' ? '#2E2E33' : '#E8EAEE',
-                          padding: SP.md,
+                          borderColor: p.bg === '#0B0B0C' ? '#2E2E33' : '#EDEFF2',
+                          padding: SP.lg,
                           flexDirection: 'row',
                           alignItems: 'center',
                         }}
