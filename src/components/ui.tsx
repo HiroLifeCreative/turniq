@@ -471,17 +471,27 @@ export function Icon({ name, size = ICON.md, color }: { name: string; size?: num
 export function Header({ title, onSettings }: { title: string; onSettings?: () => void }) {
   const p = useTheme();
   return (
-    <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SP.lg, marginBottom: SP.sm }}>
-      <Text style={{ fontFamily: FONT.headBold, fontSize: 20, letterSpacing: -0.4, color: p.text }}>{title}</Text>
-      {onSettings && (
-        <TouchableOpacity
-          onPress={onSettings}
-          hitSlop={12}
-          style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <Icon name="settings" size={ICON.lg} color={p.text2} />
-        </TouchableOpacity>
-      )}
+    <View style={{
+      backgroundColor: p.bg,
+      shadowColor: '#8A94A6',
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      shadowOffset: { width: 0, height: 4 },
+      elevation: 3,
+      zIndex: 10,
+    }}>
+      <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SP.lg, marginBottom: SP.sm }}>
+        <Text style={{ fontFamily: FONT.headBold, fontSize: 20, letterSpacing: -0.4, color: p.text }}>{title}</Text>
+        {onSettings && (
+          <TouchableOpacity
+            onPress={onSettings}
+            hitSlop={12}
+            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Icon name="settings" size={ICON.lg} color={p.text2} />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
