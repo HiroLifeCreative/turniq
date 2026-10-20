@@ -149,6 +149,9 @@ const es = {
     freeDay: 'Día libre (sin trabajo)',
     templates: 'Plantillas',
     saveAsTemplate: 'Guardar como plantilla',
+    overlapTitle: 'Turno traslapado',
+    overlapMsg: 'Ya tienes otro turno en ese horario. ¿Seguro que quieres guardarlo?',
+    saveAnyway: 'Guardar igual',
   },
   reports: {
     title: 'Reportes',
@@ -395,6 +398,9 @@ const en: Strings = {
     freeDay: 'Day off (no work)',
     templates: 'Templates',
     saveAsTemplate: 'Save as template',
+    overlapTitle: 'Overlapping shift',
+    overlapMsg: 'You already have another shift at that time. Are you sure you want to save it?',
+    saveAnyway: 'Save anyway',
   },
   reports: {
     title: 'Reports',

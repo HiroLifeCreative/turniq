@@ -22,7 +22,7 @@ export interface Shift {
   id: string;
   jobId: string;
   esLibre?: boolean; // turno libre (no atado a trabajo)
-  estacionId?: string;
+  estacionIds?: string[]; // múltiples estaciones
   fecha: string; // YYYY-MM-DD
   horaEntrada: string; // HH:MM
   horaSalida: string | null;
@@ -53,7 +53,7 @@ export interface ShiftTemplate {
   id: string;
   nombre: string;
   jobId: string;
-  estacionId?: string;
+  estacionIds?: string[];
   horaEntrada: string;
   horaSalida: string;
   breakMin: number;
@@ -191,6 +191,21 @@ export const useStore = create<State>()(
           delete (state.settings as unknown as { avisoPrevioMin?: number }).avisoPrevioMin;
         }
         if (state && !Array.isArray(state.templates)) state.templates = [];
+        // Migración: estacionId (string) → estacionIds (array)
+        if (state) {
+          for (const s of state.shifts as unknown as Array<{ estacionId?: string; estacionIds?: string[] }>) {
+            if (s.estacionId !== undefined && !Array.isArray(s.estacionIds)) {
+              s.estacionIds = s.estacionId ? [s.estacionId] : [];
+              delete s.estacionId;
+            }
+          }
+          for (const tp of state.templates as unknown as Array<{ estacionId?: string; estacionIds?: string[] }>) {
+            if (tp.estacionId !== undefined && !Array.isArray(tp.estacionIds)) {
+              tp.estacionIds = tp.estacionId ? [tp.estacionId] : [];
+              delete tp.estacionId;
+            }
+          }
+        }
         state?.setHydrated();
       },
     },

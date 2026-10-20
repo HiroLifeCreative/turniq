@@ -73,6 +73,11 @@ export function WeekScreen() {
 
   const statusColor = (st: Status): string =>
     st === 'now' ? '#E8830C' : st === 'missed' ? p.danger : st === 'upcoming' ? p.success : p.text3;
+  // Fondo tintado + color de acento por estado
+  const statusBg = (st: Status): string =>
+    st === 'now' ? '#FFF4E5' : st === 'missed' ? '#FDECEA' : st === 'upcoming' ? '#E8F5E9' : p.surface;
+  const statusBorder = (st: Status): string =>
+    st === 'now' ? '#FFB74D' : st === 'missed' ? '#F5A5A5' : st === 'upcoming' ? '#A5D6A7' : p.line;
   const statusLabel = (st: Status): string =>
     st === 'now' ? t.semana.enCurso : st === 'missed' ? t.semana.noMarcado : st === 'upcoming' ? t.semana.proximo : t.semana.pasado;
 
@@ -187,7 +192,7 @@ export function WeekScreen() {
                 </View>
                 {ds.map((s) => {
                   const job = byId[s.jobId];
-                  const est = job?.estaciones.find((e) => e.id === s.estacionId);
+                  const estNames = (s.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
                   const st = shiftStatus(s, now);
                   const h = shiftHours(s);
                   return (
@@ -196,22 +201,28 @@ export function WeekScreen() {
                       onPress={() => setDetailShift(s)}
                       activeOpacity={0.7}
                       style={{
-                        backgroundColor: st === 'past' ? p.surface : p.card,
+                        backgroundColor: statusBg(st),
                         borderRadius: R.lg,
-                        borderWidth: st === 'past' ? 1 : 1.5,
-                        borderColor: st === 'past' ? p.line : statusColor(st),
+                        borderWidth: 1,
+                        borderColor: statusBorder(st),
                         padding: SP.md,
                         marginBottom: SP.sm,
                         flexDirection: 'row',
                         alignItems: 'center',
+                        shadowColor: '#8A94A6',
+                        shadowOpacity: 0.1,
+                        shadowRadius: 12,
+                        shadowOffset: { width: 0, height: 4 },
+                        elevation: 3,
                       }}
                     >
+                      <View style={{ width: 4, borderRadius: 2, alignSelf: 'stretch', backgroundColor: statusColor(st), marginRight: SP.md }} />
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
                           {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'} · {fmtHoursDual(h)}
                         </Text>
-                        <Text style={{ fontSize: 13, marginTop: 3, color: statusColor(st), fontWeight: st === 'now' ? '700' : '400' }}>
-                          {s.esLibre ? t.shift.freeDay : `${job?.nombre ?? ''}${est ? ` · ${est.nombre}` : ''}`} · {statusLabel(st)}
+                        <Text style={{ fontSize: 13, marginTop: 3, color: statusColor(st), fontWeight: '700' }}>
+                          {s.esLibre ? t.shift.freeDay : `${job?.nombre ?? ''}${estNames.length ? ` · ${estNames.join(', ')}` : ''}`} · {statusLabel(st)}
                         </Text>
                       </View>
                       {!locked && (
@@ -278,18 +289,18 @@ export function WeekScreen() {
         onClose={() => setMenuShift(null)}
         title={menuShift ? (() => {
           const job = byId[menuShift.jobId];
-          const est = job?.estaciones.find((e) => e.id === menuShift.estacionId);
+          const estList = (menuShift.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
           return `${hmTo12h(menuShift.horaEntrada, esFmt)} – ${menuShift.horaSalida ? hmTo12h(menuShift.horaSalida, esFmt) : '…'}`;
         })() : ''}
       >
         {menuShift && (() => {
           const job = byId[menuShift.jobId];
-          const est = job?.estaciones.find((e) => e.id === menuShift.estacionId);
+          const estList = (menuShift.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
           return (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.md }}>
               <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: job?.color ?? p.primary, marginRight: 8 }} />
               <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>
-                {[job?.nombre, est?.nombre].filter(Boolean).join(' · ')}
+                {[job?.nombre, estList.join(', ')].filter(Boolean).join(' · ')}
               </Text>
             </View>
           );

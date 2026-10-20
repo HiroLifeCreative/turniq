@@ -37,7 +37,7 @@ export function ShiftDetailSheet({
   if (!shift) return null;
   const byId = jobsById(jobs);
   const job = byId[shift.jobId];
-  const est = job?.estaciones.find((e) => e.id === shift.estacionId);
+  const estNames = (shift.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
   const esFmt = settings.idioma === 'es';
   const isOpen = !shift.horaSalida;
   const hrs = shiftHours(shift);
@@ -61,7 +61,7 @@ export function ShiftDetailSheet({
 
         <Row label={t.today.title} value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}`} />
         <Row label={t.week.hours} value={fmtHours(hrs)} color={p.primary} />
-        {!!est && <Row label={t.inicio.proximo} value={est.nombre} />}
+        {estNames.length > 0 && <Row label={t.shift.station} value={estNames.join(", ")} />}
         {shift.breakMin > 0 && <Row label={t.shift.break} value={`${shift.breakMin} min`} />}
         {shift.propinas > 0 && <Row label={t.shift.tips} value={fmtMoney(shift.propinas)} color={p.success} />}
         {shift.bono > 0 && <Row label={t.shift.bonus} value={fmtMoney(shift.bono)} color={p.success} />}

@@ -153,7 +153,7 @@ export function ShiftForm({
   const updateShift = useStore((s) => s.updateShift);
 
   const [jobId, setJobId] = useState('');
-  const [estacionId, setEstacionId] = useState<string | undefined>(undefined);
+  const [estacionIds, setEstacionIds] = useState<string[]>([]);
   const [fecha, setFecha] = useState(defaultDate ?? todayYmd());
   const [entrada, setEntrada] = useState('09:00');
   const [salida, setSalida] = useState('');
@@ -167,7 +167,7 @@ export function ShiftForm({
     if (visible) {
       if (editing) {
         setJobId(editing.jobId);
-        setEstacionId(editing.estacionId);
+        setEstacionIds(editing.estacionIds ?? []);
         setFecha(editing.fecha);
         setEntrada(editing.horaEntrada);
         setSalida(editing.horaSalida ?? '');
@@ -178,7 +178,7 @@ export function ShiftForm({
         setEsLibre(!!editing.esLibre);
       } else {
         setJobId(jobs[0]?.id ?? '');
-        setEstacionId(undefined);
+        setEstacionIds([]);
         setFecha(defaultDate ?? todayYmd());
         setEntrada('09:00');
         setSalida('');
@@ -188,19 +188,50 @@ export function ShiftForm({
         setNotas('');
         setEsLibre(false);
       }
+      setShowOverlap(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const job = jobs.find((j) => j.id === jobId);
   const canSave = (esLibre || jobId !== '') && /^\d{2}:\d{2}$/.test(entrada);
+  const shifts = useStore((s) => s.shifts);
+
+  // Detectar traslape con otros turnos del mismo día
+  const overlapWarning = React.useMemo(() => {
+    if (!/^\d{2}:\d{2}$/.test(entrada)) return null;
+    const toMin = (hm: string) => {
+      const [h, m] = hm.split(':').map(Number);
+      return (h ?? 0) * 60 + (m ?? 0);
+    };
+    const start = toMin(entrada);
+    const end = salida.trim() !== '' && /^\d{2}:\d{2}$/.test(salida) ? toMin(salida) : start + 1;
+    const endN = end <= start ? end + 1440 : end;
+    for (const s of shifts) {
+      if (s.fecha !== fecha) continue;
+      if (editing && s.id === editing.id) continue;
+      if (!/^\d{2}:\d{2}$/.test(s.horaEntrada)) continue;
+      const os = toMin(s.horaEntrada);
+      const oe = s.horaSalida && /^\d{2}:\d{2}$/.test(s.horaSalida) ? toMin(s.horaSalida) : os + 1;
+      const oeN = oe <= os ? oe + 1440 : oe;
+      if (start < oeN && os < endN) return s;
+    }
+    return null;
+  }, [shifts, fecha, entrada, salida, editing]);
+
+  const [showOverlap, setShowOverlap] = useState(false);
 
   const save = () => {
     if (!canSave) return;
+    // Advertir si hay traslape
+    if (overlapWarning && !showOverlap) {
+      setShowOverlap(true);
+      return;
+    }
     const data = {
       jobId: esLibre ? '' : jobId,
       esLibre,
-      estacionId,
+      estacionIds,
       fecha,
       horaEntrada: entrada,
       horaSalida: salida.trim() === '' ? null : salida,
@@ -211,6 +242,7 @@ export function ShiftForm({
     };
     if (editing) updateShift(editing.id, data);
     else addShift(data);
+    setShowOverlap(false);
     onClose();
   };
 
@@ -226,7 +258,7 @@ export function ShiftForm({
                 key={tpl.id}
                 onPress={() => {
                   setJobId(tpl.jobId);
-                  setEstacionId(tpl.estacionId);
+                  setEstacionIds(tpl.estacionIds ?? []);
                   setEntrada(tpl.horaEntrada);
                   setSalida(tpl.horaSalida);
                   setBreakMin(String(tpl.breakMin));
@@ -280,7 +312,7 @@ export function ShiftForm({
             key={j.id}
             onPress={() => {
               setJobId(j.id);
-              setEstacionId(undefined);
+              setEstacionIds([]);
             }}
             style={{
               borderRadius: R.pill,
@@ -304,22 +336,25 @@ export function ShiftForm({
         <>
           <Label>{t.shift.station}</Label>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm, marginBottom: SP.md }}>
-            {job.estaciones.map((e) => (
-              <TouchableOpacity
-                key={e.id}
-                onPress={() => setEstacionId(e.id)}
-                style={{
-                  borderRadius: R.pill,
-                  paddingHorizontal: SP.lg,
-                  paddingVertical: SP.sm,
-                  backgroundColor: e.id === estacionId ? p.text : p.surface,
-                  borderWidth: 1,
-                  borderColor: p.line,
-                }}
-              >
-                <Text style={{ color: e.id === estacionId ? p.bg : p.text, fontSize: 14 }}>{e.nombre}</Text>
-              </TouchableOpacity>
-            ))}
+            {job.estaciones.map((e) => {
+              const active = estacionIds.includes(e.id);
+              return (
+                <TouchableOpacity
+                  key={e.id}
+                  onPress={() => setEstacionIds(active ? estacionIds.filter((id) => id !== e.id) : [...estacionIds, e.id])}
+                  style={{
+                    borderRadius: R.pill,
+                    paddingHorizontal: SP.lg,
+                    paddingVertical: SP.sm,
+                    backgroundColor: active ? p.text : p.surface,
+                    borderWidth: 1,
+                    borderColor: p.line,
+                  }}
+                >
+                  <Text style={{ color: active ? p.bg : p.text, fontSize: 14 }}>{e.nombre}</Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </>
       )}
@@ -343,6 +378,30 @@ export function ShiftForm({
         </View>
       </View>
       <Field label={t.shift.notes} value={notas} onChange={setNotas} />
+      {showOverlap && overlapWarning && (
+        <View style={{ backgroundColor: '#FFF3E0', borderRadius: R.md, padding: SP.md, marginBottom: SP.sm, borderWidth: 1, borderColor: '#FFB74D' }}>
+          <Text style={{ fontWeight: '700', color: '#E65100', fontSize: 14, marginBottom: 4 }}>
+            ⚠️ {t.shift.overlapTitle}
+          </Text>
+          <Text style={{ color: '#BF360C', fontSize: 13 }}>
+            {t.shift.overlapMsg}
+          </Text>
+          <View style={{ flexDirection: 'row', gap: SP.sm, marginTop: SP.sm }}>
+            <TouchableOpacity
+              onPress={() => setShowOverlap(false)}
+              style={{ flex: 1, height: 44, borderRadius: R.pill, borderWidth: 1, borderColor: '#FFB74D', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontWeight: '700', color: '#E65100' }}>{t.common.cancel}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => { setShowOverlap(false); save(); }}
+              style={{ flex: 1, height: 44, borderRadius: R.pill, backgroundColor: '#E65100', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ fontWeight: '700', color: '#fff' }}>{t.shift.saveAnyway}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
       <Btn title={t.shift.save} onPress={save} disabled={!canSave} arrow style={{ marginTop: SP.sm }} />
       {!editing && !esLibre && jobId !== '' && (
         <TouchableOpacity
@@ -351,7 +410,7 @@ export function ShiftForm({
             addTemplate({
               nombre: `${job?.nombre ?? ''} ${entrada}–${salida || '…'}`,
               jobId,
-              estacionId,
+              estacionIds,
               horaEntrada: entrada,
               horaSalida: salida.trim() === '' ? entrada : salida,
               breakMin: Number(breakMin) || 0,

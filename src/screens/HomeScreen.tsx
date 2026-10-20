@@ -277,7 +277,7 @@ export function HomeScreen() {
         ) : (
           upcoming.map((s, idx) => {
             const job = byId[s.jobId];
-            const est = job?.estaciones.find((e) => e.id === s.estacionId);
+            const estNames = (s.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
             const d = parseYmd(s.fecha);
             const isToday = s.fecha === today;
             return (
@@ -297,7 +297,7 @@ export function HomeScreen() {
                       <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text2, marginTop: 4 }}>
                         {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}
                       </Text>
-                      {!!est && <Text style={{ fontSize: 13, color: p.text3, marginTop: 2 }}>{est.nombre}</Text>}
+                      {!!estNames.length && <Text style={{ fontSize: 13, color: p.text3, marginTop: 2 }}>{estNames.join(', ')}</Text>}
                     </View>
                     {isToday && (
                       <View style={{ backgroundColor: p.primary, borderRadius: R.pill, paddingHorizontal: 10, paddingVertical: 4 }}>
