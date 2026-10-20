@@ -121,9 +121,9 @@ function TabsNavigator() {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8,
+              gap: 15,
               backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
-              paddingHorizontal: 8,
+              paddingHorizontal: 15,
               paddingVertical: PAD,
             }}
           >
@@ -135,7 +135,7 @@ function TabsNavigator() {
               return (
                 <MotiView
                   key={route.key}
-                  animate={{ width: focused ? 62 : 52 }}
+                  animate={{ width: focused ? 66 : 54 }}
                   transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                   style={{
                     height: 54,
