@@ -11,8 +11,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { enableFreeze } from 'react-native-screens';
 import { PinLock } from './src/screens/PinLock';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
-import { scheduleShiftReminders } from './src/services/notifications';
-import { parseYmd, addDays, todayYmd } from './src/lib/dates';
+import { scheduleShiftReminders, getNotifications, presentWorkingNotification, dismissWorkingNotification, scheduleSnooze } from './src/services/notifications';
+import { parseYmd, addDays, todayYmd, hmTo12h } from './src/lib/dates';
+import { AlarmScreen } from './src/screens/AlarmScreen';
 import { FONT, light, dark } from './src/theme/tokens';
 
 // Congela las pantallas inactivas: entrar a Ajustes/Calendario se
@@ -33,6 +34,7 @@ async function loadFonts(): Promise<void> {
 export default function App() {
   const [ready, setReady] = useState(false);
   const [splashDone, setSplashDone] = useState(false);
+  const [alarmShiftId, setAlarmShiftId] = useState<string | null>(null);
   const [unlocked, setUnlocked] = useState(false);
   const [onboardingVisible, setOnboardingVisible] = useState(true);
   const hydrated = useStore((s) => s.hydrated);
@@ -58,8 +60,7 @@ export default function App() {
 
   // Programa avisos de turnos próximos (solo nativo)
   useEffect(() => {
-    if (Platform.OS === 'web' || !ready) return;
-    const from = todayYmd();
+    if (Platform.OS === 'web' || !ready) return;    const from = todayYmd();
     const to = (() => {
       const d = parseYmd(from);
       const t2 = addDays(d, 14);
@@ -67,8 +68,72 @@ export default function App() {
     })();
     const upcoming = shifts.filter((s) => s.fecha >= from && s.fecha <= to);
     const strings = STR[idioma];
-    void scheduleShiftReminders(upcoming, jobsById(jobs), settings.avisosMin, strings.notif);
-  }, [shifts, jobs, settings.avisosMin, settings.idioma, idioma, ready]);
+    void scheduleShiftReminders(upcoming, jobsById(jobs), settings.avisosMin, settings.sonidoAlarma, strings.notif);
+  }, [shifts, jobs, settings.avisosMin, settings.sonidoAlarma, settings.idioma, idioma, ready]);
+
+  // Pantalla de Alarma: se abre al tocar un aviso o si llega con la
+  // app en primer plano (el banner no se duplica en primer plano).
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+    const N = getNotifications();
+    if (!N) return;
+    N.setNotificationHandler({
+      handleNotification: async (notification) => {
+        const type = (notification.request.content.data as { type?: string } | undefined)?.type;
+        return {
+          shouldShowAlert: type !== 'aviso',
+          shouldPlaySound: type !== 'aviso',
+          shouldSetBadge: false,
+        };
+      },
+    });
+    const openFromData = (data: unknown) => {
+      const d = data as { type?: string; shiftId?: string } | undefined;
+      if (d?.type === 'aviso' && d.shiftId) setAlarmShiftId(d.shiftId);
+    };
+    const subRecv = N.addNotificationReceivedListener((n) => openFromData(n.request.content.data));
+    const subResp = N.addNotificationResponseReceivedListener((r) => openFromData(r.notification.request.content.data));
+    void N.getLastNotificationResponseAsync().then((r) => {
+      if (r) openFromData(r.notification.request.content.data);
+    });
+    return () => {
+      subRecv.remove();
+      subResp.remove();
+    };
+  }, []);
+
+  // Notificación fija "Estás trabajando" mientras haya turno abierto
+  const openShift = shifts.find((s) => s.horaEntradaReal && !s.horaSalidaReal);
+  const openShiftId = openShift?.id;
+  const openShiftEntrada = openShift?.horaEntradaReal ?? undefined;
+  useEffect(() => {
+    if (Platform.OS === 'web' || !ready) return;
+    if (openShiftId && openShiftEntrada) {
+      const sh = shifts.find((s) => s.id === openShiftId);
+      if (sh) {
+        void presentWorkingNotification(sh, jobsById(jobs)[sh.jobId], hmTo12h(openShiftEntrada, idioma === 'es'), STR[idioma].alarma);
+        return;
+      }
+    }
+    void dismissWorkingNotification();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openShiftId, openShiftEntrada, ready]);
+
+  // Hook de verificación visual (solo web): 'turniq-test-alarma' = '1'
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !hydrated) return;
+    try {
+      if (localStorage.getItem('turniq-test-alarma') === '1') {
+        const nxt = shifts
+          .filter((s) => s.fecha >= todayYmd())
+          .sort((a, b) => (a.fecha + a.horaEntrada).localeCompare(b.fecha + b.horaEntrada))[0];
+        if (nxt) setAlarmShiftId(nxt.id);
+      }
+    } catch {
+      /* noop */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
 
   if (!ready || !hydrated || !splashDone) {
     return (
@@ -98,6 +163,8 @@ export default function App() {
     );
   }
 
+  const alarmShift = alarmShiftId ? shifts.find((s) => s.id === alarmShiftId) : undefined;
+
   return (
     <SafeAreaProvider>
       <StatusBar style={darkMode ? 'light' : 'dark'} />
@@ -105,6 +172,17 @@ export default function App() {
         <ToastProvider>
           <RootNavigator />
         </ToastProvider>
+        {alarmShift && (
+          <AlarmScreen
+            shift={alarmShift}
+            job={jobsById(jobs)[alarmShift.jobId]}
+            onSnooze={() => {
+              void scheduleSnooze(alarmShift, jobsById(jobs)[alarmShift.jobId], settings.posponerMin, settings.sonidoAlarma, STR[idioma].notif);
+              setAlarmShiftId(null);
+            }}
+            onDismiss={() => setAlarmShiftId(null)}
+          />
+        )}
       </GestureHandlerRootView>
     </SafeAreaProvider>
   );

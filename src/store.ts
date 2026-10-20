@@ -54,6 +54,8 @@ export interface Settings {
   biometrico: boolean;
   dark: boolean;
   formatoHora: '12h' | '24h';
+  sonidoAlarma: 'clasica' | 'suave' | 'fuerte';
+  posponerMin: number; // minutos al posponer la alarma
 }
 
 export interface ShiftTemplate {
@@ -114,6 +116,8 @@ const defaultSettings: Settings = {
   biometrico: false,
   dark: false,
   formatoHora: '12h',
+  sonidoAlarma: 'clasica',
+  posponerMin: 10,
 };
 
 export const useStore = create<State>()(
@@ -224,6 +228,8 @@ export const useStore = create<State>()(
           if (state.settings.mostrarMeta === undefined) state.settings.mostrarMeta = true;
           if (state.settings.mostrarHoraExtra === undefined) state.settings.mostrarHoraExtra = true;
           if (state.settings.dineroOculto === undefined) state.settings.dineroOculto = false;
+          if (state.settings.sonidoAlarma === undefined) state.settings.sonidoAlarma = 'clasica';
+          if (state.settings.posponerMin === undefined) state.settings.posponerMin = 10;
           // Usuarios existentes ya aceptaron al usar versiones previas
           if (state.settings.terminosAceptados === undefined) {
             state.settings.terminosAceptados = state.jobs.length > 0 || state.shifts.length > 0;

@@ -5,6 +5,7 @@ import { ContentSheet,  Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, I
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
+import { scheduleTestAlarm, type AlarmSoundKey } from '../services/notifications';
 import { useToast } from '../components/Toast';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
@@ -173,6 +174,44 @@ export function SettingsScreen() {
               </View>
               <IosSwitch value={settings.mostrarMeta} onValueChange={(v) => setSettings({ mostrarMeta: v })} />
             </View>
+          </SettingRow>
+        </Section>
+
+        {/* ALARMA */}
+        <Section title={t.alarma.title}>
+          <SettingRow icon="bell" label={t.alarma.sound} last={false}>
+            <Seg<AlarmSoundKey>
+              options={[
+                { value: 'clasica', label: t.alarma.clasica },
+                { value: 'suave', label: t.alarma.suave },
+                { value: 'fuerte', label: t.alarma.fuerte },
+              ]}
+              value={settings.sonidoAlarma}
+              onChange={(v) => setSettings({ sonidoAlarma: v })}
+            />
+          </SettingRow>
+          <SettingRow icon="clock" label={t.alarma.snoozeFor} last={false}>
+            <Seg<number>
+              options={[
+                { value: 5, label: `5 ${t.alarma.min}` },
+                { value: 10, label: `10 ${t.alarma.min}` },
+                { value: 15, label: `15 ${t.alarma.min}` },
+              ]}
+              value={settings.posponerMin}
+              onChange={(v) => setSettings({ posponerMin: v })}
+            />
+          </SettingRow>
+          <SettingRow icon="bell" label={t.alarma.test} last>
+            <Btn
+              title={t.alarma.test}
+              kind="ghost"
+              onPress={() => {
+                void scheduleTestAlarm(settings.sonidoAlarma, t.alarma).then((ok) => {
+                  if (ok) toast.success(t.alarma.testTitle);
+                  else toast.info(t.alarma.test);
+                });
+              }}
+            />
           </SettingRow>
         </Section>
 

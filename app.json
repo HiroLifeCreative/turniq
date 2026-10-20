@@ -7,7 +7,7 @@
     "primaryColor": "#0064E0",
     "icon": "./assets/icon.png",
     "splash": {
-      "backgroundColor": "#0064E0"
+      "backgroundColor": "#14161A"
     },
     "web": {
       "bundler": "metro"
@@ -28,7 +28,12 @@
         "expo-notifications",
         {
           "icon": "./assets/icon.png",
-          "color": "#0064E0"
+          "color": "#0392FF",
+          "sounds": [
+            "./assets/sounds/alarma_clasica.wav",
+            "./assets/sounds/alarma_suave.wav",
+            "./assets/sounds/alarma_fuerte.wav"
+          ]
         }
       ],
       "expo-local-authentication",
