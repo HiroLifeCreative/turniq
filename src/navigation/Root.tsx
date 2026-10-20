@@ -118,7 +118,7 @@ function TabsNavigator() {
           >
         {props.state.routes.map((route, index) => {
           const focused = props.state.index === index;
-          const fg = focused ? '#FFFFFF' : p.text3;
+          const fg = focused ? '#C4E9FF' : p.text3;
           return (
             <TouchableOpacity
               key={route.key}
@@ -140,7 +140,7 @@ function TabsNavigator() {
                       flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      backgroundColor: p.primary,
+                      backgroundColor: '#0392FF',
                       borderRadius: 999,
                       paddingVertical: 10,
                       paddingHorizontal: 20,

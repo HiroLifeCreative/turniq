@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  Pressable,
   Modal,
   StyleSheet,
   Platform,
@@ -213,28 +214,43 @@ export function Btn({
       </TouchableOpacity>
     );
   }
-  // Acabado GLOSSY GLASS: degradado sólido con brillo superior y borde de vidrio
-  const base = kind === 'danger' ? p.danger : p.primary;
-  const grad: [string, string, string] = [
-    mixHex(base, '#FFFFFF', 0.38),
-    base,
-    mixHex(base, '#000000', 0.14),
-  ];
+  // Spec de Nelson (glass): azul #0392FF translúcido, texto #C4E9FF,
+  // sombra #766D98 suave, highlight superior sutil, press con escala.
+  const base = kind === 'danger' ? p.danger : '#0392FF';
+  const grad: [string, string, string] =
+    kind === 'danger'
+      ? [mixHex(base, '#FFFFFF', 0.38), base, mixHex(base, '#000000', 0.14)]
+      : ['rgba(84,182,255,0.92)', 'rgba(3,146,255,0.82)', 'rgba(2,118,228,0.9)'];
+  const label = (
+    <>
+      <Text
+        style={{
+          fontFamily: FONT.head,
+          fontWeight: '600',
+          fontSize: 16,
+          color: kind === 'danger' ? '#FFFFFF' : '#C4E9FF',
+        }}
+      >
+        {title}
+      </Text>
+      {arrow && <Arrow color="#FFFFFF" />}
+    </>
+  );
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.85}
-      style={[
+      style={({ pressed }) => [
         {
           borderRadius: R.pill,
           backgroundColor: base,
           opacity: disabled ? 0.5 : 1,
-          shadowColor: base,
-          shadowOpacity: 0.38,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: 5,
+          transform: [{ scale: pressed && !disabled ? 0.98 : 1 }, { translateY: pressed && !disabled ? 1 : 0 }],
+          shadowColor: kind === 'danger' ? base : '#766D98',
+          shadowOpacity: kind === 'danger' ? 0.38 : 0.55,
+          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 6,
           marginBottom: SP.md,
         },
         style,
@@ -247,13 +263,13 @@ export function Btn({
         style={{
           ...rowStyle,
           borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.35)',
+          borderColor: 'rgba(255,255,255,0.2)',
           overflow: 'hidden',
         }}
       >
-        {/* Brillo de vidrio en la mitad superior */}
+        {/* Highlight de vidrio arriba (inset 0 1px del spec, suavizado) */}
         <LinearGradient
-          colors={['rgba(255,255,255,0.42)', 'rgba(255,255,255,0.02)']}
+          colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0)']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           pointerEvents="none"
@@ -262,14 +278,14 @@ export function Btn({
             top: 0,
             left: 0,
             right: 0,
-            height: '54%',
+            height: '45%',
             borderTopLeftRadius: R.pill,
             borderTopRightRadius: R.pill,
           }}
         />
-        {content}
+        {label}
       </LinearGradient>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

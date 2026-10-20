@@ -296,10 +296,10 @@ export function HomeScreen() {
             <TouchableOpacity
               onPress={() => setClockSheetOpen(true)}
               activeOpacity={0.85}
-              style={{ backgroundColor: p.primary, borderRadius: 24, paddingVertical: 18, alignItems: 'center', overflow: 'hidden' }}
+              style={{ backgroundColor: '#0392FF', borderRadius: 24, paddingVertical: 18, alignItems: 'center', overflow: 'hidden' }}
             >
-              <LinearGradient colors={['rgba(255,255,255,0.4)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '55%' }} />
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#fff' }}>{t.today.clockIn}</Text>
+              <LinearGradient colors={['rgba(255,255,255,0.22)', 'rgba(255,255,255,0)']} start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }} pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '45%' }} />
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#C4E9FF' }}>{t.today.clockIn}</Text>
             </TouchableOpacity>
           </View>
         ) : null}
