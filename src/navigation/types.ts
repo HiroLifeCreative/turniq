@@ -15,6 +15,7 @@ export type MasStackParamList = {
   Settings: undefined;
   CalendarSync: undefined;
   Gmail: undefined;
+  Terms: undefined;
 };
 
 export type RootStackParamList = {

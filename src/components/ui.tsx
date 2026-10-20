@@ -511,6 +511,7 @@ import {
   Eye as LucideEye,
   EyeOff as LucideEyeOff,
   User as LucideUser,
+  Check as LucideCheck,
 } from 'lucide-react-native';
 
 const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
@@ -531,6 +532,7 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
   eye: LucideEye,
   eyeOff: LucideEyeOff,
   user: LucideUser,
+  check: LucideCheck,
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {

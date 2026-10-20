@@ -35,6 +35,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const formatoHora = settings.formatoHora;
 
   const totalSteps = 5;
+  const [aceptaTerminos, setAceptaTerminos] = useState(false);
 
   const next = () => setStep((s) => Math.min(s + 1, totalSteps));
   const back = () => setStep((s) => Math.max(s - 1, 0));
@@ -42,6 +43,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
   const finish = () => {
     // Guardar nombre
     if (nombre.trim()) setSettings({ nombreUsuario: nombre.trim() });
+    setSettings({ terminosAceptados: true });
     // Crear trabajo
     const jobId = addJob({
       nombre: jobName.trim(),
@@ -69,7 +71,7 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
 
   const canNext = () => {
     switch (step) {
-      case 0: return true;
+      case 0: return aceptaTerminos;
       case 1: return nombre.trim().length > 0;
       case 2: return jobName.trim().length > 0 && Number(sueldo) > 0;
       case 3: return true; // estaciones opcionales
@@ -120,6 +122,27 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
                 </Text>
                 <Text style={{ fontSize: 16, color: p.text2, textAlign: 'center', lineHeight: 24 }}>
                   {t.onboarding.welcomeDesc}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setAceptaTerminos((v) => !v)}
+                  activeOpacity={0.7}
+                  style={{ flexDirection: 'row', alignItems: 'center', marginTop: SP.xl, paddingHorizontal: SP.md }}
+                >
+                  <View style={{
+                    width: 26, height: 26, borderRadius: 8, marginRight: SP.sm,
+                    backgroundColor: aceptaTerminos ? p.primary : 'transparent',
+                    borderWidth: 2, borderColor: aceptaTerminos ? p.primary : p.line,
+                    alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    {aceptaTerminos && <Icon name="check" size={16} color="#fff" />}
+                  </View>
+                  <Text style={{ fontSize: 14, color: p.text, flexShrink: 1 }}>
+                    {t.onboarding.acceptTerms}{' '}
+                    <Text style={{ color: p.primary, fontWeight: '700' }}>{t.more.terms}</Text>
+                  </Text>
+                </TouchableOpacity>
+                <Text style={{ fontSize: 12, color: p.text3, textAlign: 'center', marginTop: SP.sm, paddingHorizontal: SP.lg }}>
+                  {t.onboarding.localDataNote}
                 </Text>
               </View>
             )}

@@ -25,6 +25,7 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
     { key: 'Settings', label: t.more.settings },
     { key: 'CalendarSync', label: t.more.calendar },
     { key: 'Gmail', label: t.more.gmail },
+    { key: 'Terms', label: t.more.terms },
   ];
   return (
     <Screen>

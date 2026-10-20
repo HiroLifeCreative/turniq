@@ -49,6 +49,8 @@ const es = {
   onboarding: {
     welcome: 'Bienvenido a Turniq',
     welcomeDesc: 'Tu asistente para registrar turnos, horas y ganancias. Vamos a configurarlo en menos de un minuto.',
+    acceptTerms: 'Acepto los términos y condiciones.',
+    localDataNote: 'Tus datos se guardan solo en este dispositivo. Sin cuentas, sin nube.',
     start: 'Empezar',
     nameTitle: '¿Cómo te llamas?',
     nameDesc: 'Así te saludará la app cada vez que la abras.',
@@ -139,6 +141,7 @@ const es = {
     settings: 'Ajustes',
     calendar: 'Calendario Google',
     gmail: 'Gmail (nómina)',
+    terms: 'Términos y condiciones',
   },
   jobs: {
     title: 'Trabajos',
@@ -331,6 +334,8 @@ const en: Strings = {
   onboarding: {
     welcome: 'Welcome to Turniq',
     welcomeDesc: 'Your assistant for tracking shifts, hours and earnings. Let us set it up in less than a minute.',
+    acceptTerms: 'I accept the terms and conditions.',
+    localDataNote: 'Your data is stored only on this device. No accounts, no cloud.',
     start: 'Get started',
     nameTitle: 'What is your name?',
     nameDesc: 'The app will greet you this way every time you open it.',
@@ -421,6 +426,7 @@ const en: Strings = {
     settings: 'Settings',
     calendar: 'Google Calendar',
     gmail: 'Gmail (payroll)',
+    terms: 'Terms & conditions',
   },
   jobs: {
     title: 'Jobs',

@@ -21,6 +21,7 @@ import { TipsScreen } from '../screens/TipsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { GmailScreen } from '../screens/GmailScreen';
+import { TermsScreen } from '../screens/TermsScreen';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -55,6 +56,7 @@ function MasNavigator() {
       <MasStack.Screen name="Settings" component={SettingsScreen} />
       <MasStack.Screen name="CalendarSync" component={CalendarScreen} />
       <MasStack.Screen name="Gmail" component={GmailScreen} />
+      <MasStack.Screen name="Terms" component={TermsScreen} />
     </MasStack.Navigator>
   );
 }

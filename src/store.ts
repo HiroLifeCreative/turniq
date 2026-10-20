@@ -47,6 +47,7 @@ export interface Settings {
   metaSemanal: number;
   mostrarMeta: boolean;
   mostrarHoraExtra: boolean;
+  terminosAceptados: boolean;
   dineroOculto: boolean;
   onboardingDone: boolean;
   pin: string | null;
@@ -106,6 +107,7 @@ const defaultSettings: Settings = {
   metaSemanal: 600,
   mostrarMeta: true,
   mostrarHoraExtra: true,
+  terminosAceptados: false,
   dineroOculto: false,
   onboardingDone: false,
   pin: null,
@@ -222,6 +224,10 @@ export const useStore = create<State>()(
           if (state.settings.mostrarMeta === undefined) state.settings.mostrarMeta = true;
           if (state.settings.mostrarHoraExtra === undefined) state.settings.mostrarHoraExtra = true;
           if (state.settings.dineroOculto === undefined) state.settings.dineroOculto = false;
+          // Usuarios existentes ya aceptaron al usar versiones previas
+          if (state.settings.terminosAceptados === undefined) {
+            state.settings.terminosAceptados = state.jobs.length > 0 || state.shifts.length > 0;
+          }
         }
         state?.setHydrated();
       },
