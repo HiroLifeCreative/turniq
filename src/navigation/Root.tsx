@@ -2,7 +2,6 @@
 import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
 import { NavigationContainer } from '@react-navigation/native';
@@ -149,15 +148,6 @@ function TabsNavigator() {
                     elevation: focused ? 4 : 0,
                   }}
                 >
-                  {focused && (
-                    <LinearGradient
-                      colors={['rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0, y: 1 }}
-                      pointerEvents="none"
-                      style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', zIndex: 1 }}
-                    />
-                  )}
                   <TouchableOpacity
                     accessibilityRole="button"
                     accessibilityState={{ selected: focused }}
