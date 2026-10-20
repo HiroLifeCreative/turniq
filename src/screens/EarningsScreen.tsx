@@ -124,23 +124,26 @@ export function EarningsScreen() {
 
         {/* Trabajadas vs programadas */}
         <Card style={{ marginBottom: SP.md }}>
-          <View style={{ flexDirection: 'row', marginBottom: SP.md }}>
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 26, color: p.success }}>{fmtHours(worked.hours)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: 4 }}>{t.earnings.worked.toUpperCase()}</Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View style={{ flex: 1, marginRight: SP.md }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.worked.toUpperCase()}</Text>
+              <Text
+                style={{ fontFamily: FONT.headBold, fontSize: 30, color: p.success, marginTop: 2 }}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.7}
+              >
+                {fmtHours(worked.hours)}
+              </Text>
             </View>
-            <View style={{ width: 1, backgroundColor: p.line, marginHorizontal: SP.md }} />
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 26, color: p.primary }}>{fmtHours(scheduled.hours)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: 4 }}>{t.earnings.scheduled.toUpperCase()}</Text>
-            </View>
-            <View style={{ width: 1, backgroundColor: p.line, marginHorizontal: SP.md }} />
-            <View style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 26, color: p.text }}>{fmtHours(cur.hours)}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: 4 }}>{t.earnings.total.toUpperCase()}</Text>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.week.gross.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text, marginTop: 2 }}>{fmtMoney(cur.gross)}</Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3, marginTop: SP.sm }}>{t.week.net.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.success, marginTop: 2 }}>{fmtMoney(cur.net)}</Text>
             </View>
           </View>
-          <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: p.surface }}>
+          <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: p.surface, marginTop: SP.md }}>
             {cur.hours > 0 && (
               <>
                 <View style={{ width: `${(worked.hours / cur.hours) * 100}%`, backgroundColor: p.success }} />
@@ -148,13 +151,16 @@ export function EarningsScreen() {
               </>
             )}
           </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: SP.sm }}>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
-              {t.week.gross}: {fmtMoney(cur.gross)}
-            </Text>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, fontWeight: '700', color: p.text }}>
-              {t.week.net}: {fmtMoney(cur.net)}
-            </Text>
+          <View style={{ flexDirection: 'row', marginTop: SP.md }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.scheduled.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.primary, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(scheduled.hours)}</Text>
+            </View>
+            <View style={{ width: 1, backgroundColor: p.line, marginHorizontal: SP.md }} />
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.total.toUpperCase()}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(cur.hours)}</Text>
+            </View>
           </View>
         </Card>
 

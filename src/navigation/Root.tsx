@@ -1,11 +1,13 @@
 /** Navegación: bottom tabs (Inicio/Semana/Trabajos/Ganancias) + stack modal "Más". */
 import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, useT, Icon } from '../components/ui';
+import { useStore } from '../store';
 import { FONT, ICON } from '../theme/tokens';
 import type { TabsParamList, MasStackParamList, RootStackParamList } from './types';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -60,6 +62,7 @@ function MasNavigator() {
 function TabsNavigator() {
   const t = useT();
   const p = useTheme();
+  const dark = useStore((s) => s.settings.dark);
   // Hook SOLO para verificación visual: localStorage 'turniq-test-tab'
   let initialTab: keyof TabsParamList = 'Inicio';
   try {
@@ -75,7 +78,7 @@ function TabsNavigator() {
     Ganancias: t.tabs.earnings,
   };
 
-  /** Dock flotante: píldora activa en azul, resto en gris. */
+  /** Dock flotante con blur: 70% transparente, se ve el fondo difuminado. */
   const DockBar = (props: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
     return (
@@ -85,16 +88,8 @@ function TabsNavigator() {
           left: 16,
           right: 16,
           bottom: 12 + insets.bottom,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: p.card,
           borderRadius: 28,
-          borderWidth: 1,
-          borderColor: p.line,
-          paddingVertical: 8,
-          paddingHorizontal: 12,
-          gap: 4,
+          overflow: 'hidden',
           shadowColor: '#000',
           shadowOpacity: 0.2,
           shadowRadius: 22,
@@ -102,6 +97,22 @@ function TabsNavigator() {
           elevation: 14,
         }}
       >
+        <BlurView
+          intensity={60}
+          tint={dark ? 'dark' : 'light'}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: dark ? 'rgba(23,23,26,0.7)' : 'rgba(255,255,255,0.7)',
+            borderRadius: 28,
+            borderWidth: 0.5,
+            borderColor: p.line,
+            paddingVertical: 8,
+            paddingHorizontal: 12,
+            gap: 4,
+          }}
+        >
         {props.state.routes.map((route, index) => {
           const focused = props.state.index === index;
           const fg = focused ? '#FFFFFF' : p.text3;
@@ -153,6 +164,7 @@ function TabsNavigator() {
             </TouchableOpacity>
           );
         })}
+        </BlurView>
       </View>
     );
   };

@@ -11,9 +11,20 @@ import { TimeField } from './ShiftForm';
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
   const p = useTheme();
   return (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.sm }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.xs }}>
       <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{label.toUpperCase()}</Text>
       <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: color ?? p.text }}>{value}</Text>
+    </View>
+  );
+}
+
+function StackRow({ label, value, sub, color }: { label: string; value: string; sub?: string; color?: string }) {
+  const p = useTheme();
+  return (
+    <View style={{ marginBottom: SP.lg }}>
+      <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{label.toUpperCase()}</Text>
+      <Text style={{ fontFamily: FONT.headBold, fontSize: 18, color: color ?? p.text, marginTop: 3 }}>{value}</Text>
+      {!!sub && <Text style={{ fontSize: TYPE.caption, color: p.text2, marginTop: 2 }}>{sub}</Text>}
     </View>
   );
 }
@@ -65,17 +76,22 @@ export function ShiftDetailSheet({
           )}
         </View>
 
-        <Row label={t.shift.scheduled} value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'} · ${fmtHours(hrsProg)}`} />
-        {hasWorked ? (
-          <Row label={t.shift.worked} value={`${hmTo12h(shift.horaEntradaReal!, esFmt)} – ${shift.horaSalidaReal ? hmTo12h(shift.horaSalidaReal, esFmt) : '…'} · ${fmtHours(hrsWork)}`} color={p.success} />
-        ) : (
-          <Row label={t.shift.worked} value="—" />
-        )}
-        {estNames.length > 0 && <Row label={t.shift.station} value={estNames.join(", ")} />}
-        {shift.breakMin > 0 && <Row label={t.shift.break} value={`${shift.breakMin} min`} />}
-        {shift.propinas > 0 && <Row label={t.shift.tips} value={fmtMoney(shift.propinas)} color={p.success} />}
-        {shift.bono > 0 && <Row label={t.shift.bonus} value={fmtMoney(shift.bono)} color={p.success} />}
-        {!!shift.notas && <Row label={t.shift.notes} value={shift.notas} />}
+        <StackRow
+          label={t.shift.scheduled}
+          value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}`}
+          sub={fmtHours(hrsProg)}
+        />
+        <StackRow
+          label={t.shift.worked}
+          value={hasWorked ? `${hmTo12h(shift.horaEntradaReal!, esFmt)} – ${shift.horaSalidaReal ? hmTo12h(shift.horaSalidaReal, esFmt) : '…'}` : '—'}
+          sub={hasWorked ? fmtHours(hrsWork) : undefined}
+          color={hasWorked ? p.success : undefined}
+        />
+        {estNames.length > 0 && <StackRow label={t.shift.station} value={estNames.join(", ")} />}
+        {shift.breakMin > 0 && <StackRow label={t.shift.break} value={`${shift.breakMin} min`} />}
+        {shift.propinas > 0 && <StackRow label={t.shift.tips} value={fmtMoney(shift.propinas)} color={p.success} />}
+        {shift.bono > 0 && <StackRow label={t.shift.bonus} value={fmtMoney(shift.bono)} color={p.success} />}
+        {!!shift.notas && <StackRow label={t.shift.notes} value={shift.notas} />}
         <View style={{ height: 1, backgroundColor: p.line, marginVertical: SP.sm }} />
         <Row label={t.inicio.bruto} value={fmtMoney(gross)} color={p.warning} />
         <Row label={t.inicio.taxes} value={fmtMoney(gross - net)} color={p.danger} />

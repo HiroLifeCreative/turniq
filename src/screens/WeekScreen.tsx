@@ -12,7 +12,7 @@ import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import {
   startOfWeek, addDays, ymd, weekKey, isWeekLocked, parseYmd, shortDate, hmToMin, hmTo12h, todayYmd,
 } from '../lib/dates';
-import { calcWeekTotals, shiftHours, fmtMoney, fmtHoursDual } from '../lib/calc';
+import { calcWeekTotals, shiftHours, fmtMoney, fmtHours, fmtHoursDual } from '../lib/calc';
 
 type Status = 'past' | 'upcoming' | 'now' | 'missed';
 
@@ -258,12 +258,20 @@ export function WeekScreen() {
                       >
                       <View style={{ width: 4, borderRadius: 2, alignSelf: 'stretch', backgroundColor: statusColor(st), marginRight: SP.md }} />
                       <View style={{ flex: 1 }}>
-                        <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
-                          {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'} · {fmtHoursDual(h)}
-                        </Text>
-                        <Text style={{ fontSize: 13, marginTop: 3, color: statusColor(st), fontWeight: '700' }}>
-                          {s.esLibre ? t.shift.freeDay : `${job?.nombre ?? ''}${estNames.length ? ` · ${estNames.join(', ')}` : ''}`} · {statusLabel(st)}
-                        </Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                          <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }} numberOfLines={1}>
+                            {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}
+                          </Text>
+                          <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: statusColor(st), marginLeft: SP.sm }} numberOfLines={1}>
+                            {fmtHours(h)}
+                          </Text>
+                        </View>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 3 }}>
+                          <Text style={{ fontSize: 13, color: p.text2, flex: 1 }} numberOfLines={1}>
+                            {s.esLibre ? t.shift.freeDay : `${job?.nombre ?? ''}${estNames.length ? ` · ${estNames.join(', ')}` : ''}`}
+                          </Text>
+                          <Text style={{ fontSize: 12, color: statusColor(st), fontWeight: '700', marginLeft: SP.sm }}>{statusLabel(st)}</Text>
+                        </View>
                         {overlaps && (
                           <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, backgroundColor: '#FFF3E0', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start' }}>
                             <Text style={{ fontSize: 12, color: '#E65100', fontWeight: '700' }}>⚠️ {t.shift.sameTime}</Text>
