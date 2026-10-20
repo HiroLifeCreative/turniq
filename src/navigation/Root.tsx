@@ -1,7 +1,8 @@
 /** Navegación: bottom tabs (Inicio/Semana/Trabajos/Ganancias) + stack modal "Más". */
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
+import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import * as Haptics from 'expo-haptics';
@@ -84,43 +85,55 @@ function TabsNavigator() {
     Ganancias: t.tabs.earnings,
   };
 
-  /** Dock flotante de vidrio con segmented control estilo Cupertino:
-   *  pastilla blanca que se DESLIZA con spring entre pestañas (como
-   *  UISegmentedControl), todas con icono + nombre. La librería original
-   *  es solo iOS; esto recrea el estilo en Android también. */
+  /** Dock flotante de vidrio: grupo compacto centrado de pestañas.
+   *  Inactivas = botón fijo de 52px solo con icono; la activa es una
+   *  píldora azul (color primario) con icono + palabra cuyo ancho crece
+   *  con spring. (La librería cupertino-tabs es solo iOS; el estilo se
+   *  recrea aquí para Android.) */
   const DockBar = (props: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
-    const [trackW, setTrackW] = useState(0);
-    const n = props.state.routes.length;
     const activeIdx = props.state.index;
     const PAD = 6;
-    const segW = trackW > 0 ? (trackW - PAD * 2) / n : 0;
     const activeFg = '#C4E9FF';
     return (
       <>
-        {/* Blur PROGRESIVO inferior — recreación fiel de expo-ios-visual-blur
-            (documentación: radio de blur VARIABLE y continuo, maxBlurRadius
-            ~20, startOffset 0.1, dirección BlurredBottomClearTop y SIN
-            ninguna capa de color encima: el contenido se sigue viendo,
-            solo cada vez más desenfocado). En Android no existe CAFilter,
-            así que la rampa continua se aproxima con 9 franjas de BlurView
-            cuya intensidad sigue una curva suave (ease-in) tras una zona
-            clara inicial (startOffset). Nada de degradado blanco: eso era
-            pintura, no blur, y por eso se veía mal. */}
-        <View
+        {/* Blur PROGRESIVO inferior — técnica de expo-progressive-blur:
+            UN solo BlurView fuerte tapado por una MÁSCARA degradada
+            (MaskedView + LinearGradient con paradas suavizadas): la
+            máscara revela el blur de forma continua (transparente arriba
+            → opaco abajo, con startOffset 0.1). Sin la capa de color que
+            ensuciaba el efecto; según los docs de Expo, cada `tint` ya
+            agrega su propia capa translúcida, por eso aquí basta el blur.
+            (La otra librería, expo-ios-visual-blur, hace lo mismo con
+            radio variable vía CAFilter, API privada solo iOS.) */}
+        <MaskedView
           pointerEvents="none"
           style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 150 }}
-        >
-          {[4, 5, 7, 10, 15, 22, 30, 39, 50].map((inten, i) => (
-            <BlurView
-              key={i}
-              intensity={inten}
-              tint={dark ? 'dark' : 'light'}
-              experimentalBlurMethod="dimezisBlurView"
-              style={{ position: 'absolute', left: 0, right: 0, top: 15 + i * 15, height: 15 }}
+          maskElement={
+            <LinearGradient
+              colors={[
+                'rgba(0,0,0,0)',
+                'rgba(0,0,0,0.05)',
+                'rgba(0,0,0,0.16)',
+                'rgba(0,0,0,0.34)',
+                'rgba(0,0,0,0.58)',
+                'rgba(0,0,0,0.84)',
+                'rgba(0,0,0,1)',
+              ]}
+              locations={[0.1, 0.28, 0.44, 0.6, 0.76, 0.9, 1]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={{ flex: 1 }}
             />
-          ))}
-        </View>
+          }
+        >
+          <BlurView
+            intensity={55}
+            tint={dark ? 'dark' : 'light'}
+            experimentalBlurMethod="dimezisBlurView"
+            style={{ flex: 1 }}
+          />
+        </MaskedView>
       <View
         style={{
           position: 'absolute',
@@ -142,81 +155,82 @@ function TabsNavigator() {
           style={{ borderRadius: 32, overflow: 'hidden' }}
         >
           <View
-            onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
               backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
               paddingHorizontal: PAD,
               paddingVertical: PAD,
             }}
           >
-            {/* Pastilla deslizante */}
-            {trackW > 0 && (
-              <MotiView
-                animate={{ translateX: activeIdx * segW }}
-                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                style={{
-                  position: 'absolute',
-                  top: PAD,
-                  left: PAD + 3,
-                  width: segW - 6,
-                  height: 54,
-                  borderRadius: 999,
-                  backgroundColor: '#0392FF',
-                  shadowColor: '#0392FF',
-                  shadowOpacity: 0.38,
-                  shadowRadius: 10,
-                  shadowOffset: { width: 0, height: 3 },
-                  elevation: 4,
-                  overflow: 'hidden',
-                }}
-              >
-                <LinearGradient
-                  colors={['rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 0, y: 1 }}
-                  pointerEvents="none"
-                  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%' }}
-                />
-              </MotiView>
-            )}
             {props.state.routes.map((route, index) => {
               const focused = activeIdx === index;
               const fg = focused ? activeFg : p.text3;
+              const label = labels[route.name as keyof TabsParamList];
+              // Grupo COMPACTO centrado (corrección de Nelson, 19 oct):
+              // inactivas fijas de 52px solo icono; la activa es píldora
+              // con icono + palabra y su ancho crece con spring.
+              const activeW = 20 + 25 + 10 + Math.ceil(label.length * 5.4) + 20;
               return (
-                <TouchableOpacity
+                <MotiView
                   key={route.key}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: focused }}
-                  activeOpacity={0.7}
-                  onPress={() => {
-                    const event = props.navigation.emit({
-                      type: 'tabPress',
-                      target: route.key,
-                      canPreventDefault: true,
-                    });
-                    if (!focused && !event.defaultPrevented) {
-                      void Haptics.selectionAsync();
-                      props.navigation.navigate(route.name as never);
-                    }
-                  }}
+                  animate={{ width: focused ? activeW : 52 }}
+                  transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                   style={{
-                    flex: 1,
                     height: 54,
-                    alignItems: 'center',
-                    justifyContent: 'center',
                     borderRadius: 999,
-                    gap: 4,
+                    overflow: 'hidden',
+                    backgroundColor: focused ? '#0392FF' : 'transparent',
+                    shadowColor: '#0392FF',
+                    shadowOpacity: focused ? 0.38 : 0,
+                    shadowRadius: 10,
+                    shadowOffset: { width: 0, height: 3 },
+                    elevation: focused ? 4 : 0,
                   }}
                 >
-                  <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={25} color={fg} />
                   {focused && (
-                    <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: '700', fontSize: 9 }} numberOfLines={1}>
-                      {labels[route.name as keyof TabsParamList]}
-                    </Text>
+                    <LinearGradient
+                      colors={['rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                      pointerEvents="none"
+                      style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%', zIndex: 1 }}
+                    />
                   )}
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: focused }}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      const event = props.navigation.emit({
+                        type: 'tabPress',
+                        target: route.key,
+                        canPreventDefault: true,
+                      });
+                      if (!focused && !event.defaultPrevented) {
+                        void Haptics.selectionAsync();
+                        props.navigation.navigate(route.name as never);
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 10,
+                      borderRadius: 999,
+                    }}
+                  >
+                    <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={25} color={fg} />
+                    {focused && (
+                      <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: '700', fontSize: 9 }} numberOfLines={1}>
+                        {label}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </MotiView>
               );
             })}
           </View>
