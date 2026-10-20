@@ -66,6 +66,7 @@ const es = {
     doneTitle: '¡Todo listo!',
     doneDesc: 'Ya puedes empezar a registrar tus turnos. Toca + para agregar más.',
     finish: 'Terminar',
+    skip: 'Omitir',
   },
   tips: {
     title: 'Invítame un café',
@@ -339,6 +340,7 @@ const en: Strings = {
     doneTitle: 'All set!',
     doneDesc: 'You can now start logging your shifts. Tap + to add more.',
     finish: 'Finish',
+    skip: 'Skip',
   },
   tips: {
     title: 'Buy me a coffee',

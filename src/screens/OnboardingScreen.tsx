@@ -90,18 +90,23 @@ export function OnboardingScreen({ onDone }: { onDone: () => void }) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, padding: SP.xl }} showsVerticalScrollIndicator={false}>
           {/* Progreso */}
-          <View style={{ flexDirection: 'row', gap: 6, marginBottom: SP.xl, marginTop: SP.md }}>
-            {Array.from({ length: totalSteps + 1 }).map((_, i) => (
-              <View
-                key={i}
-                style={{
-                  flex: 1,
-                  height: 4,
-                  borderRadius: 2,
-                  backgroundColor: i <= step ? p.primary : p.line,
-                }}
-              />
-            ))}
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.xl, marginTop: SP.md }}>
+            <View style={{ flexDirection: 'row', gap: 6, flex: 1 }}>
+              {Array.from({ length: totalSteps + 1 }).map((_, i) => (
+                <View
+                  key={i}
+                  style={{
+                    flex: 1,
+                    height: 4,
+                    borderRadius: 2,
+                    backgroundColor: i <= step ? p.primary : p.line,
+                  }}
+                />
+              ))}
+            </View>
+            <TouchableOpacity onPress={() => { setSettings({ onboardingDone: true }); onDone(); }} hitSlop={12} style={{ marginLeft: SP.md, padding: 4 }}>
+              <Text style={{ fontSize: 14, color: p.text3, fontWeight: '600' }}>{t.onboarding.skip}</Text>
+            </TouchableOpacity>
           </View>
 
           <MotiView key={step} from={{ opacity: 0, translateX: 30 }} animate={{ opacity: 1, translateX: 0 }} style={{ flex: 1 }}>
