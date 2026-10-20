@@ -7,6 +7,7 @@ import { useStore, jobsById } from './src/store';
 import { STR } from './src/i18n';
 import { RootNavigator } from './src/navigation/Root';
 import { PinLock } from './src/screens/PinLock';
+import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { scheduleShiftReminders } from './src/services/notifications';
 import { parseYmd, addDays, todayYmd } from './src/lib/dates';
 import { FONT, light, dark } from './src/theme/tokens';
@@ -22,8 +23,10 @@ async function loadFonts(): Promise<void> {
 export default function App() {
   const [ready, setReady] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+  const [onboardingVisible, setOnboardingVisible] = useState(true);
   const hydrated = useStore((s) => s.hydrated);
   const pin = useStore((s) => s.settings.pin);
+  const onboardingDone = useStore((s) => s.settings.onboardingDone);
   const darkMode = useStore((s) => s.settings.dark);
   const idioma = useStore((s) => s.settings.idioma);
   const shifts = useStore((s) => s.shifts);
@@ -64,6 +67,15 @@ export default function App() {
       <SafeAreaProvider>
         <StatusBar style={darkMode ? 'light' : 'dark'} />
         <PinLock onUnlock={() => setUnlocked(true)} />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (!onboardingDone && onboardingVisible) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style={darkMode ? 'light' : 'dark'} />
+        <OnboardingScreen onDone={() => setOnboardingVisible(false)} />
       </SafeAreaProvider>
     );
   }

@@ -45,6 +45,7 @@ export interface Settings {
   metaSemanal: number;
   mostrarMeta: boolean;
   dineroOculto: boolean;
+  onboardingDone: boolean;
   pin: string | null;
   biometrico: boolean;
   dark: boolean;
@@ -102,6 +103,7 @@ const defaultSettings: Settings = {
   metaSemanal: 600,
   mostrarMeta: true,
   dineroOculto: false,
+  onboardingDone: false,
   pin: null,
   biometrico: false,
   dark: false,
@@ -209,6 +211,12 @@ export const useStore = create<State>()(
               delete tp.estacionId;
             }
           }
+          // Si ya tiene datos, no mostrar onboarding
+          if (state.settings.onboardingDone === undefined) {
+            state.settings.onboardingDone = state.jobs.length > 0 || state.shifts.length > 0;
+          }
+          if (state.settings.mostrarMeta === undefined) state.settings.mostrarMeta = true;
+          if (state.settings.dineroOculto === undefined) state.settings.dineroOculto = false;
         }
         state?.setHydrated();
       },
