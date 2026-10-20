@@ -133,8 +133,8 @@ function TabsNavigator() {
       <View
         style={{
           position: 'absolute',
-          left: 16,
-          right: 16,
+          left: 12,
+          right: 12,
           bottom: 12 + insets.bottom,
           borderRadius: 32,
           shadowColor: '#000',
@@ -216,12 +216,12 @@ function TabsNavigator() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: 999,
-                    gap: 2,
+                    gap: 4,
                   }}
                 >
-                  <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={20} color={fg} />
+                  <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={25} color={fg} />
                   {focused && (
-                    <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: '700', fontSize: 10 }} numberOfLines={1}>
+                    <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: '700', fontSize: 9 }} numberOfLines={1}>
                       {labels[route.name as keyof TabsParamList]}
                     </Text>
                   )}
