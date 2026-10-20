@@ -98,37 +98,28 @@ function TabsNavigator() {
     const activeFg = '#C4E9FF';
     return (
       <>
-        {/* Blur PROGRESIVO inferior: el contenido se disuelve en niebla
-            al acercarse al dock (efecto de expo-ios-visual-blur, recreado
-            en Android). NO es un solo BlurView: un BlurView único es un
-            rectángulo con intensidad constante y su borde superior deja
-            una LÍNEA RECTA donde empieza el difuminado. Por eso se apilan
-            6 franjas con intensidad creciente (5→45): el blur SUBE de
-            forma gradual y no hay borde visible. */}
+        {/* Blur PROGRESIVO inferior — recreación fiel de expo-ios-visual-blur
+            (documentación: radio de blur VARIABLE y continuo, maxBlurRadius
+            ~20, startOffset 0.1, dirección BlurredBottomClearTop y SIN
+            ninguna capa de color encima: el contenido se sigue viendo,
+            solo cada vez más desenfocado). En Android no existe CAFilter,
+            así que la rampa continua se aproxima con 9 franjas de BlurView
+            cuya intensidad sigue una curva suave (ease-in) tras una zona
+            clara inicial (startOffset). Nada de degradado blanco: eso era
+            pintura, no blur, y por eso se veía mal. */}
         <View
           pointerEvents="none"
-          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 132 }}
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 150 }}
         >
-          {[5, 11, 18, 26, 35, 45].map((inten, i) => (
+          {[4, 5, 7, 10, 15, 22, 30, 39, 50].map((inten, i) => (
             <BlurView
               key={i}
               intensity={inten}
               tint={dark ? 'dark' : 'light'}
               experimentalBlurMethod="dimezisBlurView"
-              style={{ position: 'absolute', left: 0, right: 0, top: i * 22, height: 22 }}
+              style={{ position: 'absolute', left: 0, right: 0, top: 15 + i * 15, height: 15 }}
             />
           ))}
-          <LinearGradient
-            colors={
-              dark
-                ? ['rgba(11,11,12,0)', 'rgba(11,11,12,0.45)', 'rgba(11,11,12,0.94)']
-                : ['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0.94)']
-            }
-            locations={[0, 0.55, 1]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-          />
         </View>
       <View
         style={{
