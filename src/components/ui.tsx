@@ -139,12 +139,15 @@ export function Btn({
           paddingLeft: 22,
           paddingRight: arrow ? 6 : 22,
           opacity: disabled ? 0.5 : 1,
-          // Shadow como las tarjetas
-          shadowColor: '#6B7A99',
-          shadowOpacity: kind === 'primary' ? 0.22 : 0.12,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: 6 },
-          elevation: 5,
+          // Shadow como las tarjetas (solo en botones con fondo sólido;
+          // en el fantasma se vería a través y lo pondría gris)
+          ...(kind !== 'ghost' && {
+            shadowColor: '#6B7A99',
+            shadowOpacity: 0.22,
+            shadowRadius: 16,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 5,
+          }),
           marginBottom: SP.md,
         },
         style,
