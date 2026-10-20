@@ -144,6 +144,7 @@ function TabsNavigator() {
                       paddingVertical: 10,
                       paddingHorizontal: 20,
                       gap: 10,
+                      overflow: 'hidden',
                     }
                   : {
                       width: 52,
@@ -154,6 +155,15 @@ function TabsNavigator() {
                     }
               }
             >
+              {focused && (
+                <LinearGradient
+                  colors={['rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 0, y: 1 }}
+                  pointerEvents="none"
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '55%' }}
+                />
+              )}
               <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON.md} color={fg} />
               {focused && (
                 <Text

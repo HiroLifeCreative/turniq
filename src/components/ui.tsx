@@ -175,8 +175,51 @@ export function Btn({
   disabled?: boolean;
 }) {
   const p = useTheme();
-  const bg = kind === 'primary' ? p.primary : kind === 'danger' ? p.danger : 'transparent';
   const fg = kind === 'ghost' ? p.text : '#FFFFFF';
+  const content = (
+    <>
+      <Text style={{ fontFamily: FONT.head, fontWeight: '700', fontSize: 16, color: fg }}>{title}</Text>
+      {arrow && <Arrow color="#FFFFFF" />}
+    </>
+  );
+  const rowStyle: ViewStyle = {
+    height: 52,
+    borderRadius: R.pill,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: arrow ? 'space-between' : 'center',
+    paddingLeft: 22,
+    paddingRight: arrow ? 6 : 22,
+  };
+  if (kind === 'ghost') {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        disabled={disabled}
+        activeOpacity={0.85}
+        style={[
+          {
+            ...rowStyle,
+            backgroundColor: 'transparent',
+            borderWidth: 0.5,
+            borderColor: p.line,
+            opacity: disabled ? 0.5 : 1,
+            marginBottom: SP.md,
+          },
+          style,
+        ]}
+      >
+        {content}
+      </TouchableOpacity>
+    );
+  }
+  // Acabado GLOSSY GLASS: degradado sólido con brillo superior y borde de vidrio
+  const base = kind === 'danger' ? p.danger : p.primary;
+  const grad: [string, string, string] = [
+    mixHex(base, '#FFFFFF', 0.38),
+    base,
+    mixHex(base, '#000000', 0.14),
+  ];
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -184,33 +227,48 @@ export function Btn({
       activeOpacity={0.85}
       style={[
         {
-          height: 52,
           borderRadius: R.pill,
-          backgroundColor: bg,
-          borderWidth: kind === 'ghost' ? 0.5 : 0,
-          borderColor: p.line,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: arrow ? 'space-between' : 'center',
-          paddingLeft: 22,
-          paddingRight: arrow ? 6 : 22,
+          backgroundColor: base,
           opacity: disabled ? 0.5 : 1,
-          // Shadow como las tarjetas (solo en botones con fondo sólido;
-          // en el fantasma se vería a través y lo pondría gris)
-          ...(kind !== 'ghost' && {
-            shadowColor: '#6B7A99',
-            shadowOpacity: 0.22,
-            shadowRadius: 16,
-            shadowOffset: { width: 0, height: 6 },
-            elevation: 5,
-          }),
+          shadowColor: base,
+          shadowOpacity: 0.38,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: 5,
           marginBottom: SP.md,
         },
         style,
       ]}
     >
-      <Text style={{ fontFamily: FONT.head, fontWeight: '700', fontSize: 16, color: fg }}>{title}</Text>
-      {arrow && <Arrow color="#FFFFFF" />}
+      <LinearGradient
+        colors={grad}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={{
+          ...rowStyle,
+          borderWidth: 1,
+          borderColor: 'rgba(255,255,255,0.35)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Brillo de vidrio en la mitad superior */}
+        <LinearGradient
+          colors={['rgba(255,255,255,0.42)', 'rgba(255,255,255,0.02)']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '54%',
+            borderTopLeftRadius: R.pill,
+            borderTopRightRadius: R.pill,
+          }}
+        />
+        {content}
+      </LinearGradient>
     </TouchableOpacity>
   );
 }
