@@ -1,8 +1,10 @@
 /** Navegación: bottom tabs (Inicio/Semana/Trabajos/Ganancias) + stack modal "Más". */
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MotiView } from 'moti';
+import * as Haptics from 'expo-haptics';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -82,17 +84,48 @@ function TabsNavigator() {
     Ganancias: t.tabs.earnings,
   };
 
-  /** Dock flotante con blur: 70% transparente, se ve el fondo difuminado. */
+  /** Dock flotante de vidrio con segmented control estilo Cupertino:
+   *  pastilla blanca que se DESLIZA con spring entre pestañas (como
+   *  UISegmentedControl), todas con icono + nombre. La librería original
+   *  es solo iOS; esto recrea el estilo en Android también. */
   const DockBar = (props: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
+    const [trackW, setTrackW] = useState(0);
+    const n = props.state.routes.length;
+    const activeIdx = props.state.index;
+    const PAD = 6;
+    const segW = trackW > 0 ? (trackW - PAD * 2) / n : 0;
+    const activeFg = dark ? '#FFFFFF' : '#111318';
     return (
+      <>
+        {/* Blur PROGRESIVO inferior: el contenido se disuelve en niebla
+            al acercarse al dock (efecto de expo-ios-visual-blur, recreado
+            con BlurView + degradado al color de fondo; sirve en Android). */}
+        <View
+          pointerEvents="none"
+          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 132 }}
+        >
+          <BlurView
+            intensity={45}
+            tint={dark ? 'dark' : 'light'}
+            experimentalBlurMethod="dimezisBlurView"
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          />
+          <LinearGradient
+            colors={dark ? ['rgba(11,11,12,0)', 'rgba(11,11,12,0.96)'] : ['rgba(255,255,255,0)', 'rgba(255,255,255,0.96)']}
+            locations={[0.1, 0.78]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          />
+        </View>
       <View
         style={{
           position: 'absolute',
           left: 16,
           right: 16,
           bottom: 12 + insets.bottom,
-          borderRadius: 28,
+          borderRadius: 32,
           shadowColor: '#000',
           shadowOpacity: 0.18,
           shadowRadius: 22,
@@ -104,83 +137,88 @@ function TabsNavigator() {
           intensity={70}
           tint={dark ? 'dark' : 'light'}
           experimentalBlurMethod="dimezisBlurView"
-          style={{ borderRadius: 28, overflow: 'hidden' }}
+          style={{ borderRadius: 32, overflow: 'hidden' }}
         >
           <View
+            onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'center',
               backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              gap: 4,
+              paddingHorizontal: PAD,
+              paddingVertical: PAD,
             }}
           >
-        {props.state.routes.map((route, index) => {
-          const focused = props.state.index === index;
-          const fg = focused ? '#C4E9FF' : p.text3;
-          return (
-            <TouchableOpacity
-              key={route.key}
-              accessibilityRole="button"
-              accessibilityState={{ selected: focused }}
-              onPress={() => {
-                const event = props.navigation.emit({
-                  type: 'tabPress',
-                  target: route.key,
-                  canPreventDefault: true,
-                });
-                if (!focused && !event.defaultPrevented) {
-                  props.navigation.navigate(route.name as never);
-                }
-              }}
-              style={
-                focused
-                  ? {
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      backgroundColor: '#0392FF',
-                      borderRadius: 999,
-                      paddingVertical: 10,
-                      paddingHorizontal: 20,
-                      gap: 10,
-                      overflow: 'hidden',
-                    }
-                  : {
-                      width: 52,
-                      height: 44,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 999,
-                    }
-              }
-            >
-              {focused && (
+            {/* Pastilla deslizante */}
+            {trackW > 0 && (
+              <MotiView
+                animate={{ translateX: activeIdx * segW }}
+                transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+                style={{
+                  position: 'absolute',
+                  top: PAD,
+                  left: PAD + 3,
+                  width: segW - 6,
+                  height: 54,
+                  borderRadius: 999,
+                  backgroundColor: dark ? '#2E2E33' : '#FFFFFF',
+                  shadowColor: '#000',
+                  shadowOpacity: 0.16,
+                  shadowRadius: 10,
+                  shadowOffset: { width: 0, height: 3 },
+                  elevation: 4,
+                  overflow: 'hidden',
+                }}
+              >
                 <LinearGradient
-                  colors={['rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+                  colors={['rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 0, y: 1 }}
                   pointerEvents="none"
-                  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '55%' }}
+                  style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50%' }}
                 />
-              )}
-              <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON.md} color={fg} />
-              {focused && (
-                <Text
-                  style={{ color: fg, fontFamily: FONT.headBold, fontSize: 12 }}
-                  numberOfLines={1}
+              </MotiView>
+            )}
+            {props.state.routes.map((route, index) => {
+              const focused = activeIdx === index;
+              const fg = focused ? activeFg : p.text3;
+              return (
+                <TouchableOpacity
+                  key={route.key}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: focused }}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    const event = props.navigation.emit({
+                      type: 'tabPress',
+                      target: route.key,
+                      canPreventDefault: true,
+                    });
+                    if (!focused && !event.defaultPrevented) {
+                      void Haptics.selectionAsync();
+                      props.navigation.navigate(route.name as never);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    height: 54,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 999,
+                    gap: 2,
+                  }}
                 >
-                  {labels[route.name as keyof TabsParamList]}
-                </Text>
-              )}
-            </TouchableOpacity>
-          );
-        })}
+                  <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={20} color={fg} />
+                  <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: focused ? '700' : '500', fontSize: 10 }} numberOfLines={1}>
+                    {labels[route.name as keyof TabsParamList]}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </BlurView>
       </View>
+      </>
     );
   };
 
