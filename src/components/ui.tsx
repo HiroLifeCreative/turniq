@@ -17,6 +17,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
 import { MotiView } from 'moti';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store';
@@ -49,12 +50,51 @@ export const Label = ({ children, style }: { children: React.ReactNode; style?: 
   );
 };
 
-export const Screen = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => {
+/** Color de la banda superior (header sobre oscuro, estilo referencia
+ *  de Nelson: header con color + hoja redondeada debajo). */
+export const bandColor = (darkMode: boolean) => (darkMode ? '#17171A' : '#14161A');
+
+export const Screen = ({
+  children,
+  style,
+  banded = false,
+}: {
+  children: React.ReactNode;
+  style?: ViewStyle;
+  /** banded: fondo oscuro arriba; el Header vive sobre la banda y el
+   *  contenido va dentro de <Sheet> (hoja con esquinas superiores 28). */
+  banded?: boolean;
+}) => {
   const p = useTheme();
+  const darkMode = p.bg === '#0B0B0C';
   return (
-    <SafeAreaView style={[{ flex: 1, backgroundColor: p.bg }, style]} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={[{ flex: 1, backgroundColor: banded ? bandColor(darkMode) : p.bg }, style]}
+      edges={['top', 'left', 'right']}
+    >
+      <StatusBar style={banded || darkMode ? 'light' : 'dark'} />
       {children}
     </SafeAreaView>
+  );
+};
+
+/** Hoja de contenido: fondo del tema con las esquinas SUPERIORES muy
+ *  redondeadas (28), montada sobre la banda oscura del header.
+ *  (Se llama ContentSheet para no chocar con el Sheet modal.) */
+export const ContentSheet = ({ children }: { children: React.ReactNode }) => {
+  const p = useTheme();
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: p.bg,
+        borderTopLeftRadius: 28,
+        borderTopRightRadius: 28,
+        overflow: 'hidden',
+      }}
+    >
+      {children}
+    </View>
   );
 };
 
@@ -679,27 +719,75 @@ export function Icon({ name, size = ICON.md, color }: { name: string; size?: num
 }
 
 /* ── Header global: título + botón ajustes a la derecha ────────────── */
-export function Header({ title, onSettings }: { title: string; onSettings?: () => void }) {
+export function Header({
+  title,
+  onSettings,
+  onDark = false,
+}: {
+  title: string;
+  onSettings?: () => void;
+  /** onDark: el header vive sobre la banda oscura (título blanco,
+   *  botón de cristal). */
+  onDark?: boolean;
+}) {
   const p = useTheme();
   return (
-    <View style={{
-      backgroundColor: p.bg,
-      shadowColor: '#6B7A99',
-      shadowOpacity: 0.18,
-      shadowRadius: 14,
-      shadowOffset: { width: 0, height: 6 },
-      elevation: 4,
-      zIndex: 10,
-    }}>
-      <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SP.lg, marginBottom: SP.sm }}>
-        <Text style={{ fontFamily: FONT.headBold, fontSize: 20, letterSpacing: -0.4, color: p.text }}>{title}</Text>
+    <View
+      style={
+        onDark
+          ? undefined
+          : {
+              backgroundColor: p.bg,
+              shadowColor: '#6B7A99',
+              shadowOpacity: 0.18,
+              shadowRadius: 14,
+              shadowOffset: { width: 0, height: 6 },
+              elevation: 4,
+              zIndex: 10,
+            }
+      }
+    >
+      <View
+        style={{
+          height: 60,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: SP.lg,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: FONT.headBold,
+            fontSize: 21,
+            lineHeight: 26,
+            letterSpacing: -0.4,
+            // Centrado vertical REAL: Roboto trae relleno interno de
+            // fuente que empuja los glifos hacia arriba en su caja;
+            // includeFontPadding:false + lineHeight fijo lo corrigen.
+            includeFontPadding: false,
+            textAlignVertical: 'center',
+            color: onDark ? '#FFFFFF' : p.text,
+          }}
+        >
+          {title}
+        </Text>
         {onSettings && (
           <TouchableOpacity
             onPress={onSettings}
             hitSlop={12}
-            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: p.surface, borderWidth: 1, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 22,
+              backgroundColor: onDark ? 'rgba(255,255,255,0.12)' : p.surface,
+              borderWidth: 1,
+              borderColor: onDark ? 'rgba(255,255,255,0.18)' : p.line,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <Icon name="settings" size={ICON.lg} color={p.text2} />
+            <Icon name="settings" size={ICON.lg} color={onDark ? '#FFFFFF' : p.text2} />
           </TouchableOpacity>
         )}
       </View>

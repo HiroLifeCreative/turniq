@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {Screen, H1, Card, TintedCard, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
+import {Screen, H1, Card, TintedCard, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet, ContentSheet} from '../components/ui';
 import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
@@ -95,8 +95,9 @@ export function WeekScreen() {
     st === 'now' ? t.semana.enCurso : st === 'missed' ? t.semana.noMarcado : st === 'upcoming' ? t.semana.proximo : t.semana.pasado;
 
   return (
-    <Screen>
-      <Header title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+    <Screen banded>
+      <Header onDark title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
           <TouchableOpacity
@@ -379,6 +380,7 @@ export function WeekScreen() {
           </Text>
         )}
       </ScrollView>
+      </ContentSheet>
 
       {/* Menú de 3 puntos — sheet fluido con acciones */}
       <Sheet

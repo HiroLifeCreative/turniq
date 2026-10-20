@@ -2,7 +2,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import {Screen, H1, Card, Btn, Field, Label, Sheet, Confirm, useTheme, useT, Header} from '../components/ui';
+import {Screen, H1, Card, Btn, Field, Label, Sheet, ContentSheet, Confirm, useTheme, useT, Header} from '../components/ui';
 import { useStore, JOB_COLORS, type Job } from '../store';
 import { SP, R, FONT, TYPE } from '../theme/tokens';
 import { uid } from '../lib/calc';
@@ -60,8 +60,9 @@ export function JobsScreen() {
   };
 
   return (
-    <Screen>
-      <Header title={t.tabs.jobs} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+    <Screen banded>
+      <Header onDark title={t.tabs.jobs} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <TouchableOpacity
           onPress={() => { setEditing(null); setOpen(true); }}
@@ -92,6 +93,7 @@ export function JobsScreen() {
           </Card>
         ))}
       </ScrollView>
+      </ContentSheet>
 
       <Sheet visible={open} onClose={() => setOpen(false)} title={editing ? t.jobs.edit : t.jobs.add}>
         <Field label={t.jobs.name} value={nombre} onChange={setNombre} />

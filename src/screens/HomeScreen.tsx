@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
-import { Screen, Label, Confirm, Header, Icon, Sheet, Card, useTheme, useT } from '../components/ui';
+import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
@@ -210,11 +210,13 @@ export function HomeScreen() {
   const cardBg = darkMode ? DARK_CARD : DARK_CARD;
 
   return (
-    <Screen>
+    <Screen banded>
       <Header
+        onDark
         title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
         onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })}
       />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 140 }}>
 
         {/* HÉROE OSCURO */}
@@ -488,6 +490,7 @@ export function HomeScreen() {
           })
         )}
       </ScrollView>
+      </ContentSheet>
 
       <ShiftDetailSheet shift={detailShift} onClose={() => setDetailShift(null)} onEdit={(s) => { setEditing(s); setFormOpen(true); }} />
       <ShiftForm visible={formOpen} onClose={() => setFormOpen(false)} editing={editing} defaultDate={today} />

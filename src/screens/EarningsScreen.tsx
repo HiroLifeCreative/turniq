@@ -2,7 +2,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Screen, Card, TintedCard, Label, useTheme, useT, Header, Icon } from '../components/ui';
+import { Screen, Card, TintedCard, Label, ContentSheet, useTheme, useT, Header, Icon } from '../components/ui';
 import { MotiView } from 'moti';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
@@ -110,8 +110,9 @@ export function EarningsScreen() {
   );
 
   return (
-    <Screen>
-      <Header title={t.tabs.earnings} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+    <Screen banded>
+      <Header onDark title={t.tabs.earnings} onSettings={() => (nav.navigate as any)('Mas', { screen: 'Settings' })} />
+      <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
 
         {/* ── SEMANA ── */}
@@ -324,6 +325,7 @@ export function EarningsScreen() {
           </Text>
         </Card>
       </ScrollView>
+      </ContentSheet>
     </Screen>
   );
 }
