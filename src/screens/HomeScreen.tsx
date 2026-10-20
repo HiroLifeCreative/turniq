@@ -1,6 +1,6 @@
 /** Pestaña Inicio — héroe oscuro con reloj en vivo, estados por color, todo redondeado + blur. */
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
@@ -41,6 +41,63 @@ export function HomeScreen() {
   const [detailShift, setDetailShift] = useState<Shift | null>(null);
   const [clockJobId, setClockJobId] = useState<string | null>(null);
   const [, setTick] = useState(0);
+  const setSettings = useStore((s) => s.setSettings);
+
+  // Modo privado: ocultar dinero (requiere PIN/biometría para mostrar)
+  const togglePrivacy = async () => {
+    const hidden = settings.dineroOculto;
+    if (hidden) {
+      // Mostrar: requiere autenticación si hay PIN o biometría
+      const pin = settings.pin;
+      const bio = settings.biometrico;
+      if (!pin && !bio) {
+        setSettings({ dineroOculto: false });
+        return;
+      }
+      if (bio && Platform.OS !== 'web') {
+        try {
+          const LA = require('expo-local-authentication') as typeof import('expo-local-authentication');
+          const has = await LA.hasHardwareAsync();
+          const enrolled = await LA.isEnrolledAsync();
+          if (has && enrolled) {
+            const res = await LA.authenticateAsync({ promptMessage: t.pin.title });
+            if (res.success) {
+              setSettings({ dineroOculto: false });
+              return;
+            }
+            return; // cancelado
+          }
+        } catch { /* fallback a PIN */ }
+      }
+      if (pin) {
+        Alert.prompt(
+          t.pin.title,
+          t.pin.enterPin,
+          [
+            { text: t.common.cancel, style: 'cancel' },
+            {
+              text: t.common.confirm,
+              onPress: (input) => {
+                if (input === pin) setSettings({ dineroOculto: false });
+                else Alert.alert(t.pin.wrong);
+              },
+            },
+          ],
+          'secure-text',
+        );
+      } else {
+        setSettings({ dineroOculto: false });
+      }
+    } else {
+      // Ocultar: sin autenticación
+      setSettings({ dineroOculto: true });
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+  };
+  const hidden = settings.dineroOculto;
+  const MoneyHidden = () => (
+    <Text style={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: 2, color: 'rgba(255,255,255,0.5)' }}>••••••</Text>
+  );
 
   const today = todayYmd();
   const byId = jobsById(jobs);
@@ -140,9 +197,14 @@ export function HomeScreen() {
         >
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
-              {t.inicio.netoEstimado} · {t.inicio.estaSemana}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
+                {t.inicio.netoEstimado} · {t.inicio.estaSemana}
+              </Text>
+              <TouchableOpacity onPress={togglePrivacy} hitSlop={12} style={{ marginLeft: 8, padding: 4 }}>
+                <Icon name={hidden ? 'eyeOff' : 'eye'} size={16} color="rgba(255,255,255,0.6)" />
+              </TouchableOpacity>
+            </View>
             {stateLabel !== '' && (
               <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingHorizontal: 12, paddingVertical: 6 }}>
                 <MotiView
@@ -156,15 +218,19 @@ export function HomeScreen() {
             )}
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-            <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
-            <AnimatedRollingNumbers
-              value={totals.net}
-              toFixed={2}
-              useGrouping
-              textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
-            />
-          </View>
+          {hidden ? (
+            <MoneyHidden />
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
+              <AnimatedRollingNumbers
+                value={totals.net}
+                toFixed={2}
+                useGrouping
+                textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
+              />
+            </View>
+          )}
 
           {/* Reloj en vivo */}
           {openShift && (
@@ -182,15 +248,19 @@ export function HomeScreen() {
                   <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                     {t.inicio.netoEstimado}
                   </Text>
-                  <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                    <Text style={{ fontFamily: FONT.headBold, fontSize: 14, color: stateColor, marginRight: 1 }}>$</Text>
-                    <AnimatedRollingNumbers
-                      value={liveNet}
-                      toFixed={2}
-                      useGrouping
-                      textStyle={{ fontFamily: FONT.headBold, fontSize: 22, color: stateColor }}
-                    />
-                  </View>
+                  {hidden ? (
+                    <Text style={{ fontFamily: FONT.headBold, fontSize: 22, letterSpacing: 2, color: 'rgba(255,255,255,0.5)' }}>••••</Text>
+                  ) : (
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                      <Text style={{ fontFamily: FONT.headBold, fontSize: 14, color: stateColor, marginRight: 1 }}>$</Text>
+                      <AnimatedRollingNumbers
+                        value={liveNet}
+                        toFixed={2}
+                        useGrouping
+                        textStyle={{ fontFamily: FONT.headBold, fontSize: 22, color: stateColor }}
+                      />
+                    </View>
+                  )}
                 </View>
               </View>
             </BlurView>
@@ -199,12 +269,12 @@ export function HomeScreen() {
           {/* Chips */}
           <View style={{ flexDirection: 'row', gap: SP.sm, marginTop: SP.md }}>
             {[
-              { v: `${totals.hours.toFixed(1)}h`, l: t.week.hours },
-              { v: fmtMoney(totals.gross), l: t.inicio.bruto },
-              { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes },
+              { v: `${totals.hours.toFixed(1)}h`, l: t.week.hours, money: false },
+              { v: fmtMoney(totals.gross), l: t.inicio.bruto, money: true },
+              { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes, money: true },
             ].map((c, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center' }}>
-                <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
+                <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.money && hidden ? '••••' : c.v}</Text>
                 <Text style={{ fontFamily: FONT.mono, fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l}</Text>
               </View>
             ))}

@@ -223,6 +223,7 @@ const es = {
     enter: 'Ingresa tu PIN',
     wrong: 'PIN incorrecto',
     useBiometric: 'Usar biometría',
+    enterPin: 'Ingresa tu PIN para ver el dinero',
   },
   notif: {
     before: 'Tu turno en {job} empieza en {when}',
@@ -471,6 +472,7 @@ const en: Strings = {
     title: 'Turniq is locked',
     enter: 'Enter your PIN',
     wrong: 'Wrong PIN',
+    enterPin: 'Enter your PIN to view money',
     useBiometric: 'Use biometrics',
   },
   notif: {

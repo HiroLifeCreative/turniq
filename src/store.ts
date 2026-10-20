@@ -44,6 +44,7 @@ export interface Settings {
   multExtra: number;
   metaSemanal: number;
   mostrarMeta: boolean;
+  dineroOculto: boolean;
   pin: string | null;
   biometrico: boolean;
   dark: boolean;
@@ -100,6 +101,7 @@ const defaultSettings: Settings = {
   multExtra: 1.5,
   metaSemanal: 600,
   mostrarMeta: true,
+  dineroOculto: false,
   pin: null,
   biometrico: false,
   dark: false,

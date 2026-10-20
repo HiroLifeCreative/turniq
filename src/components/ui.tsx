@@ -441,6 +441,8 @@ import {
   House as LucideHome,
   Briefcase as LucideBriefcase,
   ChartColumn as LucideChart,
+  Eye as LucideEye,
+  EyeOff as LucideEyeOff,
 } from 'lucide-react-native';
 
 const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
@@ -458,6 +460,8 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
   home: LucideHome,
   briefcase: LucideBriefcase,
   chart: LucideChart,
+  eye: LucideEye,
+  eyeOff: LucideEyeOff,
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {
