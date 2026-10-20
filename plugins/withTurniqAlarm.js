@@ -57,7 +57,7 @@ function withAlarmPackage(config) {
     const lineEnd = contents.indexOf('\n', idx);
     cfg.modResults.contents =
       contents.slice(0, lineEnd + 1) +
-      `      add(${PKG}.TurniqAlarmPackage())\n` +
+      `            packages.add(${PKG}.TurniqAlarmPackage())\n` +
       contents.slice(lineEnd + 1);
     return cfg;
   });
