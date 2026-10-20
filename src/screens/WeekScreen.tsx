@@ -125,7 +125,7 @@ export function WeekScreen() {
         )}
 
         {/* Alerta hora extra */}
-        {settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
+        {settings.mostrarHoraExtra && settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
           <Card style={{ marginBottom: SP.md }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>
               <Label style={{ marginBottom: 0 }}>{t.semana.horaExtra}</Label>
@@ -280,18 +280,18 @@ export function WeekScreen() {
         {/* Total semanal */}
         <Card style={{ marginTop: SP.sm }}>
           <Label>{t.week.total}</Label>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View>
+          <View style={{ flexDirection: 'row', gap: SP.sm }}>
+            <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.week.hours}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.text }}>{fmtHoursDual(totals.hours)}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text }} numberOfLines={1} adjustsFontSizeToFit>{fmtHoursDual(totals.hours)}</Text>
             </View>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.week.gross}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.text }}>{fmtMoney(totals.gross)}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text }} numberOfLines={1} adjustsFontSizeToFit>{fmtMoney(totals.gross)}</Text>
             </View>
-            <View>
+            <View style={{ flex: 1, alignItems: 'flex-end' }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>{t.week.net}</Text>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 20, color: p.text }}>{fmtMoney(totals.net)}</Text>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.success }} numberOfLines={1} adjustsFontSizeToFit>{fmtMoney(totals.net)}</Text>
             </View>
           </View>
           {totals.overtimeHours > 0 && (

@@ -44,6 +44,7 @@ export interface Settings {
   multExtra: number;
   metaSemanal: number;
   mostrarMeta: boolean;
+  mostrarHoraExtra: boolean;
   dineroOculto: boolean;
   onboardingDone: boolean;
   pin: string | null;
@@ -102,6 +103,7 @@ const defaultSettings: Settings = {
   multExtra: 1.5,
   metaSemanal: 600,
   mostrarMeta: true,
+  mostrarHoraExtra: true,
   dineroOculto: false,
   onboardingDone: false,
   pin: null,
@@ -216,6 +218,7 @@ export const useStore = create<State>()(
             state.settings.onboardingDone = state.jobs.length > 0 || state.shifts.length > 0;
           }
           if (state.settings.mostrarMeta === undefined) state.settings.mostrarMeta = true;
+          if (state.settings.mostrarHoraExtra === undefined) state.settings.mostrarHoraExtra = true;
           if (state.settings.dineroOculto === undefined) state.settings.dineroOculto = false;
         }
         state?.setHydrated();

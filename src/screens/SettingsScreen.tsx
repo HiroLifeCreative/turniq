@@ -145,13 +145,14 @@ export function SettingsScreen() {
             </Text>
           </SettingRow>
           <SettingRow icon="clock" label={t.settings.overtime} last={false}>
-            <View style={{ flexDirection: 'row', gap: SP.md }}>
+            <View style={{ flexDirection: 'row', gap: SP.md, alignItems: 'flex-end' }}>
               <View style={{ flex: 1 }}>
                 <Field label={t.settings.overtimeAfter} value={String(settings.umbralExtraHrs)} onChange={(v) => setSettings({ umbralExtraHrs: Number(v) || 0 })} keyboardType="numeric" />
               </View>
               <View style={{ flex: 1 }}>
                 <Field label={t.settings.overtimeMult} value={String(settings.multExtra)} onChange={(v) => setSettings({ multExtra: Number(v) || 1 })} keyboardType="decimal-pad" />
               </View>
+              <Switch value={settings.mostrarHoraExtra} onValueChange={(v) => setSettings({ mostrarHoraExtra: v })} trackColor={{ true: p.primary }} />
             </View>
           </SettingRow>
           <SettingRow icon="wallet" label={t.settings.goal} last={!settings.mostrarMeta}>
