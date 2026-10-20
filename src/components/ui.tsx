@@ -266,7 +266,7 @@ export function Sheet({
 
   if (!mounted) return null;
   return (
-    <Modal visible transparent animationType="none" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+    <Modal visible transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
       <View style={{ flex: 1 }}>
         <Animated.View style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' }, backdropStyle]}>
           <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
