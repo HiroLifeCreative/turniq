@@ -5,6 +5,7 @@ import { ContentSheet,  Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, I
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
+import { mergeBackupData } from '../services/backupConvert';
 import { scheduleTestAlarm, type AlarmSoundKey } from '../services/notifications';
 import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings } from '../services/alarmNative';
 import { useToast } from '../components/Toast';
@@ -311,13 +312,23 @@ export function SettingsScreen() {
                       {
                         text: t.settings.import,
                         onPress: () => {
+                          const s = useStore.getState();
+                          const merged = mergeBackupData(
+                            { jobs: s.jobs, shifts: s.shifts, templates: s.templates },
+                            { jobs: data.jobs, shifts: data.shifts, templates: data.templates },
+                          );
                           useStore.setState({
-                            jobs: data.jobs as never,
-                            shifts: data.shifts as never,
-                            templates: (data.templates ?? []) as never,
-                            settings: { ...useStore.getState().settings, ...(data.settings as object) },
+                            jobs: merged.jobs,
+                            shifts: merged.shifts,
+                            templates: merged.templates,
+                            settings: { ...s.settings, ...data.settings },
                           });
-                          toast.success(t.toast.backupImported);
+                          Alert.alert(
+                            t.settings.importTitle,
+                            t.settings.importResult
+                              .replace('{s}', String(merged.stats.shiftsAdded))
+                              .replace('{j}', String(merged.stats.jobsAdded)),
+                          );
                         },
                       },
                     ]);
