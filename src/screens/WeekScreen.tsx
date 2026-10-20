@@ -198,6 +198,19 @@ export function WeekScreen() {
                   const estNames = (s.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
                   const st = shiftStatus(s, now);
                   const h = shiftHours(s);
+                  // Detectar si se traslapa con otro turno del mismo día
+                  const overlaps = ds.some((o) => {
+                    if (o.id === s.id) return false;
+                    if (!/^\d{2}:\d{2}$/.test(s.horaEntrada) || !/^\d{2}:\d{2}$/.test(o.horaEntrada)) return false;
+                    const toMin = (hm: string) => { const [hh, mm] = hm.split(':').map(Number); return (hh ?? 0) * 60 + (mm ?? 0); };
+                    const a1 = toMin(s.horaEntrada);
+                    const a2raw = s.horaSalida && /^\d{2}:\d{2}$/.test(s.horaSalida) ? toMin(s.horaSalida) : a1 + 1;
+                    const a2 = a2raw <= a1 ? a2raw + 1440 : a2raw;
+                    const b1 = toMin(o.horaEntrada);
+                    const b2raw = o.horaSalida && /^\d{2}:\d{2}$/.test(o.horaSalida) ? toMin(o.horaSalida) : b1 + 1;
+                    const b2 = b2raw <= b1 ? b2raw + 1440 : b2raw;
+                    return a1 < b2 && b1 < a2;
+                  });
                   const darkMode = p.bg === '#0B0B0C';
                   // Degradado súper suave por estado (respeta modo oscuro)
                   const grad: readonly [string, string] = darkMode
@@ -251,6 +264,11 @@ export function WeekScreen() {
                         <Text style={{ fontSize: 13, marginTop: 3, color: statusColor(st), fontWeight: '700' }}>
                           {s.esLibre ? t.shift.freeDay : `${job?.nombre ?? ''}${estNames.length ? ` · ${estNames.join(', ')}` : ''}`} · {statusLabel(st)}
                         </Text>
+                        {overlaps && (
+                          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, backgroundColor: '#FFF3E0', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start' }}>
+                            <Text style={{ fontSize: 12, color: '#E65100', fontWeight: '700' }}>⚠️ {t.shift.sameTime}</Text>
+                          </View>
+                        )}
                       </View>
                       {!locked && (
                         <TouchableOpacity onPress={() => setMenuShift(s)} hitSlop={10} style={{ padding: 4 }}>

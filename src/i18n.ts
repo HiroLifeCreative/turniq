@@ -174,6 +174,7 @@ const es = {
     overlapTitle: 'Turno traslapado',
     overlapMsg: 'Ya tienes otro turno en ese horario. ¿Seguro que quieres guardarlo?',
     saveAnyway: 'Guardar igual',
+    sameTime: 'Misma hora',
   },
   reports: {
     title: 'Reportes',
@@ -448,6 +449,7 @@ const en: Strings = {
     overlapTitle: 'Overlapping shift',
     overlapMsg: 'You already have another shift at that time. Are you sure you want to save it?',
     saveAnyway: 'Save anyway',
+    sameTime: 'Same time',
   },
   reports: {
     title: 'Reports',
