@@ -170,6 +170,10 @@ const es = {
     gmail: 'Gmail (nómina)',
     terms: 'Términos y condiciones',
   },
+  novedades: {
+    title: 'Novedades',
+    latest: 'Nuevo',
+  },
   tpl: {
     new: 'Nueva plantilla',
     edit: 'Editar plantilla',
@@ -522,6 +526,10 @@ const en: Strings = {
     calendar: 'Google Calendar',
     gmail: 'Gmail (payroll)',
     terms: 'Terms & conditions',
+  },
+  novedades: {
+    title: "What's new",
+    latest: 'New',
   },
   tpl: {
     new: 'New template',

@@ -283,6 +283,9 @@ export function SettingsScreen() {
           <SettingRow icon="settings" label="Turniq" last={false}>
             <Text style={{ color: p.text3, fontSize: TYPE.caption }}>v1.0.0 (2)</Text>
           </SettingRow>
+          <SettingRow icon="bell" label={t.novedades.title} last={false}>
+            <Btn title={t.novedades.title} onPress={() => (nav.navigate as any)('Changelog')} kind="ghost" />
+          </SettingRow>
           <SettingRow icon="user" label={t.more.terms} last={false}>
             <Btn title={t.more.terms} onPress={() => (nav.navigate as any)('Terms')} kind="ghost" />
           </SettingRow>
