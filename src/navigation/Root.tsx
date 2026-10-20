@@ -220,9 +220,11 @@ function TabsNavigator() {
                   }}
                 >
                   <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={20} color={fg} />
-                  <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: focused ? '700' : '500', fontSize: 10 }} numberOfLines={1}>
-                    {labels[route.name as keyof TabsParamList]}
-                  </Text>
+                  {focused && (
+                    <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: '700', fontSize: 10 }} numberOfLines={1}>
+                      {labels[route.name as keyof TabsParamList]}
+                    </Text>
+                  )}
                 </TouchableOpacity>
               );
             })}
