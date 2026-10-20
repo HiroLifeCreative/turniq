@@ -13,6 +13,7 @@ import {
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store';
 import { STR } from '../i18n';
@@ -55,11 +56,18 @@ export const Screen = ({ children, style }: { children: React.ReactNode; style?:
 
 export const Card = ({ children, style }: { children: React.ReactNode; style?: ViewStyle }) => {
   const p = useTheme();
+  const darkMode = p.bg === '#000000' || p.bg === '#0A0A0B';
+  // Degradado súper suave: de blanco/transparente sutil al color de tarjeta
+  const gradColors: [string, string] = darkMode
+    ? ['#1A1D23', p.card]
+    : ['#FFFFFF', p.card];
   return (
-    <View
+    <LinearGradient
+      colors={gradColors}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={[
         {
-          backgroundColor: p.card,
           borderRadius: R.lg,
           borderWidth: 1,
           borderColor: p.line,
@@ -74,7 +82,7 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
       ]}
     >
       {children}
-    </View>
+    </LinearGradient>
   );
 };
 

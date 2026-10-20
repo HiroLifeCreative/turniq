@@ -2,6 +2,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
 import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
@@ -195,20 +196,22 @@ export function WeekScreen() {
                   const estNames = (s.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
                   const st = shiftStatus(s, now);
                   const h = shiftHours(s);
+                  // Degradado súper suave por estado
+                  const grad = st === 'now'
+                    ? ['#FFF8EE', '#FFF1DC'] as const
+                    : st === 'missed'
+                    ? ['#FEF2F1', '#FDE8E6'] as const
+                    : st === 'upcoming'
+                    ? ['#F1F8F2', '#E6F2E8'] as const
+                    : ['#FFFFFF', '#F8F9FB'] as const;
                   return (
                     <TouchableOpacity
                       key={s.id}
                       onPress={() => setDetailShift(s)}
                       activeOpacity={0.7}
                       style={{
-                        backgroundColor: statusBg(st),
-                        borderRadius: R.lg,
-                        borderWidth: 1,
-                        borderColor: statusBorder(st),
-                        padding: SP.md,
                         marginBottom: SP.sm,
-                        flexDirection: 'row',
-                        alignItems: 'center',
+                        borderRadius: R.lg,
                         shadowColor: '#8A94A6',
                         shadowOpacity: 0.1,
                         shadowRadius: 12,
@@ -216,6 +219,19 @@ export function WeekScreen() {
                         elevation: 3,
                       }}
                     >
+                      <LinearGradient
+                        colors={[...grad]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
+                        style={{
+                          borderRadius: R.lg,
+                          borderWidth: 1,
+                          borderColor: statusBorder(st),
+                          padding: SP.md,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                        }}
+                      >
                       <View style={{ width: 4, borderRadius: 2, alignSelf: 'stretch', backgroundColor: statusColor(st), marginRight: SP.md }} />
                       <View style={{ flex: 1 }}>
                         <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
@@ -230,6 +246,7 @@ export function WeekScreen() {
                           <Text style={{ fontSize: 18, color: p.primary, fontWeight: '800', letterSpacing: 1 }}>⋮</Text>
                         </TouchableOpacity>
                       )}
+                      </LinearGradient>
                     </TouchableOpacity>
                   );
                 })}

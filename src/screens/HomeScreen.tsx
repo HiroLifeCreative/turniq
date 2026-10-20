@@ -352,8 +352,13 @@ export function HomeScreen() {
             const isToday = s.fecha === today;
             return (
               <MotiView key={s.id} from={{ opacity: 0, translateY: 12 }} animate={{ opacity: 1, translateY: 0 }} transition={{ delay: idx * 80 }}>
-                <TouchableOpacity onPress={goWeek} activeOpacity={0.7}>
-                  <View style={{ backgroundColor: p.card, borderRadius: 20, borderWidth: 1, borderColor: p.line, padding: SP.lg, marginBottom: SP.sm, flexDirection: 'row', alignItems: 'center' }}>
+                <TouchableOpacity onPress={goWeek} activeOpacity={0.7} style={{ marginBottom: SP.sm, borderRadius: 20, shadowColor: '#8A94A6', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 }}>
+                  <LinearGradient
+                    colors={['#FFFFFF', '#F8F9FB']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={{ borderRadius: 20, borderWidth: 1, borderColor: p.line, padding: SP.lg, flexDirection: 'row', alignItems: 'center' }}
+                  >
                     <View style={{ alignItems: 'center', marginRight: SP.lg, minWidth: 52 }}>
                       <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: isToday ? p.primary : p.text }}>{d.getDate()}</Text>
                       <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>{t.week.days[(d.getDay() + 6) % 7]}</Text>
@@ -374,7 +379,7 @@ export function HomeScreen() {
                         <Text style={{ color: '#fff', fontFamily: FONT.mono, fontSize: 10, fontWeight: '700' }}>{t.inicio.hoy.toUpperCase()}</Text>
                       </View>
                     )}
-                  </View>
+                  </LinearGradient>
                 </TouchableOpacity>
               </MotiView>
             );
