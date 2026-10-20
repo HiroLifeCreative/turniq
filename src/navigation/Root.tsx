@@ -91,30 +91,30 @@ function TabsNavigator() {
           right: 16,
           bottom: 12 + insets.bottom,
           borderRadius: 28,
-          overflow: 'hidden',
           shadowColor: '#000',
-          shadowOpacity: 0.2,
+          shadowOpacity: 0.18,
           shadowRadius: 22,
           shadowOffset: { width: 0, height: 10 },
           elevation: 14,
         }}
       >
         <BlurView
-          intensity={60}
+          intensity={55}
           tint={dark ? 'dark' : 'light'}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: dark ? 'rgba(23,23,26,0.7)' : 'rgba(255,255,255,0.7)',
-            borderRadius: 28,
-            borderWidth: 0.5,
-            borderColor: p.line,
-            paddingVertical: 8,
-            paddingHorizontal: 12,
-            gap: 4,
-          }}
+          experimentalBlurMethod="dimezisBlurView"
+          style={{ borderRadius: 28, overflow: 'hidden' }}
         >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: dark ? 'rgba(23,23,26,0.68)' : 'rgba(255,255,255,0.68)',
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              gap: 4,
+            }}
+          >
         {props.state.routes.map((route, index) => {
           const focused = props.state.index === index;
           const fg = focused ? '#FFFFFF' : p.text3;
@@ -166,6 +166,7 @@ function TabsNavigator() {
             </TouchableOpacity>
           );
         })}
+          </View>
         </BlurView>
       </View>
     );

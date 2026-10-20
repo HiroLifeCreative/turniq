@@ -16,6 +16,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { MotiView } from 'moti';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store';
 import { STR } from '../i18n';
@@ -102,6 +103,52 @@ const Arrow = ({ color }: { color: string }) => (
     <Text style={{ color, fontSize: 20, fontWeight: '700' }}>→</Text>
   </View>
 );
+
+/** Tarjeta destacada: degradado tintado por acento + entrada animada. */
+export const TintedCard = ({
+  accent,
+  children,
+  style,
+  delay = 0,
+}: {
+  accent: string;
+  children: React.ReactNode;
+  style?: ViewStyle;
+  delay?: number;
+}) => {
+  const p = useTheme();
+  const darkMode = p.bg === '#0B0B0C';
+  const colors: [string, string] = darkMode
+    ? [`${accent}30`, p.card]
+    : [`${accent}1F`, p.card];
+  return (
+    <MotiView
+      from={{ opacity: 0, translateY: 14 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      transition={{ type: 'spring', damping: 22, stiffness: 240, delay }}
+      style={style}
+    >
+      <LinearGradient
+        colors={colors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          borderRadius: R.lg,
+          borderWidth: 0.5,
+          borderColor: darkMode ? '#2E2E33' : '#EDEFF2',
+          padding: SP.lg,
+          shadowColor: '#6B7A99',
+          shadowOpacity: 0.22,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 8 },
+          elevation: 6,
+        }}
+      >
+        {children}
+      </LinearGradient>
+    </MotiView>
+  );
+};
 
 export function Btn({
   title,

@@ -203,8 +203,14 @@ export function SettingsScreen() {
 
         {/* ACERCA DE */}
         <Section title={t.settings.acerca}>
-          <SettingRow icon="settings" label="Turniq" last>
+          <SettingRow icon="settings" label="Turniq" last={false}>
             <Text style={{ color: p.text3, fontSize: TYPE.caption }}>v1.0.0 (2)</Text>
+          </SettingRow>
+          <SettingRow icon="user" label={t.more.terms} last={false}>
+            <Btn title={t.more.terms} onPress={() => (nav.navigate as any)('Terms')} kind="ghost" />
+          </SettingRow>
+          <SettingRow icon="wallet" label={t.more.tips} last>
+            <Btn title={t.more.tips} onPress={() => (nav.navigate as any)('Tips')} kind="ghost" />
           </SettingRow>
         </Section>
 

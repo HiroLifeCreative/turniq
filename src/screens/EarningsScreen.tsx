@@ -2,7 +2,7 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Screen, Card, Label, useTheme, useT, Header, Icon } from '../components/ui';
+import { Screen, Card, TintedCard, Label, useTheme, useT, Header, Icon } from '../components/ui';
 import { MotiView } from 'moti';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
@@ -15,11 +15,11 @@ function workState(s: Shift, now: Date): WorkState {
   const today = ymd(now);
   if (s.fecha < today) return 'worked';
   if (s.fecha > today) return 'scheduled';
-  // Hoy: trabajado si ya tiene salida registrada
-  if (s.horaSalida) return 'worked';
+  // Hoy: trabajado solo si marcó entrada real o si ya pasó su hora de salida programada
+  if (s.horaEntradaReal) return 'worked';
   const nowMin = now.getHours() * 60 + now.getMinutes();
-  // Si la hora de entrada ya pasó, cuenta como trabajada (en curso o por cerrar)
-  return nowMin >= hmToMin(s.horaEntrada) ? 'worked' : 'scheduled';
+  if (s.horaSalida && nowMin >= hmToMin(s.horaSalida)) return 'worked';
+  return 'scheduled';
 }
 
 export function EarningsScreen() {
@@ -123,7 +123,7 @@ export function EarningsScreen() {
         </View>
 
         {/* Trabajadas vs programadas */}
-        <Card style={{ marginBottom: SP.md }}>
+        <TintedCard accent="#30A46C" style={{ marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1, marginRight: SP.md }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: TYPE.mono, color: p.text3 }}>{t.earnings.worked.toUpperCase()}</Text>
@@ -146,8 +146,8 @@ export function EarningsScreen() {
           <View style={{ flexDirection: 'row', height: 10, borderRadius: 5, overflow: 'hidden', backgroundColor: p.surface, marginTop: SP.md }}>
             {cur.hours > 0 && (
               <>
-                <View style={{ width: `${(worked.hours / cur.hours) * 100}%`, backgroundColor: p.success }} />
-                <View style={{ width: `${(scheduled.hours / cur.hours) * 100}%`, backgroundColor: p.primary }} />
+                <MotiView animate={{ width: `${(worked.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: p.success }} />
+                <MotiView animate={{ width: `${(scheduled.hours / cur.hours) * 100}%` }} transition={{ type: 'timing', duration: 700 }} style={{ backgroundColor: p.primary }} />
               </>
             )}
           </View>
@@ -162,7 +162,7 @@ export function EarningsScreen() {
               <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text, marginTop: 2 }} numberOfLines={1} adjustsFontSizeToFit>{fmtHours(cur.hours)}</Text>
             </View>
           </View>
-        </Card>
+        </TintedCard>
 
         {/* Meta semanal */}
         {settings.mostrarMeta && (
@@ -197,7 +197,7 @@ export function EarningsScreen() {
           <NavArrows onPrev={() => setMonthOff((o) => o - 1)} onNext={() => setMonthOff((o) => o + 1)} />
         </View>
 
-        <Card style={{ marginBottom: SP.md, borderWidth: 1.5, borderColor: p.primary }}>
+        <TintedCard accent="#0064E0" style={{ marginBottom: SP.md }} delay={60}>
           <Label>{t.earnings.monthProjection}</Label>
           <Text style={{ fontFamily: FONT.headBold, fontSize: 34, letterSpacing: -1, color: p.text }}>
             {fmtMoney(month.net)}
@@ -218,7 +218,7 @@ export function EarningsScreen() {
               <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3 }}>{monthShifts.length} {t.semana.turnos.toLowerCase()}</Text>
             </View>
           </View>
-        </Card>
+        </TintedCard>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.md }}>
           <Stat label={t.earnings.perHour} value={fmtMoney(perHour)} sub={t.earnings.recorded} />

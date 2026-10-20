@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import {Screen, H1, Card, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
+import {Screen, H1, Card, TintedCard, Btn, Label, Confirm, useTheme, useT, Header, Icon, Sheet} from '../components/ui';
 import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
@@ -126,7 +126,7 @@ export function WeekScreen() {
 
         {/* Alerta hora extra */}
         {settings.mostrarHoraExtra && settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
-          <Card style={{ marginBottom: SP.md }}>
+          <TintedCard accent="#E8830C" style={{ marginBottom: SP.md }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>
               <Label style={{ marginBottom: 0 }}>{t.semana.horaExtra}</Label>
               <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
@@ -145,7 +145,7 @@ export function WeekScreen() {
                 ? `${fmtHoursDual(totals.overtimeHours)} ${t.semana.horaExtraDone}`
                 : `${fmtHoursDual(otLeft)} ${t.semana.horaExtraLeft}`}
             </Text>
-          </Card>
+          </TintedCard>
         )}
 
         {days.map((d, i) => {
@@ -304,7 +304,7 @@ export function WeekScreen() {
         })}
 
         {/* Total semanal */}
-        <Card style={{ marginTop: SP.sm }}>
+        <TintedCard accent="#0064E0" style={{ marginTop: SP.sm }}>
           <Label>{t.week.total}</Label>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>
             <View style={{ flex: 1 }}>
@@ -325,7 +325,7 @@ export function WeekScreen() {
               +{fmtHoursDual(totals.overtimeHours)} extra ×{settings.multExtra}
             </Text>
           )}
-        </Card>
+        </TintedCard>
 
         {!locked && (
           <Btn title={t.week.duplicate} onPress={doDuplicate} kind="ghost" style={{ marginTop: SP.lg }} />
