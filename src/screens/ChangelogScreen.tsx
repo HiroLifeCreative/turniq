@@ -23,7 +23,7 @@ export function ChangelogScreen() {
             <Card key={e.build} style={{ marginBottom: SP.md }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: p.text }}>
-                  Build {e.build} · v{e.version}
+                  v{e.version} · Build {e.build}
                 </Text>
                 {i === 0 && (
                   <View style={{ backgroundColor: p.primary, borderRadius: R.pill, paddingHorizontal: 10, paddingVertical: 3 }}>

@@ -1,5 +1,9 @@
 /** Historial de versiones (changelog) — del build más nuevo al más viejo.
- *  Al lanzar un build nuevo, agrega su entrada ARRIBA de la lista. */
+ *  RUTINA DE VERSIONADO al lanzar un build nuevo:
+ *  1. app.json: sube `version` (parche +1; menor +1 si trae una función
+ *     grande) y `android.versionCode` (+1 siempre, coincide con el build).
+ *  2. Agrega la entrada del build ARRIBA de esta lista y en CHANGELOG.md.
+ *  3. Las etiquetas de versión en la app se leen solas desde app.json. */
 export interface ChangelogEntry {
   build: number;
   version: string;
@@ -10,7 +14,7 @@ export interface ChangelogEntry {
 export const CHANGELOG: ChangelogEntry[] = [
   {
     build: 18,
-    version: '1.0.0',
+    version: '1.1.0',
     fecha: '2026-10-20',
     notas: {
       es: [

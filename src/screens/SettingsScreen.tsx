@@ -9,6 +9,7 @@ import { mergeBackupData } from '../services/backupConvert';
 import { scheduleTestAlarm, type AlarmSoundKey } from '../services/notifications';
 import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings } from '../services/alarmNative';
 import { useToast } from '../components/Toast';
+import { APP_VERSION_LABEL } from '../lib/version';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
 
@@ -281,7 +282,7 @@ export function SettingsScreen() {
         {/* ACERCA DE */}
         <Section title={t.settings.acerca}>
           <SettingRow icon="settings" label="Turniq" last={false}>
-            <Text style={{ color: p.text3, fontSize: TYPE.caption }}>v1.0.0 (2)</Text>
+            <Text style={{ color: p.text3, fontSize: TYPE.caption }}>{APP_VERSION_LABEL}</Text>
           </SettingRow>
           <SettingRow icon="bell" label={t.novedades.title} last={false}>
             <Btn title={t.novedades.title} onPress={() => (nav.navigate as any)('Changelog')} kind="ghost" />

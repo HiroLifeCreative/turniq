@@ -3,6 +3,7 @@ import React from 'react';
 import {  View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { ContentSheet,  Screen, Card, TopBar, useTheme, useT } from '../components/ui';
 import { SP, FONT } from '../theme/tokens';
+import { APP_VERSION } from '../lib/version';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MasStackParamList } from '../navigation/types';
 
@@ -55,7 +56,7 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
         ))}
         <View style={{ height: SP.xxl }} />
         <Text style={{ textAlign: 'center', fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>
-          Turniq 1.0.0
+          Turniq {APP_VERSION}
         </Text>
       </ScrollView>
       </ContentSheet>
