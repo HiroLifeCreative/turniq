@@ -1,13 +1,13 @@
 /** Bottom sheet para crear/editar un turno. */
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, ScrollView } from 'react-native';
-import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Sheet, Field, Label, Btn, Icon, useTheme, useT } from './ui';
+import { IosTimePicker, IosDatePicker } from './IosPickers';
 import { useStore, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, hmTo12h } from '../lib/dates';
 
-/** Campo de hora con picker nativo (respeta 12h/24h del ajuste). */
+/** Campo de hora con picker estilo iOS (respeta 12h/24h del ajuste). */
 function TimeField({
   label,
   value,
@@ -24,19 +24,6 @@ function TimeField({
   const formatoHora = useStore((s) => s.settings.formatoHora);
   const [show, setShow] = useState(false);
 
-  const toDate = (hm: string): Date => {
-    const d = new Date();
-    const m = /^(\d{1,2}):(\d{2})$/.exec(hm);
-    if (m) {
-      d.setHours(Number(m[1]), Number(m[2]), 0, 0);
-    }
-    return d;
-  };
-  const fromDate = (d: Date): string => {
-    const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
-    return `${hh}:${mm}`;
-  };
   const display = value
     ? formatoHora === '12h'
       ? hmTo12h(value, true)
@@ -44,11 +31,6 @@ function TimeField({
     : placeholder ?? '--:--';
   // En 12h, resaltar AM/PM con un badge
   const ampm = formatoHora === '12h' && value ? (Number(value.split(':')[0]) >= 12 ? 'PM' : 'AM') : null;
-
-  const onPick = (e: DateTimePickerEvent, d?: Date) => {
-    if (Platform.OS === 'android') setShow(false);
-    if (e.type === 'set' && d) onChange(fromDate(d));
-  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -80,15 +62,72 @@ function TimeField({
           <Icon name="clock" size={ICON.md} color={p.text3} />
         </View>
       </TouchableOpacity>
-      {show && (
-        <DateTimePicker
-          value={toDate(value || '09:00')}
-          mode="time"
-          is24Hour={formatoHora === '24h'}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          onChange={onPick}
-        />
-      )}
+      <IosTimePicker
+        visible={show}
+        onClose={() => setShow(false)}
+        value={value || '09:00'}
+        onChange={onChange}
+        title={label}
+        confirmLabel={t.common.confirm}
+        cancelLabel={t.common.cancel}
+        is24h={formatoHora === '24h'}
+      />
+    </View>
+  );
+}
+
+/** Campo de fecha con picker estilo iOS. */
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const p = useTheme();
+  const t = useT();
+  const [show, setShow] = useState(false);
+
+  const display = (() => {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (!m) return '--/--/----';
+    return `${m[3]}/${m[2]}/${m[1]}`;
+  })();
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Label>{label}</Label>
+      <TouchableOpacity
+        onPress={() => setShow(true)}
+        activeOpacity={0.7}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          backgroundColor: p.surface,
+          borderRadius: R.md,
+          borderWidth: 1,
+          borderColor: p.line,
+          paddingHorizontal: SP.lg,
+          paddingVertical: SP.md,
+        }}
+      >
+        <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, color: p.text }}>
+          {display}
+        </Text>
+        <Icon name="calendar" size={ICON.md} color={p.text3} />
+      </TouchableOpacity>
+      <IosDatePicker
+        visible={show}
+        onClose={() => setShow(false)}
+        value={value}
+        onChange={onChange}
+        title={label}
+        confirmLabel={t.common.confirm}
+        cancelLabel={t.common.cancel}
+      />
     </View>
   );
 }
@@ -286,9 +325,7 @@ export function ShiftForm({
       )}
 
       <View style={{ flexDirection: 'row', gap: SP.md }}>
-        <View style={{ flex: 1 }}>
-          <Field label={t.shift.date} value={fecha} onChange={setFecha} placeholder="2026-10-19" />
-        </View>
+        <DateField label={t.shift.date} value={fecha} onChange={setFecha} />
         <View style={{ flex: 1 }}>
           <Field label={t.shift.break} value={breakMin} onChange={setBreakMin} keyboardType="numeric" />
         </View>

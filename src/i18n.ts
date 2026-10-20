@@ -231,6 +231,7 @@ const es = {
   },
   common: {
     save: 'Guardar',
+    confirm: 'Confirmar',
     cancel: 'Cancelar',
     close: 'Cerrar',
     edit: 'Editar',
@@ -476,6 +477,7 @@ const en: Strings = {
   },
   common: {
     save: 'Save',
+    confirm: 'Confirm',
     cancel: 'Cancel',
     close: 'Close',
     edit: 'Edit',
