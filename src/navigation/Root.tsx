@@ -78,18 +78,12 @@ function TabsNavigator() {
   } catch {
     /* no web */
   }
-  const labels: Record<keyof TabsParamList, string> = {
-    Inicio: t.tabs.inicio,
-    Semana: t.tabs.week,
-    Trabajos: t.tabs.jobs,
-    Ganancias: t.tabs.earnings,
-  };
-
-  /** Dock flotante de vidrio: grupo compacto centrado de pestañas.
-   *  Inactivas = botón fijo de 52px solo con icono; la activa es una
-   *  píldora azul (color primario) con icono + palabra cuyo ancho crece
-   *  con spring. (La librería cupertino-tabs es solo iOS; el estilo se
-   *  recrea aquí para Android.) */
+  /** Dock flotante de vidrio: grupo compacto centrado de pestañas,
+   *  SOLO iconos (sin texto). Inactivas = botón fijo de 50px; la activa
+   *  es una píldora azul (color primario) un poco más ancha que crece
+   *  con spring. El contenedor de vidrio se ajusta al ancho exacto del
+   *  grupo (sin aire sobrante en los extremos). (La librería
+   *  cupertino-tabs es solo iOS; el estilo se recrea aquí.) */
   const DockBar = (props: BottomTabBarProps) => {
     const insets = useSafeAreaInsets();
     const activeIdx = props.state.index;
@@ -135,11 +129,17 @@ function TabsNavigator() {
           />
         </MaskedView>
       <View
+        pointerEvents="box-none"
         style={{
           position: 'absolute',
-          left: 12,
-          right: 12,
+          left: 0,
+          right: 0,
           bottom: 12 + insets.bottom,
+          alignItems: 'center',
+        }}
+      >
+      <View
+        style={{
           borderRadius: 32,
           shadowColor: '#000',
           shadowOpacity: 0.18,
@@ -159,7 +159,7 @@ function TabsNavigator() {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 6,
+              gap: 4,
               backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
               paddingHorizontal: PAD,
               paddingVertical: PAD,
@@ -168,15 +168,12 @@ function TabsNavigator() {
             {props.state.routes.map((route, index) => {
               const focused = activeIdx === index;
               const fg = focused ? activeFg : p.text3;
-              const label = labels[route.name as keyof TabsParamList];
-              // Grupo COMPACTO centrado (corrección de Nelson, 19 oct):
-              // inactivas fijas de 52px solo icono; la activa es píldora
-              // con icono + palabra y su ancho crece con spring.
-              const activeW = 20 + 25 + 10 + Math.ceil(label.length * 5.4) + 20;
+              // SIN texto en ningún tab (Nelson): solo iconos. La activa es
+              // píldora azul un poco más ancha; inactivas compactas de 50px.
               return (
                 <MotiView
                   key={route.key}
-                  animate={{ width: focused ? activeW : 52 }}
+                  animate={{ width: focused ? 58 : 50 }}
                   transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                   style={{
                     height: 54,
@@ -224,17 +221,13 @@ function TabsNavigator() {
                     }}
                   >
                     <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={25} color={fg} />
-                    {focused && (
-                      <Text style={{ color: fg, fontFamily: FONT.head, fontWeight: '700', fontSize: 9 }} numberOfLines={1}>
-                        {label}
-                      </Text>
-                    )}
                   </TouchableOpacity>
                 </MotiView>
               );
             })}
           </View>
         </BlurView>
+      </View>
       </View>
       </>
     );
