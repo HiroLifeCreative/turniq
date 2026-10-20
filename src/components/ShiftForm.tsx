@@ -8,7 +8,7 @@ import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, hmTo12h } from '../lib/dates';
 
 /** Campo de hora con picker estilo iOS (respeta 12h/24h del ajuste). */
-function TimeField({
+export function TimeField({
   label,
   value,
   onChange,

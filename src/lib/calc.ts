@@ -13,17 +13,37 @@ export interface ShiftLike {
   esLibre?: boolean;
   horaEntrada: string;
   horaSalida: string | null; // null = turno abierto
+  horaEntradaReal?: string | null;
+  horaSalidaReal?: string | null;
   breakMin: number;
   propinas: number;
   bono: number;
 }
 
+/** Horas de un rango (descontando break). Sin salida = 0. */
+function rangeHours(start: string, end: string | null, breakMin: number): number {
+  if (!end) return 0;
+  let mins = hmToMin(end) - hmToMin(start);
+  if (mins < 0) mins += 24 * 60; // cruza medianoche
+  return Math.max(0, mins - breakMin) / 60;
+}
+
+/** Horas programadas de un turno. */
+export function scheduledHours(s: ShiftLike): number {
+  return rangeHours(s.horaEntrada, s.horaSalida, s.breakMin);
+}
+
+/** Horas trabajadas reales (si marcó, usa las reales; si no, las programadas). */
+export function workedHours(s: ShiftLike): number {
+  if (s.horaEntradaReal) {
+    return rangeHours(s.horaEntradaReal, s.horaSalidaReal ?? null, s.breakMin);
+  }
+  return rangeHours(s.horaEntrada, s.horaSalida, s.breakMin);
+}
+
 /** Horas trabajadas de un turno (descontando break). Turno abierto = 0. */
 export function shiftHours(s: ShiftLike): number {
-  if (!s.horaSalida) return 0;
-  let mins = hmToMin(s.horaSalida) - hmToMin(s.horaEntrada);
-  if (mins < 0) mins += 24 * 60; // cruza medianoche
-  return Math.max(0, mins - s.breakMin) / 60;
+  return workedHours(s);
 }
 
 export interface WeekTotals {

@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
-import { Screen, Label, Confirm, Header, Icon, useTheme, useT } from '../components/ui';
+import { Screen, Label, Confirm, Header, Icon, Sheet, useTheme, useT } from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useStore, jobsById, type Shift } from '../store';
@@ -40,6 +40,7 @@ export function HomeScreen() {
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [detailShift, setDetailShift] = useState<Shift | null>(null);
   const [clockJobId, setClockJobId] = useState<string | null>(null);
+  const [clockSheetOpen, setClockSheetOpen] = useState(false);
   const [, setTick] = useState(0);
   const setSettings = useStore((s) => s.setSettings);
 
@@ -107,7 +108,7 @@ export function HomeScreen() {
   const dayShifts = shifts
     .filter((s) => s.fecha === today)
     .sort((a, b) => hmToMin(a.horaEntrada) - hmToMin(b.horaEntrada));
-  const openShift = dayShifts.find((s) => !s.horaSalida);
+  const openShift = dayShifts.find((s) => s.horaEntradaReal && !s.horaSalidaReal);
   const openJob = openShift ? byId[openShift.jobId] : undefined;
 
   // Tick cada segundo para el reloj en vivo
@@ -132,10 +133,11 @@ export function HomeScreen() {
   const stateColor = heroState === 'working' ? '#E8830C' : heroState === 'missed' ? '#E5484D' : heroState === 'upcoming' ? '#30A46C' : '#8B8D98';
   const stateLabel = heroState === 'working' ? t.inicio.trabajando : heroState === 'missed' ? t.semana.noMarcado : heroState === 'upcoming' ? t.semana.proximo : '';
 
-  // Tiempo en vivo del turno abierto
+  // Tiempo en vivo del turno abierto (desde hora real marcada)
   const liveSecs = openShift ? Math.max(0, Math.floor(Date.now() / 1000) - (() => {
     const d = parseYmd(openShift.fecha);
-    d.setHours(Math.floor(hmToMin(openShift.horaEntrada) / 60), hmToMin(openShift.horaEntrada) % 60, 0, 0);
+    const hm = openShift.horaEntradaReal ?? openShift.horaEntrada;
+    d.setHours(Math.floor(hmToMin(hm) / 60), hmToMin(hm) % 60, 0, 0);
     return Math.floor(d.getTime() / 1000);
   })()) : 0;
   const liveHH = String(Math.floor(liveSecs / 3600)).padStart(2, '0');
@@ -159,16 +161,15 @@ export function HomeScreen() {
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === weekKey(monday));
   const totals = calcWeekTotals(inWeek, byId, settings.umbralExtraHrs, settings.multExtra);
 
-  const clockIn = () => {
-    const jobId = clockJobId ?? jobs[0]?.id;
-    if (!jobId) return;
+  const clockIn = (shiftId: string) => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    addShift({ jobId, fecha: today, horaEntrada: nowHm(), horaSalida: null, breakMin: 0, propinas: 0, bono: 0, notas: '' });
+    updateShift(shiftId, { horaEntradaReal: nowHm() });
+    setClockSheetOpen(false);
   };
   const clockOut = () => {
     if (openShift) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      updateShift(openShift.id, { horaSalida: nowHm() });
+      updateShift(openShift.id, { horaSalidaReal: nowHm() });
     }
   };
 
@@ -289,38 +290,43 @@ export function HomeScreen() {
               <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#fff' }}>{t.today.clockOut}</Text>
             </TouchableOpacity>
           </MotiView>
-        ) : (
+        ) : dayShifts.length > 0 ? (
           <View style={{ marginBottom: SP.md }}>
-            {jobs.length > 1 && (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: SP.sm, marginBottom: SP.sm }}>
-                {jobs.map((j) => {
-                  const active = (clockJobId ?? jobs[0]?.id) === j.id;
-                  return (
-                    <TouchableOpacity
-                      key={j.id}
-                      onPress={() => setClockJobId(j.id)}
-                      style={{
-                        borderRadius: R.pill, paddingHorizontal: SP.lg, paddingVertical: SP.sm,
-                        backgroundColor: active ? j.color : p.surface,
-                        borderWidth: 1, borderColor: active ? j.color : p.line,
-                      }}
-                    >
-                      <Text style={{ color: active ? '#fff' : p.text, fontWeight: '700', fontSize: 13 }}>{j.nombre}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-            )}
             <TouchableOpacity
-              onPress={clockIn}
-              disabled={jobs.length === 0}
+              onPress={() => setClockSheetOpen(true)}
               activeOpacity={0.85}
-              style={{ backgroundColor: p.primary, borderRadius: 24, paddingVertical: 18, alignItems: 'center', opacity: jobs.length === 0 ? 0.5 : 1 }}
+              style={{ backgroundColor: p.primary, borderRadius: 24, paddingVertical: 18, alignItems: 'center' }}
             >
               <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#fff' }}>{t.today.clockIn}</Text>
             </TouchableOpacity>
           </View>
-        )}
+        ) : null}
+
+        {/* Sheet para elegir turno al marcar entrada */}
+        <Sheet visible={clockSheetOpen} onClose={() => setClockSheetOpen(false)} title={t.today.clockIn}>
+          {dayShifts
+            .filter((s) => !s.horaEntradaReal)
+            .sort((a, b) => hmToMin(a.horaEntrada) - hmToMin(b.horaEntrada))
+            .map((s) => {
+              const job = byId[s.jobId];
+              return (
+                <TouchableOpacity
+                  key={s.id}
+                  onPress={() => clockIn(s.id)}
+                  activeOpacity={0.7}
+                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: SP.md, borderBottomWidth: 0.5, borderBottomColor: p.line }}
+                >
+                  <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: job?.color ?? p.primary, marginRight: SP.md }} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
+                      {job?.nombre ?? ''} · {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}
+                    </Text>
+                  </View>
+                  <Icon name="chevronRight" size={18} color={p.text3} />
+                </TouchableOpacity>
+              );
+            })}
+        </Sheet>
 
         {/* Añadir turno */}
         <TouchableOpacity

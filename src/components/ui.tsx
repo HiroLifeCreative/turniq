@@ -10,6 +10,8 @@ import {
   Platform,
   KeyboardAvoidingView,
   ScrollView,
+  PanResponder,
+  Animated as RNAnimated,
   type TextStyle,
   type ViewStyle,
 } from 'react-native';
@@ -89,15 +91,15 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
 const Arrow = ({ color }: { color: string }) => (
   <View
     style={{
-      width: 34,
-      height: 34,
-      borderRadius: 17,
+      width: 42,
+      height: 42,
+      borderRadius: 21,
       backgroundColor: 'rgba(255,255,255,0.25)',
       alignItems: 'center',
       justifyContent: 'center',
     }}
   >
-    <Text style={{ color, fontSize: 16, fontWeight: '700' }}>→</Text>
+    <Text style={{ color, fontSize: 20, fontWeight: '700' }}>→</Text>
   </View>
 );
 
@@ -129,7 +131,7 @@ export function Btn({
           height: 52,
           borderRadius: R.pill,
           backgroundColor: bg,
-          borderWidth: kind === 'ghost' ? 1 : 0,
+          borderWidth: kind === 'ghost' ? 0.5 : 0,
           borderColor: p.line,
           flexDirection: 'row',
           alignItems: 'center',
@@ -137,6 +139,13 @@ export function Btn({
           paddingLeft: 22,
           paddingRight: arrow ? 6 : 22,
           opacity: disabled ? 0.5 : 1,
+          // Shadow como las tarjetas
+          shadowColor: '#6B7A99',
+          shadowOpacity: kind === 'primary' ? 0.22 : 0.12,
+          shadowRadius: 16,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: 5,
+          marginBottom: SP.md,
         },
         style,
       ]}
@@ -186,6 +195,23 @@ export function Field({
         }}
       />
     </View>
+  );
+}
+
+/** Switch estilo iOS (pista verde/gris, círculo blanco con animación). */
+export function IosSwitch({ value, onValueChange }: { value: boolean; onValueChange: (v: boolean) => void }) {
+  const anim = React.useRef(new RNAnimated.Value(value ? 1 : 0)).current;
+  React.useEffect(() => {
+    RNAnimated.timing(anim, { toValue: value ? 1 : 0, duration: 200, useNativeDriver: false }).start();
+  }, [value]);
+  const trackColor = anim.interpolate({ inputRange: [0, 1], outputRange: ['#E9E9EA', '#34C759'] });
+  const translateX = anim.interpolate({ inputRange: [0, 1], outputRange: [2, 22] });
+  return (
+    <TouchableOpacity activeOpacity={0.8} onPress={() => onValueChange(!value)}>
+      <RNAnimated.View style={{ width: 51, height: 31, borderRadius: 16, backgroundColor: trackColor, justifyContent: 'center' }}>
+        <RNAnimated.View style={{ width: 27, height: 27, borderRadius: 14, backgroundColor: '#FFFFFF', transform: [{ translateX }], shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 3, shadowOffset: { width: 0, height: 2 }, elevation: 3 }} />
+      </RNAnimated.View>
+    </TouchableOpacity>
   );
 }
 
@@ -249,6 +275,28 @@ export function Sheet({
   const [mounted, setMounted] = React.useState(visible);
   const translateY = useSharedValue(600);
   const backdrop = useSharedValue(0);
+  const scrollYRef = React.useRef(0);
+
+  // Deslizar hacia abajo (desde cualquier parte, con el scroll arriba) cierra el sheet
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_evt, gs) =>
+        scrollYRef.current <= 0 && gs.dy > 8 && Math.abs(gs.dy) > Math.abs(gs.dx) * 1.5,
+      onPanResponderMove: (_evt, gs) => {
+        translateY.value = Math.max(0, gs.dy);
+      },
+      onPanResponderRelease: (_evt, gs) => {
+        if (gs.dy > 90 || gs.vy > 0.8) {
+          runOnJS(onClose)();
+        } else {
+          translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
+        }
+      },
+      onPanResponderTerminate: () => {
+        translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
+      },
+    })
+  ).current;
 
   React.useEffect(() => {
     if (visible) {
@@ -281,6 +329,7 @@ export function Sheet({
         </Animated.View>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Animated.View
+            {...panResponder.panHandlers}
             style={[
               {
                 backgroundColor: p.card,
@@ -312,7 +361,12 @@ export function Sheet({
                 <Icon name="x" size={ICON.sm} color={p.text2} />
               </TouchableOpacity>
             </View>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              scrollEventThrottle={16}
+              onScroll={(e) => { scrollYRef.current = e.nativeEvent.contentOffset.y; }}
+            >
               {children}
             </ScrollView>
           </Animated.View>
@@ -331,18 +385,23 @@ export function TopBar({ title, onBack }: { title: string; onBack: () => void })
         onPress={onBack}
         hitSlop={12}
         style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: p.surface,
-          borderWidth: 1,
-          borderColor: p.line,
+          width: 44,
+          height: 44,
+          borderRadius: 22,
+          backgroundColor: p.card,
+          borderWidth: 0.5,
+          borderColor: p.bg === '#0B0B0C' ? '#2E2E33' : '#EDEFF2',
           alignItems: 'center',
           justifyContent: 'center',
           marginRight: SP.md,
+          shadowColor: '#6B7A99',
+          shadowOpacity: 0.18,
+          shadowRadius: 12,
+          shadowOffset: { width: 0, height: 4 },
+          elevation: 4,
         }}
       >
-        <Text style={{ fontSize: 20, color: p.primary, fontWeight: '700' }}>‹</Text>
+        <Icon name="chevronLeft" size={20} color={p.primary} />
       </TouchableOpacity>
       <Text style={{ fontFamily: FONT.headBold, fontSize: 22, letterSpacing: -0.4, color: p.text }}>{title}</Text>
     </View>
@@ -451,6 +510,7 @@ import {
   ChartColumn as LucideChart,
   Eye as LucideEye,
   EyeOff as LucideEyeOff,
+  User as LucideUser,
 } from 'lucide-react-native';
 
 const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
@@ -470,6 +530,7 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
   chart: LucideChart,
   eye: LucideEye,
   eyeOff: LucideEyeOff,
+  user: LucideUser,
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {

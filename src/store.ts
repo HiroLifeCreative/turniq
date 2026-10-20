@@ -24,8 +24,10 @@ export interface Shift {
   esLibre?: boolean; // turno libre (no atado a trabajo)
   estacionIds?: string[]; // múltiples estaciones
   fecha: string; // YYYY-MM-DD
-  horaEntrada: string; // HH:MM
-  horaSalida: string | null;
+  horaEntrada: string; // HH:MM (programada)
+  horaSalida: string | null; // programada
+  horaEntradaReal?: string | null; // HH:MM real (marcada)
+  horaSalidaReal?: string | null; // real (marcada)
   breakMin: number;
   propinas: number;
   bono: number;

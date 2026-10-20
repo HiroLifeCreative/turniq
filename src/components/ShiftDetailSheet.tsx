@@ -5,7 +5,8 @@ import { Sheet, Icon, Confirm, useTheme, useT } from './ui';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { hmTo12h, parseYmd, shortDate } from '../lib/dates';
-import { shiftHours, fmtHours, fmtMoney } from '../lib/calc';
+import { scheduledHours, workedHours, fmtHours, fmtMoney } from '../lib/calc';
+import { TimeField } from './ShiftForm';
 
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
   const p = useTheme();
@@ -33,16 +34,21 @@ export function ShiftDetailSheet({
   const updateShift = useStore((s) => s.updateShift);
   const settings = useStore((s) => s.settings);
   const [confirm, setConfirm] = React.useState(false);
+  const [editWorked, setEditWorked] = React.useState(false);
+  const [wIn, setWIn] = React.useState('');
+  const [wOut, setWOut] = React.useState('');
 
   if (!shift) return null;
   const byId = jobsById(jobs);
   const job = byId[shift.jobId];
   const estNames = (shift.estacionIds ?? []).map((id) => job?.estaciones.find((e) => e.id === id)?.nombre).filter(Boolean);
   const esFmt = settings.idioma === 'es';
-  const isOpen = !shift.horaSalida;
-  const hrs = shiftHours(shift);
-  const gross = hrs * (job?.sueldoHora ?? 0);
+  const isOpen = !!shift.horaEntradaReal && !shift.horaSalidaReal;
+  const hrsProg = scheduledHours(shift);
+  const hrsWork = workedHours(shift);
+  const gross = hrsWork * (job?.sueldoHora ?? 0);
   const net = gross * (1 - (job?.taxPct ?? 0) / 100);
+  const hasWorked = !!shift.horaEntradaReal;
 
   return (
     <>
@@ -59,8 +65,12 @@ export function ShiftDetailSheet({
           )}
         </View>
 
-        <Row label={t.today.title} value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}`} />
-        <Row label={t.week.hours} value={fmtHours(hrs)} color={p.primary} />
+        <Row label={t.shift.scheduled} value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'} · ${fmtHours(hrsProg)}`} />
+        {hasWorked ? (
+          <Row label={t.shift.worked} value={`${hmTo12h(shift.horaEntradaReal!, esFmt)} – ${shift.horaSalidaReal ? hmTo12h(shift.horaSalidaReal, esFmt) : '…'} · ${fmtHours(hrsWork)}`} color={p.success} />
+        ) : (
+          <Row label={t.shift.worked} value="—" />
+        )}
         {estNames.length > 0 && <Row label={t.shift.station} value={estNames.join(", ")} />}
         {shift.breakMin > 0 && <Row label={t.shift.break} value={`${shift.breakMin} min`} />}
         {shift.propinas > 0 && <Row label={t.shift.tips} value={fmtMoney(shift.propinas)} color={p.success} />}
@@ -74,7 +84,7 @@ export function ShiftDetailSheet({
         <View style={{ flexDirection: 'row', gap: SP.sm, marginTop: SP.lg }}>
           <TouchableOpacity
             onPress={() => { onClose(); onEdit(shift); }}
-            style={{ flex: 1, height: 50, borderRadius: R.pill, borderWidth: 1, borderColor: p.line, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+            style={{ flex: 1, height: 50, borderRadius: R.pill, borderWidth: 0.5, borderColor: p.line, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
           >
             <Icon name="edit" size={ICON.sm} color={p.text} />
             <Text style={{ fontWeight: '700', color: p.text, fontSize: TYPE.body }}>{t.common.edit}</Text>
@@ -87,14 +97,40 @@ export function ShiftDetailSheet({
             <Text style={{ fontWeight: '700', color: p.danger, fontSize: TYPE.body }}>{t.common.delete}</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          onPress={() => {
+            setWIn(shift.horaEntradaReal ?? shift.horaEntrada);
+            setWOut(shift.horaSalidaReal ?? shift.horaSalida ?? '');
+            setEditWorked(true);
+          }}
+          style={{ marginTop: SP.sm, height: 50, borderRadius: R.pill, borderWidth: 0.5, borderColor: p.line, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+        >
+          <Icon name="clock" size={ICON.sm} color={p.text} />
+          <Text style={{ fontWeight: '700', color: p.text, fontSize: TYPE.body }}>{t.shift.editWorked}</Text>
+        </TouchableOpacity>
         {isOpen && (
           <TouchableOpacity
-            onPress={() => { updateShift(shift.id, { horaSalida: new Date().toTimeString().slice(0, 5) }); onClose(); }}
+            onPress={() => { updateShift(shift.id, { horaSalidaReal: new Date().toTimeString().slice(0, 5) }); onClose(); }}
             style={{ marginTop: SP.sm, height: 52, borderRadius: R.pill, backgroundColor: p.primary, alignItems: 'center', justifyContent: 'center' }}
           >
             <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: '#fff' }}>{t.today.clockOut} →</Text>
           </TouchableOpacity>
         )}
+      </Sheet>
+
+      {/* Editar horas trabajadas */}
+      <Sheet visible={editWorked} onClose={() => setEditWorked(false)} title={t.shift.editWorked}>
+        <TimeField label={t.shift.checkIn} value={wIn} onChange={setWIn} placeholder="--:--" />
+        <TimeField label={t.shift.checkOut} value={wOut} onChange={setWOut} placeholder="--:--" />
+        <TouchableOpacity
+          onPress={() => { updateShift(shift.id, { horaEntradaReal: wIn, horaSalidaReal: wOut || null }); setEditWorked(false); }}
+          style={{ marginTop: SP.lg, marginBottom: SP.md, height: 52, borderRadius: R.pill, backgroundColor: p.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+        >
+          <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: '#fff' }}>{t.common.save}</Text>
+          <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="check" size={18} color="#fff" />
+          </View>
+        </TouchableOpacity>
       </Sheet>
       <Confirm
         visible={confirm}

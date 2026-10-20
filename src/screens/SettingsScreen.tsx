@@ -1,7 +1,7 @@
 /** Ajustes — secciones estilo iOS: Apariencia, Trabajo, Seguridad, Datos. */
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, Alert, Platform } from 'react-native';
-import { Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, useTheme, useT } from '../components/ui';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
+import { Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, IosSwitch, useTheme, useT } from '../components/ui';
 import { useNavigation } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
@@ -29,6 +29,7 @@ const ROW_COLORS: Record<string, string> = {
   clock: '#FF9F0A',
   wallet: '#30A46C',
   trash: '#E5484D',
+  user: '#0064E0',
 };
 
 /** Fila dentro de una sección: icono redondeado de color + etiqueta. */
@@ -71,12 +72,19 @@ export function SettingsScreen() {
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <TopBar title={t.settings.title} onBack={() => nav.goBack()} />
 
+        {/* PERFIL */}
+        <Section title={t.settings.perfil}>
+          <SettingRow icon="user" label={t.settings.nombre} last>
+            <Field label="" value={settings.nombreUsuario} onChange={(v) => setSettings({ nombreUsuario: v })} placeholder={t.settings.nombrePh} />
+          </SettingRow>
+        </Section>
+
         {/* APARIENCIA */}
         <Section title={t.settings.apariencia}>
           <SettingRow icon="settings" label={t.settings.theme} last={false}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <Text style={{ color: p.text2, fontSize: TYPE.caption }}>{settings.dark ? t.settings.dark : t.settings.light}</Text>
-              <Switch value={settings.dark} onValueChange={(v) => setSettings({ dark: v })} trackColor={{ true: p.primary }} />
+              <IosSwitch value={settings.dark} onValueChange={(v) => setSettings({ dark: v })} />
             </View>
           </SettingRow>
           <SettingRow icon="clock" label={t.settings.language} last={false}>
@@ -152,7 +160,7 @@ export function SettingsScreen() {
               <View style={{ flex: 1 }}>
                 <Field label={t.settings.overtimeMult} value={String(settings.multExtra)} onChange={(v) => setSettings({ multExtra: Number(v) || 1 })} keyboardType="decimal-pad" />
               </View>
-              <Switch value={settings.mostrarHoraExtra} onValueChange={(v) => setSettings({ mostrarHoraExtra: v })} trackColor={{ true: p.primary }} />
+              <IosSwitch value={settings.mostrarHoraExtra} onValueChange={(v) => setSettings({ mostrarHoraExtra: v })} />
             </View>
           </SettingRow>
           <SettingRow icon="wallet" label={t.settings.goal} last={!settings.mostrarMeta}>
@@ -160,7 +168,7 @@ export function SettingsScreen() {
               <View style={{ flex: 1 }}>
                 <Field label="" value={String(settings.metaSemanal)} onChange={(v) => setSettings({ metaSemanal: Number(v) || 0 })} keyboardType="numeric" />
               </View>
-              <Switch value={settings.mostrarMeta} onValueChange={(v) => setSettings({ mostrarMeta: v })} trackColor={{ true: p.primary }} />
+              <IosSwitch value={settings.mostrarMeta} onValueChange={(v) => setSettings({ mostrarMeta: v })} />
             </View>
           </SettingRow>
         </Section>
@@ -187,7 +195,7 @@ export function SettingsScreen() {
           {settings.pin && Platform.OS !== 'web' && (
             <SettingRow icon="settings" label={t.settings.biometric} last>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-                <Switch value={settings.biometrico} onValueChange={(v) => setSettings({ biometrico: v })} trackColor={{ true: p.primary }} />
+                <IosSwitch value={settings.biometrico} onValueChange={(v) => setSettings({ biometrico: v })} />
               </View>
             </SettingRow>
           )}
