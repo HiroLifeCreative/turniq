@@ -16,7 +16,8 @@
       "package": "com.hirolifecreative.turniq",
       "versionCode": 18,
       "adaptiveIcon": {
-        "backgroundColor": "#0064E0"
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#14161A"
       },
       "permissions": [
         "android.permission.USE_BIOMETRIC",

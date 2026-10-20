@@ -11,6 +11,7 @@ este archivo y en `src/lib/changelog.ts`. Las etiquetas de versión dentro
 de la app se leen solas desde `app.json`.
 
 ## v1.1.0 · Build 18 — 2026-10-20
+- Icono nuevo: fondo oscuro con la T y el punto azul, a juego con la pantalla de arranque
 - Plantillas: pantalla nueva para crear, editar, eliminar y asignar plantillas a un día
 - Ajustes: sección Google con acceso directo a Calendario Google y Gmail
 - Importar un respaldo ahora fusiona tus datos sin borrar nada, y acepta archivos de Mis Horarios

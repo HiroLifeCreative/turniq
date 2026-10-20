@@ -18,6 +18,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
+        'Icono nuevo: fondo oscuro con la T y el punto azul, a juego con la pantalla de arranque',
         'Plantillas: pantalla nueva para crear, editar, eliminar y asignar plantillas a un día',
         'Ajustes: sección Google con acceso directo a Calendario Google y Gmail',
         'Importar un respaldo ahora fusiona tus datos sin borrar nada, y acepta archivos de Mis Horarios',
@@ -27,6 +28,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         'Novedades: esta pantalla con el historial de versiones',
       ],
       en: [
+        'New icon: dark background with the T and the blue dot, matching the splash screen',
         'Templates: new screen to create, edit, delete and assign templates to a day',
         'Settings: Google section with direct access to Google Calendar and Gmail',
         'Importing a backup now merges your data without deleting anything, and accepts Mis Horarios files',
