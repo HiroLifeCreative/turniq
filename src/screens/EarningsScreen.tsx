@@ -173,10 +173,23 @@ export function EarningsScreen() {
               {fmtMoney(cur.net)} {t.earnings.of} {fmtMoney(settings.metaSemanal)}
             </Text>
           </View>
-          <View style={{ height: 12, borderRadius: 6, backgroundColor: p.surface, overflow: 'hidden' }}>
-            <View style={{ height: 12, borderRadius: 6, width: `${goalPct}%`, backgroundColor: p.primary }} />
+          <View style={{ flexDirection: 'row', gap: 3 }}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <View
+                key={i}
+                style={{
+                  flex: 1,
+                  height: 12,
+                  borderRadius: 4,
+                  backgroundColor: i < Math.round((goalPct / 100) * 12) ? '#0392FF' : p.surface,
+                }}
+              />
+            ))}
           </View>
-          <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: SP.sm }}>
+          <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginTop: SP.sm }}>
+            {Math.round(goalPct)}% {t.earnings.goalDone}
+          </Text>
+          <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 2 }}>
             {t.earnings.vsLastWeek}: {pct >= 0 ? '+' : ''}{pct.toFixed(0)}%
           </Text>
           </Card>

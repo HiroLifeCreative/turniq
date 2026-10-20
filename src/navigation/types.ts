@@ -21,4 +21,5 @@ export type MasStackParamList = {
 export type RootStackParamList = {
   Tabs: undefined;
   Mas: NavigatorScreenParams<MasStackParamList>;
+  MonthCalendar: undefined;
 };

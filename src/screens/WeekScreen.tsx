@@ -125,6 +125,28 @@ export function WeekScreen() {
         )}
 
         {/* Alerta hora extra */}
+        {/* Botón Calendario mensual */}
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginBottom: SP.md }}>
+          <TouchableOpacity
+            onPress={() => (nav.navigate as any)('MonthCalendar')}
+            activeOpacity={0.85}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 6,
+              backgroundColor: p.surface,
+              borderWidth: 1,
+              borderColor: p.line,
+              borderRadius: R.pill,
+              paddingVertical: 8,
+              paddingHorizontal: 14,
+            }}
+          >
+            <Icon name="calendar" size={ICON.sm} color={p.primary} />
+            <Text style={{ fontFamily: FONT.head, fontWeight: '700', fontSize: 13, color: p.text }}>{t.calendario.title}</Text>
+          </TouchableOpacity>
+        </View>
+
         {settings.mostrarHoraExtra && settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
           <TintedCard accent="#E8830C" style={{ marginBottom: SP.md }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>

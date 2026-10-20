@@ -7,7 +7,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
-import { Screen, Label, Confirm, Header, Icon, Sheet, useTheme, useT } from '../components/ui';
+import { Screen, Label, Confirm, Header, Icon, Sheet, Card, useTheme, useT } from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useStore, jobsById, type Shift } from '../store';
@@ -16,6 +16,7 @@ import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, nowHm, hmToMin, hmTo12h, weekKey, parseYmd, startOfWeek, ymd } from '../lib/dates';
 import { fmtHours, fmtMoney, calcWeekTotals } from '../lib/calc';
 import { MotiView } from 'moti';
+import Svg, { Circle } from 'react-native-svg';
 
 const DARK_CARD = '#16181D';
 const DARK_CARD_2 = '#1E2128';
@@ -118,6 +119,13 @@ export function HomeScreen() {
     return () => clearInterval(id);
   }, [openShift?.id]);
 
+  // Tick lento (30 s) para la cuenta atrás del próximo turno
+  useEffect(() => {
+    if (openShift) return;
+    const id = setInterval(() => setTick((x) => x + 1), 30000);
+    return () => clearInterval(id);
+  }, [openShift?.id]);
+
   const nowMin = hmToMin(nowHm());
 
   // Estado del héroe
@@ -156,6 +164,28 @@ export function HomeScreen() {
     .filter((s) => s.fecha > today || (s.fecha === today && hmToMin(s.horaEntrada) >= nowMin && s.id !== openShift?.id))
     .sort((a, b) => (a.fecha + a.horaEntrada).localeCompare(b.fecha + b.horaEntrada))
     .slice(0, 3);
+
+  // Próximo turno + cuenta atrás (tarjeta recordatorio)
+  const nextShift = !openShift ? upcoming[0] : undefined;
+  const nextJob = nextShift ? byId[nextShift.jobId] : undefined;
+  const countdown = (() => {
+    if (!nextShift) return '';
+    const d = parseYmd(nextShift.fecha);
+    const m = hmToMin(nextShift.horaEntrada);
+    d.setHours(Math.floor(m / 60), m % 60, 0, 0);
+    const mins = Math.round((d.getTime() - Date.now()) / 60000);
+    if (mins <= 1) return null;
+    if (mins >= 1440) return `${Math.floor(mins / 1440)} d ${Math.floor((mins % 1440) / 60)} h`;
+    if (mins >= 60) return `${Math.floor(mins / 60)} h ${mins % 60} min`;
+    return `${mins} min`;
+  })();
+  const nextDayLabel = nextShift
+    ? nextShift.fecha === today
+      ? t.inicio.hoy
+      : nextShift.fecha === ymd(new Date(Date.now() + 86400000))
+        ? t.inicio.manana
+        : parseYmd(nextShift.fecha).toLocaleDateString(esFmt ? 'es' : 'en', { weekday: 'short', day: 'numeric', month: 'short' })
+    : '';
 
   const monday = startOfWeek(new Date());
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === weekKey(monday));
@@ -233,39 +263,76 @@ export function HomeScreen() {
             </View>
           )}
 
-          {/* Reloj en vivo */}
-          {openShift && (
-            <BlurView intensity={30} tint="dark" style={{ borderRadius: 20, overflow: 'hidden', marginTop: SP.md, padding: SP.lg }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                <View>
-                  <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
-                    {openJob?.nombre}
-                  </Text>
-                  <Text style={{ fontFamily: FONT.mono, fontSize: 34, color: '#fff', fontVariant: ['tabular-nums'] }}>
-                    {liveHH}:{liveMM}<Text style={{ color: stateColor }}>:{liveSS}</Text>
-                  </Text>
-                </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
-                    {t.inicio.netoEstimado}
-                  </Text>
-                  {hidden ? (
-                    <Text style={{ fontFamily: FONT.headBold, fontSize: 22, letterSpacing: 2, color: 'rgba(255,255,255,0.5)' }}>••••</Text>
-                  ) : (
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                      <Text style={{ fontFamily: FONT.headBold, fontSize: 14, color: stateColor, marginRight: 1 }}>$</Text>
-                      <AnimatedRollingNumbers
-                        value={liveNet}
-                        toFixed={2}
-                        useGrouping
-                        textStyle={{ fontFamily: FONT.headBold, fontSize: 22, color: stateColor }}
+          {/* Reloj en vivo con ANILLO de progreso (estilo Focus) */}
+          {openShift && (() => {
+            const inMin = hmToMin(openShift.horaEntradaReal ?? openShift.horaEntrada);
+            let totalSecs = 8 * 3600;
+            if (openShift.horaSalida) {
+              let outMin = hmToMin(openShift.horaSalida);
+              if (outMin <= inMin) outMin += 1440;
+              totalSecs = Math.max(60, (outMin - inMin) * 60);
+            }
+            const pct = Math.max(0, Math.min(1, liveSecs / totalSecs));
+            const RING = 96;
+            const SW = 8;
+            const RR = (RING - SW) / 2;
+            const CC = 2 * Math.PI * RR;
+            return (
+              <BlurView intensity={30} tint="dark" style={{ borderRadius: 20, overflow: 'hidden', marginTop: SP.md, padding: SP.lg }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <View style={{ width: RING, height: RING }}>
+                    <Svg width={RING} height={RING} style={{ transform: [{ rotate: '-90deg' }] }}>
+                      <Circle cx={RING / 2} cy={RING / 2} r={RR} stroke="rgba(255,255,255,0.14)" strokeWidth={SW} fill="none" />
+                      <Circle
+                        cx={RING / 2}
+                        cy={RING / 2}
+                        r={RR}
+                        stroke="#0392FF"
+                        strokeWidth={SW}
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray={`${CC * pct} ${CC}`}
                       />
+                    </Svg>
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+                      <Text style={{ fontFamily: FONT.mono, fontSize: 16, color: '#fff', fontVariant: ['tabular-nums'] }}>
+                        {liveHH}:{liveMM}
+                      </Text>
+                      <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: '#0392FF', fontVariant: ['tabular-nums'] }}>
+                        :{liveSS}
+                      </Text>
                     </View>
-                  )}
+                  </View>
+                  <View style={{ flex: 1, marginLeft: SP.lg }}>
+                    <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginBottom: 2 }}>
+                      {openJob?.nombre} · {t.inicio.enVivo}
+                    </Text>
+                    <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
+                      {t.inicio.netoEstimado}
+                    </Text>
+                    {hidden ? (
+                      <Text style={{ fontFamily: FONT.headBold, fontSize: 24, letterSpacing: 2, color: 'rgba(255,255,255,0.5)' }}>••••</Text>
+                    ) : (
+                      <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                        <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
+                        <AnimatedRollingNumbers
+                          value={liveNet}
+                          toFixed={2}
+                          useGrouping
+                          textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
+                        />
+                      </View>
+                    )}
+                    {openShift.horaSalida && (
+                      <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
+                        {t.inicio.salidaProg} {hmTo12h(openShift.horaSalida, esFmt)} · {Math.round(pct * 100)}%
+                      </Text>
+                    )}
+                  </View>
                 </View>
-              </View>
-            </BlurView>
-          )}
+              </BlurView>
+            );
+          })()}
 
           {/* Chips */}
           <View style={{ flexDirection: 'row', gap: SP.sm, marginTop: SP.md }}>
@@ -303,6 +370,29 @@ export function HomeScreen() {
             </TouchableOpacity>
           </View>
         ) : null}
+
+        {/* RECORDATORIO: próximo turno con cuenta atrás */}
+        {nextShift && (
+          <TouchableOpacity onPress={() => nav.navigate('Semana')} activeOpacity={0.85} style={{ marginBottom: SP.md }}>
+            <Card style={{ marginBottom: 0 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: 'rgba(3,146,255,0.12)', alignItems: 'center', justifyContent: 'center', marginRight: SP.md }}>
+                  <Icon name="bell" size={ICON.md} color="#0392FF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ fontFamily: FONT.head, fontWeight: '700', fontSize: 15, color: p.text }} numberOfLines={1}>
+                    {countdown ? `${t.inicio.empiezaEn} ${countdown}` : t.inicio.empiezaYa}
+                  </Text>
+                  <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginTop: 2 }} numberOfLines={1}>
+                    {nextJob?.nombre} · {nextDayLabel} · {hmTo12h(nextShift.horaEntrada, esFmt)}
+                    {nextShift.horaSalida ? ` – ${hmTo12h(nextShift.horaSalida, esFmt)}` : ''}
+                  </Text>
+                </View>
+                <Icon name="chevronRight" size={ICON.md} color={p.text3} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        )}
 
         {/* Sheet para elegir turno al marcar entrada */}
         <Sheet visible={clockSheetOpen} onClose={() => setClockSheetOpen(false)} title={t.today.clockIn}>

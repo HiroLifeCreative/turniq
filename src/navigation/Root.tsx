@@ -23,6 +23,7 @@ import { SettingsScreen } from '../screens/SettingsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { GmailScreen } from '../screens/GmailScreen';
 import { TermsScreen } from '../screens/TermsScreen';
+import { MonthCalendarScreen } from '../screens/MonthCalendarScreen';
 
 const Tab = createBottomTabNavigator<TabsParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -203,6 +204,7 @@ export function RootNavigator() {
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: p.bg } }}>
         <RootStack.Screen name="Tabs" component={TabsNavigator} />
+        <RootStack.Screen name="MonthCalendar" component={MonthCalendarScreen} />
         <RootStack.Screen
           name="Mas"
           component={MasNavigator}
