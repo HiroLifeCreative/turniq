@@ -159,7 +159,8 @@ export function EarningsScreen() {
         </Card>
 
         {/* Meta semanal */}
-        <Card style={{ marginBottom: SP.md }}>
+        {settings.mostrarMeta && (
+          <Card style={{ marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
             <Label style={{ marginBottom: 0 }}>{t.earnings.goal}</Label>
             <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
@@ -172,7 +173,8 @@ export function EarningsScreen() {
           <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: SP.sm }}>
             {t.earnings.vsLastWeek}: {pct >= 0 ? '+' : ''}{pct.toFixed(0)}%
           </Text>
-        </Card>
+          </Card>
+        )}
 
         {/* ── MES (proyección) ── */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md, marginTop: SP.sm }}>

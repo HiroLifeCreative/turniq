@@ -154,8 +154,13 @@ export function SettingsScreen() {
               </View>
             </View>
           </SettingRow>
-          <SettingRow icon="wallet" label={t.settings.goal} last>
-            <Field label="" value={String(settings.metaSemanal)} onChange={(v) => setSettings({ metaSemanal: Number(v) || 0 })} keyboardType="numeric" />
+          <SettingRow icon="wallet" label={t.settings.goal} last={!settings.mostrarMeta}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.md }}>
+              <View style={{ flex: 1 }}>
+                <Field label="" value={String(settings.metaSemanal)} onChange={(v) => setSettings({ metaSemanal: Number(v) || 0 })} keyboardType="numeric" />
+              </View>
+              <Switch value={settings.mostrarMeta} onValueChange={(v) => setSettings({ mostrarMeta: v })} trackColor={{ true: p.primary }} />
+            </View>
           </SettingRow>
         </Section>
 

@@ -43,6 +43,7 @@ export interface Settings {
   umbralExtraHrs: number;
   multExtra: number;
   metaSemanal: number;
+  mostrarMeta: boolean;
   pin: string | null;
   biometrico: boolean;
   dark: boolean;
@@ -98,6 +99,7 @@ const defaultSettings: Settings = {
   umbralExtraHrs: 40,
   multExtra: 1.5,
   metaSemanal: 600,
+  mostrarMeta: true,
   pin: null,
   biometrico: false,
   dark: false,
