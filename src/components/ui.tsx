@@ -266,12 +266,12 @@ export function Sheet({
 
   if (!mounted) return null;
   return (
-    <Modal visible transparent animationType="none" onRequestClose={onClose} statusBarTranslucent>
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+    <Modal visible transparent animationType="none" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+      <View style={{ flex: 1 }}>
         <Animated.View style={[{ ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.45)' }, backdropStyle]}>
           <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         </Animated.View>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }}>
           <Animated.View
             style={[
               {
@@ -280,9 +280,8 @@ export function Sheet({
                 borderTopRightRadius: 26,
                 paddingHorizontal: SP.xl,
                 paddingTop: SP.sm,
-                paddingBottom: Math.max(SP.xl, insets.bottom + SP.md),
+                paddingBottom: insets.bottom + SP.xl,
                 maxHeight: '92%',
-                marginBottom: -insets.bottom,
                 shadowColor: '#000',
                 shadowOpacity: 0.25,
                 shadowRadius: 24,
