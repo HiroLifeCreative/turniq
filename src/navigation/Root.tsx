@@ -1,6 +1,6 @@
 /** Navegación: bottom tabs (Inicio/Semana/Trabajos/Ganancias) + stack modal "Más". */
 import React from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import MaskedView from '@react-native-masked-view/masked-view';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -92,42 +92,58 @@ function TabsNavigator() {
     return (
       <>
         {/* Blur PROGRESIVO inferior — técnica de expo-progressive-blur:
-            UN solo BlurView fuerte tapado por una MÁSCARA degradada
-            (MaskedView + LinearGradient con paradas suavizadas): la
-            máscara revela el blur de forma continua (transparente arriba
-            → opaco abajo, con startOffset 0.1). Sin la capa de color que
-            ensuciaba el efecto; según los docs de Expo, cada `tint` ya
-            agrega su propia capa translúcida, por eso aquí basta el blur.
-            (La otra librería, expo-ios-visual-blur, hace lo mismo con
-            radio variable vía CAFilter, API privada solo iOS.) */}
-        <MaskedView
-          pointerEvents="none"
-          style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 150 }}
-          maskElement={
-            <LinearGradient
-              colors={[
-                'rgba(0,0,0,0)',
-                'rgba(0,0,0,0.05)',
-                'rgba(0,0,0,0.16)',
-                'rgba(0,0,0,0.34)',
-                'rgba(0,0,0,0.58)',
-                'rgba(0,0,0,0.84)',
-                'rgba(0,0,0,1)',
-              ]}
-              locations={[0.1, 0.28, 0.44, 0.6, 0.76, 0.9, 1]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
+            UN solo BlurView fuerte revelado por una MÁSCARA degradada.
+            En NATIVO: MaskedView + LinearGradient (la máscara solo aporta
+            su canal alfa; el degradado negro NO se pinta). En WEB el
+            MaskedView sí pinta la máscara como velo negro, así que la
+            vista previa usa la rampa por franjas (9 BlurView ease-in),
+            visualmente equivalente. Sin capas de color encima: según los
+            docs de Expo, cada `tint` ya agrega su capa translúcida. */}
+        {Platform.OS === 'web' ? (
+          <View
+            pointerEvents="none"
+            style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 150 }}
+          >
+            {[4, 5, 7, 10, 15, 22, 30, 39, 50].map((inten, i) => (
+              <BlurView
+                key={i}
+                intensity={inten}
+                tint={dark ? 'dark' : 'light'}
+                experimentalBlurMethod="dimezisBlurView"
+                style={{ position: 'absolute', left: 0, right: 0, top: 15 + i * 15, height: 15 }}
+              />
+            ))}
+          </View>
+        ) : (
+          <MaskedView
+            pointerEvents="none"
+            style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 150 }}
+            maskElement={
+              <LinearGradient
+                colors={[
+                  'rgba(0,0,0,0)',
+                  'rgba(0,0,0,0.05)',
+                  'rgba(0,0,0,0.16)',
+                  'rgba(0,0,0,0.34)',
+                  'rgba(0,0,0,0.58)',
+                  'rgba(0,0,0,0.84)',
+                  'rgba(0,0,0,1)',
+                ]}
+                locations={[0.1, 0.28, 0.44, 0.6, 0.76, 0.9, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={{ flex: 1 }}
+              />
+            }
+          >
+            <BlurView
+              intensity={55}
+              tint={dark ? 'dark' : 'light'}
+              experimentalBlurMethod="dimezisBlurView"
               style={{ flex: 1 }}
             />
-          }
-        >
-          <BlurView
-            intensity={55}
-            tint={dark ? 'dark' : 'light'}
-            experimentalBlurMethod="dimezisBlurView"
-            style={{ flex: 1 }}
-          />
-        </MaskedView>
+          </MaskedView>
+        )}
       <View
         pointerEvents="box-none"
         style={{
@@ -159,9 +175,9 @@ function TabsNavigator() {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 4,
+              gap: 8,
               backgroundColor: dark ? 'rgba(23,23,26,0.6)' : 'rgba(255,255,255,0.6)',
-              paddingHorizontal: PAD,
+              paddingHorizontal: 8,
               paddingVertical: PAD,
             }}
           >
@@ -173,7 +189,7 @@ function TabsNavigator() {
               return (
                 <MotiView
                   key={route.key}
-                  animate={{ width: focused ? 58 : 50 }}
+                  animate={{ width: focused ? 62 : 52 }}
                   transition={{ type: 'spring', damping: 26, stiffness: 320 }}
                   style={{
                     height: 54,
