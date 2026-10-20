@@ -1,5 +1,25 @@
 /** Cálculos de horas y dinero. */
-import { hmToMin } from './dates';
+import { hmToMin, ymd } from './dates';
+
+export type WorkState = 'worked' | 'scheduled';
+
+/**
+ * ¿El turno ya cuenta como trabajado?
+ * Pasados = sí. Hoy = solo si marcó entrada real o ya pasó su salida programada.
+ * Futuros = no.
+ */
+export function workState(
+  s: { fecha: string; horaEntradaReal?: string | null; horaSalida: string | null },
+  now: Date,
+): WorkState {
+  const today = ymd(now);
+  if (s.fecha < today) return 'worked';
+  if (s.fecha > today) return 'scheduled';
+  if (s.horaEntradaReal) return 'worked';
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  if (s.horaSalida && nowMin >= hmToMin(s.horaSalida)) return 'worked';
+  return 'scheduled';
+}
 
 export interface JobLike {
   id: string;

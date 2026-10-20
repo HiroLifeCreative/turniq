@@ -7,20 +7,7 @@ import { MotiView } from 'moti';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { startOfWeek, addDays, weekKey, parseYmd, ymd, todayYmd, hmToMin } from '../lib/dates';
-import { calcWeekTotals, fmtMoney, fmtHours, shiftHours } from '../lib/calc';
-
-type WorkState = 'worked' | 'scheduled';
-
-function workState(s: Shift, now: Date): WorkState {
-  const today = ymd(now);
-  if (s.fecha < today) return 'worked';
-  if (s.fecha > today) return 'scheduled';
-  // Hoy: trabajado solo si marcó entrada real o si ya pasó su hora de salida programada
-  if (s.horaEntradaReal) return 'worked';
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  if (s.horaSalida && nowMin >= hmToMin(s.horaSalida)) return 'worked';
-  return 'scheduled';
-}
+import { calcWeekTotals, fmtMoney, fmtHours, shiftHours, workState } from '../lib/calc';
 
 export function EarningsScreen() {
   const t = useT();

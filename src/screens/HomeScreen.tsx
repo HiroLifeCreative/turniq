@@ -15,7 +15,7 @@ import { useStore, jobsById, type Shift } from '../store';
 import type { TabsParamList } from '../navigation/types';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { todayYmd, nowHm, hmToMin, hmTo12h, weekKey, parseYmd, startOfWeek, ymd } from '../lib/dates';
-import { fmtHours, fmtMoney, calcWeekTotals } from '../lib/calc';
+import { fmtHours, fmtMoney, calcWeekTotals, workState } from '../lib/calc';
 import { MotiView } from 'moti';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -191,7 +191,9 @@ export function HomeScreen() {
 
   const monday = startOfWeek(new Date());
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === weekKey(monday));
-  const totals = calcWeekTotals(inWeek, byId, settings.umbralExtraHrs, settings.multExtra);
+  // El héroe muestra SOLO lo ya trabajado esta semana (no la proyección completa).
+  const workedWeek = inWeek.filter((s) => workState(s, new Date()) === 'worked');
+  const totals = calcWeekTotals(workedWeek, byId, settings.umbralExtraHrs, settings.multExtra);
 
   const clockIn = (shiftId: string) => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -236,7 +238,7 @@ export function HomeScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
-                {t.inicio.netoEstimado} · {t.inicio.estaSemana}
+                {t.inicio.netoTrabajado} · {t.inicio.estaSemana}
               </Text>
               <TouchableOpacity onPress={togglePrivacy} hitSlop={12} style={{ marginLeft: 8, padding: 4 }}>
                 <Icon name={hidden ? 'eyeOff' : 'eye'} size={16} color="rgba(255,255,255,0.6)" />
