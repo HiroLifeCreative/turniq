@@ -17,7 +17,11 @@ import type { Shift, Job } from '../store';
 WebBrowser.maybeCompleteAuthSession();
 
 export const GOOGLE_ANDROID_CLIENT_ID = '264084279710-qe2fe6ul9dgvdkpbv667eghm6l1n6rsj.apps.googleusercontent.com';
+export const GOOGLE_IOS_CLIENT_ID = '264084279710-ueg1mt9kk45fps701va58jc5n4edv1j6.apps.googleusercontent.com';
 export const GOOGLE_WEB_CLIENT_ID = '264084279710-p0etnr9drj326faqifm8i9cvbmkm9l4d.apps.googleusercontent.com';
+/** Esquema invertido del cliente iOS (lo exige Google en iPhone y
+ * está registrado en el array `scheme` de app.json). */
+export const GOOGLE_IOS_REVERSED_SCHEME = 'com.googleusercontent.apps.264084279710-ueg1mt9kk45fps701va58jc5n4edv1j6';
 export const googleConfigured = (): boolean => GOOGLE_ANDROID_CLIENT_ID.length > 10;
 
 const SCOPES = [
@@ -114,7 +118,10 @@ export async function getAccessToken(): Promise<string | null> {
   if (!t.refreshToken || !googleConfigured()) return t.accessToken;
   try {
     const r = await AuthSession.refreshAsync(
-      { clientId: GOOGLE_ANDROID_CLIENT_ID, refreshToken: t.refreshToken },
+      {
+        clientId: Platform.OS === 'ios' ? GOOGLE_IOS_CLIENT_ID : GOOGLE_ANDROID_CLIENT_ID,
+        refreshToken: t.refreshToken,
+      },
       GOOGLE_DISCOVERY,
     );
     await storeTokens(r.accessToken, r.refreshToken, r.expiresIn);
@@ -132,14 +139,20 @@ export async function getAccessToken(): Promise<string | null> {
 export function useGoogleAuth() {
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: GOOGLE_ANDROID_CLIENT_ID || 'pending.apps.googleusercontent.com',
+    iosClientId: GOOGLE_IOS_CLIENT_ID || 'pending.apps.googleusercontent.com',
     webClientId: GOOGLE_WEB_CLIENT_ID || 'pending.apps.googleusercontent.com',
-    // Redirección FIJA con el esquema del paquete: con el array de
-    // esquemas de app.json, AuthSession elegía "turniq" y Google
-    // bloquea la solicitud (Error 400 invalid_request: la política
-    // de OAuth exige un esquema tipo DNS inverso para el cliente
-    // Android, y además el esquema personalizado debe estar
-    // ACTIVADO en el cliente — hecho en consola el 20 oct 2026).
-    redirectUri: AuthSession.makeRedirectUri({ scheme: 'com.hirolifecreative.turniq' }),
+    // Redirección FIJA por plataforma: con el array de esquemas de
+    // app.json, AuthSession elegía "turniq" y Google bloquea la
+    // solicitud (Error 400 invalid_request: la política de OAuth
+    // exige un esquema tipo DNS inverso, y en el cliente Android el
+    // esquema personalizado debe estar ACTIVADO en consola — hecho
+    // el 20 oct 2026). Android → esquema del paquete; iOS → esquema
+    // invertido de su cliente; web → la que el provider calcule.
+    ...(Platform.OS === 'ios'
+      ? { redirectUri: AuthSession.makeRedirectUri({ scheme: GOOGLE_IOS_REVERSED_SCHEME }) }
+      : Platform.OS === 'android'
+        ? { redirectUri: AuthSession.makeRedirectUri({ scheme: 'com.hirolifecreative.turniq' }) }
+        : {}),
     scopes: SCOPES,
     selectAccount: true,
     shouldAutoExchangeCode: true,

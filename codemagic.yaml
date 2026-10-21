@@ -30,3 +30,47 @@ workflows:
             -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
     artifacts:
       - android/app/build/outputs/apk/release/app-release.apk
+
+  # ─── iOS ─────────────────────────────────────────────────────────
+  # LISTO pero DORMIDO hasta que Nelson active su Apple Developer
+  # ($99/año) y conecte la integración de App Store Connect en
+  # Codemagic (Teams → Integrations). El nombre de la integración
+  # de abajo ("TurniqASC") debe coincidir con el que se cree allí;
+  # se ajusta en un minuto cuando se conecte. La alarma a pantalla
+  # completa es solo Android: en iOS los avisos son notificaciones.
+  ios-build:
+    name: Turniq iOS TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: TurniqASC
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.hirolifecreative.turniq
+      node: 20
+      xcode: latest
+      vars:
+        BUNDLE_ID: "com.hirolifecreative.turniq"
+    scripts:
+      - name: Install dependencies
+        script: |
+          npm ci
+      - name: Expo prebuild
+        script: |
+          npx expo prebuild --platform ios --clean
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa --config Release
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
