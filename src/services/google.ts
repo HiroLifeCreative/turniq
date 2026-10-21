@@ -2,12 +2,11 @@
  * expo-auth-session: flujo por código + PKCE con intercambio automático
  * y refresh token. Los tokens viven en SecureStore.
  *
- * ACTIVACIÓN (una sola vez, cuenta del desarrollador): crear en Google
- * Cloud Console el proyecto Turniq, activar las APIs de Calendar y
- * Gmail, y crear un OAuth client tipo Android (paquete
- * com.hirolifecreative.turniq + SHA-1 del keystore) y uno tipo Web.
- * Sus IDs van en las constantes de abajo. Hasta entonces las pantallas
- * muestran "activación pendiente" y nada se rompe.
+ * ACTIVADO el 20 oct 2026: proyecto Google Cloud "Turniq"
+ * (tidy-apricot-512301-q7), APIs de Calendar y Gmail habilitadas,
+ * consentimiento en modo Prueba con Nelson como usuario de prueba, y
+ * los dos clientes OAuth de abajo (Android con la SHA-1 del keystore
+ * y Web). Los Client ID no son secretos: viajan dentro de la app.
  */
 import { Platform } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
@@ -17,8 +16,8 @@ import type { Shift, Job } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export const GOOGLE_ANDROID_CLIENT_ID = '';
-export const GOOGLE_WEB_CLIENT_ID = '';
+export const GOOGLE_ANDROID_CLIENT_ID = '264084279710-qe2fe6ul9dgvdkpbv667eghm6l1n6rsj.apps.googleusercontent.com';
+export const GOOGLE_WEB_CLIENT_ID = '264084279710-p0etnr9drj326faqifm8i9cvbmkm9l4d.apps.googleusercontent.com';
 export const googleConfigured = (): boolean => GOOGLE_ANDROID_CLIENT_ID.length > 10;
 
 const SCOPES = [
