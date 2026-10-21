@@ -13,6 +13,23 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 19,
+    version: '1.1.1',
+    fecha: '2026-10-20',
+    notas: {
+      es: [
+        'Conexión con Google rehecha: inicio de sesión oficial, sin pegar códigos raros',
+        'Sincronización automática con Google Calendar: al crear, editar o borrar un turno, su evento se crea, se actualiza o se borra solo',
+        'Gmail ya no muestra errores sin estar conectado, y Calendario ya no se cierra',
+      ],
+      en: [
+        'Google connection rebuilt: official sign-in, no pasting codes',
+        'Automatic Google Calendar sync: when you create, edit or delete a shift, its event is created, updated or deleted on its own',
+        'Gmail no longer shows errors while disconnected, and Calendar no longer closes',
+      ],
+    },
+  },
+  {
     build: 18,
     version: '1.1.0',
     fecha: '2026-10-20',

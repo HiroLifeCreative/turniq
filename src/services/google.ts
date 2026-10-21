@@ -1,20 +1,35 @@
-/** Google OAuth (Calendar + Gmail readonly). Tokens en SecureStore. */
+/** Google OAuth (Calendar + Gmail readonly) con el provider oficial de
+ * expo-auth-session: flujo por código + PKCE con intercambio automático
+ * y refresh token. Los tokens viven en SecureStore.
+ *
+ * ACTIVACIÓN (una sola vez, cuenta del desarrollador): crear en Google
+ * Cloud Console el proyecto Turniq, activar las APIs de Calendar y
+ * Gmail, y crear un OAuth client tipo Android (paquete
+ * com.hirolifecreative.turniq + SHA-1 del keystore) y uno tipo Web.
+ * Sus IDs van en las constantes de abajo. Hasta entonces las pantallas
+ * muestran "activación pendiente" y nada se rompe.
+ */
 import { Platform } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
+import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import * as Crypto from 'expo-crypto';
 import type { Shift, Job } from '../store';
 
 WebBrowser.maybeCompleteAuthSession();
+
+export const GOOGLE_ANDROID_CLIENT_ID = '';
+export const GOOGLE_WEB_CLIENT_ID = '';
+export const googleConfigured = (): boolean => GOOGLE_ANDROID_CLIENT_ID.length > 10;
 
 const SCOPES = [
   'https://www.googleapis.com/auth/calendar.events',
   'https://www.googleapis.com/auth/gmail.readonly',
 ];
 
-// El usuario debe crear un OAuth client (Android) en Google Cloud Console
-// y pegar el client ID aquí (o via Ajustes). Sin esto, la pantalla explica el estado.
-export const GOOGLE_CLIENT_ID = '';
+const GOOGLE_DISCOVERY = {
+  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenEndpoint: 'https://oauth2.googleapis.com/token',
+};
 
 let SecureStore: typeof import('expo-secure-store') | null = null;
 if (Platform.OS !== 'web') {
@@ -28,18 +43,13 @@ if (Platform.OS !== 'web') {
 
 const TOKEN_KEY = 'turniq-google-token';
 
-export async function saveToken(token: string): Promise<void> {
-  if (SecureStore) await SecureStore.setItemAsync(TOKEN_KEY, token);
-  else {
-    try {
-      localStorage.setItem(TOKEN_KEY, token);
-    } catch {
-      /* noop */
-    }
-  }
+interface StoredTokens {
+  accessToken: string;
+  refreshToken?: string;
+  expiresAt: number;
 }
 
-export async function getToken(): Promise<string | null> {
+async function rawGet(): Promise<string | null> {
   if (SecureStore) return SecureStore.getItemAsync(TOKEN_KEY);
   try {
     return localStorage.getItem(TOKEN_KEY);
@@ -48,7 +58,45 @@ export async function getToken(): Promise<string | null> {
   }
 }
 
-export async function clearToken(): Promise<void> {
+async function rawSet(v: string): Promise<void> {
+  if (SecureStore) await SecureStore.setItemAsync(TOKEN_KEY, v);
+  else {
+    try {
+      localStorage.setItem(TOKEN_KEY, v);
+    } catch {
+      /* noop */
+    }
+  }
+}
+
+async function readTokens(): Promise<StoredTokens | null> {
+  const raw = await rawGet();
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as StoredTokens;
+    if (parsed && typeof parsed.accessToken === 'string') return parsed;
+  } catch {
+    /* formato viejo: el string era el access token a secas */
+  }
+  return { accessToken: raw, expiresAt: 0 };
+}
+
+async function storeTokens(accessToken: string, refreshToken?: string, expiresIn?: number): Promise<void> {
+  const prev = await readTokens();
+  const data: StoredTokens = {
+    accessToken,
+    refreshToken: refreshToken ?? prev?.refreshToken,
+    expiresAt: Date.now() + (expiresIn ?? 3600) * 1000,
+  };
+  await rawSet(JSON.stringify(data));
+}
+
+export async function isConnected(): Promise<boolean> {
+  const t = await readTokens();
+  return !!t?.accessToken;
+}
+
+export async function clearTokens(): Promise<void> {
   if (SecureStore) await SecureStore.deleteItemAsync(TOKEN_KEY);
   else {
     try {
@@ -59,21 +107,46 @@ export async function clearToken(): Promise<void> {
   }
 }
 
-export function useGoogleAuth(clientId: string) {
-  const discovery = {
-    authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
-    tokenEndpoint: 'https://oauth2.googleapis.com/token',
-  };
-  const [request, response, promptAsync] = AuthSession.useAuthRequest(
-    {
-      clientId,
-      scopes: SCOPES,
-      redirectUri: AuthSession.makeRedirectUri({ useProxy: true } as never),
-      codeChallenge: undefined,
-    },
-    discovery,
-  );
+/** Access token válido: refresca solo si está por vencer. */
+export async function getAccessToken(): Promise<string | null> {
+  const t = await readTokens();
+  if (!t) return null;
+  if (t.expiresAt - Date.now() > 5 * 60 * 1000) return t.accessToken;
+  if (!t.refreshToken || !googleConfigured()) return t.accessToken;
+  try {
+    const r = await AuthSession.refreshAsync(
+      { clientId: GOOGLE_ANDROID_CLIENT_ID, refreshToken: t.refreshToken },
+      GOOGLE_DISCOVERY,
+    );
+    await storeTokens(r.accessToken, r.refreshToken, r.expiresIn);
+    return r.accessToken;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Hook de conexión. El provider EXIGE un clientId no vacío (lanza si
+ * falta): sin activación se le pasa uno de relleno y la UI bloquea el
+ * botón con el estado "activación pendiente".
+ */
+export function useGoogleAuth() {
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: GOOGLE_ANDROID_CLIENT_ID || 'pending.apps.googleusercontent.com',
+    webClientId: GOOGLE_WEB_CLIENT_ID || 'pending.apps.googleusercontent.com',
+    scopes: SCOPES,
+    shouldAutoExchangeCode: true,
+  });
   return { request, response, promptAsync };
+}
+
+/** Guarda los tokens si la respuesta del login fue exitosa. */
+export async function saveAuthResponse(response: AuthSession.AuthSessionResult | null): Promise<boolean> {
+  if (response?.type !== 'success') return false;
+  const auth = response.authentication;
+  if (!auth?.accessToken) return false;
+  await storeTokens(auth.accessToken, auth.refreshToken, auth.expiresIn);
+  return true;
 }
 
 async function gFetch(token: string, path: string, init?: RequestInit) {
@@ -175,5 +248,3 @@ export async function fetchPayrollEmails(token: string): Promise<GmailMsg[]> {
   }
   return out;
 }
-
-export { Crypto };

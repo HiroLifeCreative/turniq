@@ -10,6 +10,11 @@ La misma lista vive dentro de la app en **Ajustes → Acerca de → Novedades**
 este archivo y en `src/lib/changelog.ts`. Las etiquetas de versión dentro
 de la app se leen solas desde `app.json`.
 
+## v1.1.1 · Build 19 — 2026-10-20
+- Conexión con Google rehecha: inicio de sesión oficial, sin pegar códigos raros
+- Sincronización automática con Google Calendar: al crear, editar o borrar un turno, su evento se crea, se actualiza o se borra solo
+- Gmail ya no muestra errores sin estar conectado, y Calendario ya no se cierra
+
 ## v1.1.0 · Build 18 — 2026-10-20
 - Icono nuevo: fondo oscuro con la T y el punto azul, a juego con la pantalla de arranque
 - Plantillas: pantalla nueva para crear, editar, eliminar y asignar plantillas a un día

@@ -13,6 +13,7 @@ import { PinLock } from './src/screens/PinLock';
 import { OnboardingScreen } from './src/screens/OnboardingScreen';
 import { scheduleShiftReminders, getNotifications, presentWorkingNotification, dismissWorkingNotification, scheduleSnooze } from './src/services/notifications';
 import { nativeGetPendingAlarm, nativeClearPendingAlarm } from './src/services/alarmNative';
+import { initGoogleSync } from './src/services/googleSync';
 import { parseYmd, addDays, todayYmd, hmTo12h } from './src/lib/dates';
 import { AlarmScreen } from './src/screens/AlarmScreen';
 import { FONT, light, dark } from './src/theme/tokens';
@@ -51,6 +52,11 @@ export default function App() {
     loadFonts()
       .catch(() => undefined)
       .finally(() => setReady(true));
+  }, []);
+
+  // Sincronización automática con Google Calendar (si hay conexión)
+  useEffect(() => {
+    initGoogleSync();
   }, []);
 
   // Splash: visible al menos SPLASH_MIN_MS aunque todo cargue antes.
