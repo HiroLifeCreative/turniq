@@ -1,6 +1,6 @@
 /** Pestaña Inicio — héroe oscuro con reloj en vivo, estados por color, todo redondeado + blur. */
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Platform, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
@@ -9,6 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
 import { ShiftForm } from '../components/ShiftForm';
+import { PinLock } from './PinLock';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
 import { useStore, jobsById, type Shift } from '../store';
@@ -44,10 +45,14 @@ export function HomeScreen() {
   const [detailShift, setDetailShift] = useState<Shift | null>(null);
   const [clockJobId, setClockJobId] = useState<string | null>(null);
   const [clockSheetOpen, setClockSheetOpen] = useState(false);
+  const [pinAsk, setPinAsk] = useState(false);
   const [, setTick] = useState(0);
   const setSettings = useStore((s) => s.setSettings);
 
-  // Modo privado: ocultar dinero (requiere PIN/biometría para mostrar)
+  // Modo privado: ocultar dinero (requiere PIN/biometría para mostrar).
+  // OJO: Alert.prompt es SOLO iOS — en Android no existe y el PIN
+  // "no hacía nada" (bug reportado por Nelson). Ahora el PIN se pide
+  // con el teclado propio de la app (PinLock en un modal).
   const togglePrivacy = async () => {
     const hidden = settings.dineroOculto;
     if (hidden) {
@@ -69,26 +74,12 @@ export function HomeScreen() {
               setSettings({ dineroOculto: false });
               return;
             }
-            return; // cancelado
+            // Biometría cancelada/fallida: se cae al PIN si existe.
           }
         } catch { /* fallback a PIN */ }
       }
       if (pin) {
-        Alert.prompt(
-          t.pin.title,
-          t.pin.enterPin,
-          [
-            { text: t.common.cancel, style: 'cancel' },
-            {
-              text: t.common.confirm,
-              onPress: (input) => {
-                if (input === pin) setSettings({ dineroOculto: false });
-                else Alert.alert(t.pin.wrong);
-              },
-            },
-          ],
-          'secure-text',
-        );
+        setPinAsk(true);
       } else {
         setSettings({ dineroOculto: false });
       }
@@ -393,6 +384,12 @@ export function HomeScreen() {
                     {nextJob?.nombre} · {nextDayLabel} · {hmTo12h(nextShift.horaEntrada, esFmt)}
                     {nextShift.horaSalida ? ` – ${hmTo12h(nextShift.horaSalida, esFmt)}` : ''}{isOvernight(nextShift.horaEntrada, nextShift.horaSalida) ? ` ${t.shift.nextDay}` : ''}
                   </Text>
+                  {!!nextJob?.pinMarcaje && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
+                      <Icon name="key" size={13} color={p.text3} />
+                      <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginLeft: 5 }}>PIN {nextJob.pinMarcaje}</Text>
+                    </View>
+                  )}
                 </View>
                 <Icon name="chevronRight" size={ICON.md} color={p.text3} />
               </View>
@@ -419,6 +416,12 @@ export function HomeScreen() {
                     <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
                       {job?.nombre ?? ''} · {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}{isOvernight(s.horaEntrada, s.horaSalida) ? ` ${t.shift.nextDay}` : ''}
                     </Text>
+                    {!!job?.pinMarcaje && (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
+                        <Icon name="key" size={13} color={p.text3} />
+                        <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginLeft: 5 }}>PIN {job.pinMarcaje}</Text>
+                      </View>
+                    )}
                   </View>
                   <Icon name="chevronRight" size={18} color={p.text3} />
                 </TouchableOpacity>
@@ -502,6 +505,25 @@ export function HomeScreen() {
         onYes={() => { if (confirmId) deleteShift(confirmId); setConfirmId(null); }}
         onNo={() => setConfirmId(null)}
       />
+
+      {/* PIN propio para volver a mostrar el dinero (Android incluido) */}
+      <Modal visible={pinAsk} animationType="slide" onRequestClose={() => setPinAsk(false)}>
+        <View style={{ flex: 1 }}>
+          <PinLock
+            onUnlock={() => {
+              setPinAsk(false);
+              setSettings({ dineroOculto: false });
+            }}
+          />
+          <TouchableOpacity
+            onPress={() => setPinAsk(false)}
+            hitSlop={12}
+            style={{ position: 'absolute', top: 54, right: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Icon name="x" size={18} color={p.text2} />
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </Screen>
   );
 }

@@ -24,6 +24,7 @@ export function JobsScreen() {
   const [tax, setTax] = useState('0');
   const [estaciones, setEstaciones] = useState<{ id: string; nombre: string }[]>([]);
   const [nuevaEst, setNuevaEst] = useState('');
+  const [pinReloj, setPinReloj] = useState('');
   const [confirmId, setConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,12 +35,14 @@ export function JobsScreen() {
         setSueldo(String(editing.sueldoHora));
         setTax(String(editing.taxPct));
         setEstaciones(editing.estaciones);
+        setPinReloj(editing.pinMarcaje ?? '');
       } else {
         setNombre('');
         setColor(JOB_COLORS[Math.floor(Math.random() * JOB_COLORS.length)]!);
         setSueldo('15');
         setTax('0');
         setEstaciones([]);
+        setPinReloj('');
       }
       setNuevaEst('');
     }
@@ -53,6 +56,7 @@ export function JobsScreen() {
       sueldoHora: Number(sueldo) || 0,
       taxPct: Math.min(100, Math.max(0, Number(tax) || 0)),
       estaciones,
+      pinMarcaje: pinReloj.trim() || undefined,
     };
     if (editing) updateJob(editing.id, data);
     else addJob(data);
@@ -81,6 +85,7 @@ export function JobsScreen() {
                 <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginTop: 2 }}>
                   ${j.sueldoHora}/h · {j.taxPct}% tax
                   {j.estaciones.length > 0 ? ` · ${j.estaciones.map((e) => e.nombre).join(', ')}` : ''}
+                  {j.pinMarcaje ? ` · PIN ${j.pinMarcaje}` : ''}
                 </Text>
               </View>
               <TouchableOpacity onPress={() => { setEditing(j); setOpen(true); }} hitSlop={8}>
@@ -122,6 +127,8 @@ export function JobsScreen() {
             <Field label={t.jobs.tax} value={tax} onChange={setTax} keyboardType="decimal-pad" />
           </View>
         </View>
+        <Field label={t.jobs.pinLabel} value={pinReloj} onChange={(v) => setPinReloj(v.replace(/[^\d]/g, '').slice(0, 8))} keyboardType="numeric" placeholder={t.jobs.pinPh} />
+        <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3, marginTop: -6, marginBottom: SP.md }}>{t.jobs.pinHint}</Text>
         <Label>{t.jobs.stations}</Label>
         {estaciones.map((e) => (
           <View key={e.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SP.sm }}>

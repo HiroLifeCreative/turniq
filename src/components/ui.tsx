@@ -10,8 +10,6 @@ import {
   StyleSheet,
   Platform,
   KeyboardAvoidingView,
-  ScrollView,
-  PanResponder,
   Animated as RNAnimated,
   type TextStyle,
   type ViewStyle,
@@ -400,7 +398,12 @@ export function Seg<T extends string | number>({
   );
 }
 
-/** Bottom sheet fluido con Reanimated: spring al abrir, fade en el backdrop. */
+/** Bottom sheet fluido con Reanimated: spring al abrir, fade en el backdrop.
+ *  Cierre deslizando: gesto (Gesture Handler) SIMULTÁNEO al scroll —
+ *  arrastrando hacia abajo desde CUALQUIER parte (cuando el scroll
+ *  está arriba) el sheet sigue el dedo y se cierra. La versión con
+ *  PanResponder dejaba de funcionar cuando el ScrollView nativo
+ *  capturaba el gesto (Nelson: "muchas veces funciona y después no"). */
 export function Sheet({
   visible,
   onClose,
@@ -417,28 +420,34 @@ export function Sheet({
   const [mounted, setMounted] = React.useState(visible);
   const translateY = useSharedValue(600);
   const backdrop = useSharedValue(0);
-  const scrollYRef = React.useRef(0);
+  const scrollOff = useSharedValue(0);
 
-  // Deslizar hacia abajo (desde cualquier parte, con el scroll arriba) cierra el sheet
-  const panResponder = React.useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_evt, gs) =>
-        scrollYRef.current <= 0 && gs.dy > 8 && Math.abs(gs.dy) > Math.abs(gs.dx) * 1.5,
-      onPanResponderMove: (_evt, gs) => {
-        translateY.value = Math.max(0, gs.dy);
-      },
-      onPanResponderRelease: (_evt, gs) => {
-        if (gs.dy > 90 || gs.vy > 0.8) {
-          runOnJS(onClose)();
-        } else {
-          translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
-        }
-      },
-      onPanResponderTerminate: () => {
-        translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
-      },
-    })
-  ).current;
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollOff.value = e.contentOffset.y;
+  });
+
+  const scrollNative = React.useMemo(() => Gesture.Native(), []);
+  const pan = React.useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetY([-8, 8])
+        .failOffsetX([-28, 28])
+        .simultaneousWithExternalGesture(scrollNative)
+        .onUpdate((e) => {
+          if (scrollOff.value <= 0 && e.translationY > 0) {
+            translateY.value = e.translationY;
+          }
+        })
+        .onEnd((e) => {
+          if (e.translationY > 90 || e.velocityY > 800) {
+            runOnJS(onClose)();
+          } else {
+            translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
+          }
+        }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
 
   React.useEffect(() => {
     if (visible) {
@@ -470,8 +479,8 @@ export function Sheet({
           <TouchableOpacity style={StyleSheet.absoluteFill} onPress={onClose} activeOpacity={1} />
         </Animated.View>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1, justifyContent: 'flex-end' }}>
+          <GestureDetector gesture={pan}>
           <Animated.View
-            {...panResponder.panHandlers}
             style={[
               {
                 backgroundColor: p.card,
@@ -503,15 +512,18 @@ export function Sheet({
                 <Icon name="x" size={ICON.sm} color={p.text2} />
               </TouchableOpacity>
             </View>
-            <ScrollView
+            <GestureDetector gesture={scrollNative}>
+            <Animated.ScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               scrollEventThrottle={16}
-              onScroll={(e) => { scrollYRef.current = e.nativeEvent.contentOffset.y; }}
+              onScroll={onScroll}
             >
               {children}
-            </ScrollView>
+            </Animated.ScrollView>
+            </GestureDetector>
           </Animated.View>
+          </GestureDetector>
         </KeyboardAvoidingView>
       </View>
     </Modal>
@@ -682,11 +694,13 @@ export function Confirm({
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useAnimatedScrollHandler,
   withSpring,
   withTiming,
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { ICON, TYPE } from '../theme/tokens';
 import {
   Settings as LucideSettings,
@@ -710,6 +724,10 @@ import {
   User as LucideUser,
   Check as LucideCheck,
   Copy as LucideCopy,
+  FileText as LucideFileText,
+  Coffee as LucideCoffee,
+  Scale as LucideScale,
+  KeyRound as LucideKeyRound,
 } from 'lucide-react-native';
 
 const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
@@ -734,6 +752,10 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
   user: LucideUser,
   check: LucideCheck,
   copy: LucideCopy,
+  fileText: LucideFileText,
+  coffee: LucideCoffee,
+  scale: LucideScale,
+  key: LucideKeyRound,
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {

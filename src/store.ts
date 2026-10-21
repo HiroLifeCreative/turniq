@@ -16,6 +16,10 @@ export interface Job {
   sueldoHora: number;
   taxPct: number;
   estaciones: Station[];
+  /** PIN del reloj del trabajo real (opcional): el que Nelson marca
+   * en la terminal de ese empleo. Se le muestra al marcar entrada
+   * en Turniq para que no se le olvide. NO es el PIN de la app. */
+  pinMarcaje?: string;
 }
 
 export interface Shift {

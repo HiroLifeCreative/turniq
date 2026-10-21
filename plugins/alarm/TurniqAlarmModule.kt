@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
@@ -126,6 +127,31 @@ class TurniqAlarmModule(private val reactContext: ReactApplicationContext) :
         }
         reactContext.startActivity(intent)
       }
+      promise.resolve(true)
+    } catch (e: Exception) {
+      promise.reject("ALARM_ERROR", e.message, e)
+    }
+  }
+
+  /** ¿La app está fuera de la optimización de batería? Si el sistema
+   * la pone a "dormir", las alarmas y notificaciones se pueden perder. */
+  @ReactMethod
+  fun isIgnoringBatteryOptimizations(promise: Promise) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      val pm = reactContext.getSystemService(Context.POWER_SERVICE) as PowerManager
+      promise.resolve(pm.isIgnoringBatteryOptimizations(reactContext.packageName))
+    } else {
+      promise.resolve(true)
+    }
+  }
+
+  @ReactMethod
+  fun openBatteryOptimizationSettings(promise: Promise) {
+    try {
+      val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      }
+      reactContext.startActivity(intent)
       promise.resolve(true)
     } catch (e: Exception) {
       promise.reject("ALARM_ERROR", e.message, e)

@@ -1,13 +1,13 @@
 /** Ajustes — secciones estilo iOS: Apariencia, Trabajo, Seguridad, Datos. */
 import React, { useState } from 'react';
-import {  View, Text, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
+import {  View, Text, ScrollView, TouchableOpacity, Alert, Platform, Linking } from 'react-native';
 import { ContentSheet,  Screen, Label, Field, Seg, Btn, Confirm, TopBar, Icon, IosSwitch, useTheme, useT } from '../components/ui';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
 import { mergeBackupData } from '../services/backupConvert';
-import { scheduleTestAlarm, type AlarmSoundKey } from '../services/notifications';
-import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings } from '../services/alarmNative';
+import { scheduleTestAlarm, notifPermissionGranted, type AlarmSoundKey } from '../services/notifications';
+import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings, nativeIsIgnoringBattery, nativeOpenBatterySettings } from '../services/alarmNative';
 import { useToast } from '../components/Toast';
 import { APP_VERSION_LABEL } from '../lib/version';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
@@ -65,12 +65,17 @@ export function SettingsScreen() {
   const [pinInput, setPinInput] = useState('');
   const [confirmWipe, setConfirmWipe] = useState(false);
   const [fsiOk, setFsiOk] = useState<boolean | null>(null);
+  const [notifOk, setNotifOk] = useState<boolean | null>(null);
+  const [battOk, setBattOk] = useState<boolean | null>(null);
 
-  // Permiso de alarma a pantalla completa (solo Android con módulo)
+  // Estados que la alarma necesita (pantalla completa, notificaciones
+  // y batería sin restricción): se revisan al entrar a la pantalla.
   useFocusEffect(
     React.useCallback(() => {
+      void notifPermissionGranted().then(setNotifOk);
       if (Platform.OS === 'android' && alarmNativeAvailable) {
         void nativeCanUseFullScreenIntent().then(setFsiOk);
+        void nativeIsIgnoringBattery().then(setBattOk);
       }
     }, []),
   );
@@ -227,14 +232,37 @@ export function SettingsScreen() {
               )}
             </SettingRow>
           )}
+          <SettingRow icon="bell" label={t.alarma.notifPerm} last={false}>
+            {notifOk ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.sm }}>
+                <Icon name="check" size={ICON.md} color="#30A46C" />
+                <Text style={{ color: '#30A46C', fontWeight: '700', fontSize: 14 }}>{t.alarma.active}</Text>
+              </View>
+            ) : (
+              <Btn title={t.alarma.allow} kind="ghost" onPress={() => void Linking.openSettings()} />
+            )}
+          </SettingRow>
+          {Platform.OS === 'android' && alarmNativeAvailable && (
+            <SettingRow icon="bell" label={t.alarma.battery} last={false}>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3, marginBottom: SP.sm }}>{t.alarma.batteryHint}</Text>
+              {battOk ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.sm }}>
+                  <Icon name="check" size={ICON.md} color="#30A46C" />
+                  <Text style={{ color: '#30A46C', fontWeight: '700', fontSize: 14 }}>{t.alarma.active}</Text>
+                </View>
+              ) : (
+                <Btn title={t.alarma.allow} kind="ghost" onPress={() => void nativeOpenBatterySettings()} />
+              )}
+            </SettingRow>
+          )}
           <SettingRow icon="bell" label={t.alarma.test} last>
             <Btn
               title={t.alarma.test}
               kind="ghost"
               onPress={() => {
                 void scheduleTestAlarm(settings.sonidoAlarma, t.alarma).then((ok) => {
-                  if (ok) toast.success(t.alarma.testTitle);
-                  else toast.info(t.alarma.test);
+                  if (ok) toast.info(t.alarma.testHint);
+                  else toast.error(t.alarma.testFail);
                 });
               }}
             />
@@ -269,29 +297,15 @@ export function SettingsScreen() {
           )}
         </Section>
 
-        {/* GOOGLE */}
-        <Section title={t.settings.google}>
-          <SettingRow icon="calendar" label={t.more.calendar} last={false}>
-            <Btn title={t.more.calendar} onPress={() => (nav.navigate as any)('CalendarSync')} kind="ghost" />
-          </SettingRow>
-          <SettingRow icon="mail" label={t.more.gmail} last>
-            <Btn title={t.more.gmail} onPress={() => (nav.navigate as any)('Gmail')} kind="ghost" />
-          </SettingRow>
-        </Section>
-
-        {/* ACERCA DE */}
+        {/* ACERCA DE — sin duplicar lo que ya vive en el menú Más
+            (Google, Términos y Café están allá; aquí solo la versión
+            y las Novedades, que no tienen otro acceso). */}
         <Section title={t.settings.acerca}>
           <SettingRow icon="settings" label="Turniq" last={false}>
             <Text style={{ color: p.text3, fontSize: TYPE.caption }}>{APP_VERSION_LABEL}</Text>
           </SettingRow>
-          <SettingRow icon="bell" label={t.novedades.title} last={false}>
+          <SettingRow icon="bell" label={t.novedades.title} last>
             <Btn title={t.novedades.title} onPress={() => (nav.navigate as any)('Changelog')} kind="ghost" />
-          </SettingRow>
-          <SettingRow icon="user" label={t.more.terms} last={false}>
-            <Btn title={t.more.terms} onPress={() => (nav.navigate as any)('Terms')} kind="ghost" />
-          </SettingRow>
-          <SettingRow icon="wallet" label={t.more.tips} last>
-            <Btn title={t.more.tips} onPress={() => (nav.navigate as any)('Tips')} kind="ghost" />
           </SettingRow>
         </Section>
 

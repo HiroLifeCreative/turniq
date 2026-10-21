@@ -134,6 +134,7 @@ export function useGoogleAuth() {
     androidClientId: GOOGLE_ANDROID_CLIENT_ID || 'pending.apps.googleusercontent.com',
     webClientId: GOOGLE_WEB_CLIENT_ID || 'pending.apps.googleusercontent.com',
     scopes: SCOPES,
+    selectAccount: true,
     shouldAutoExchangeCode: true,
   });
   return { request, response, promptAsync };

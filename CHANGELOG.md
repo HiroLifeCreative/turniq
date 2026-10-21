@@ -1,4 +1,12 @@
 # Changelog — Turniq
+## v1.1.2 (build 20) — 2026-10-20
+- **Horas extra POR TRABAJO**: el umbral semanal se aplica a cada empleo por separado (sueldo e impuesto propios), no a la suma de todos los trabajos — fin del dinero que no cuadraba. Barra de hora extra en Semana ahora por trabajo; totales de mes/día sin extra fantasma.
+- **PIN del reloj por trabajo** (opcional, `Job.pinMarcaje`): campo en el formulario del empleo, se muestra en la lista de trabajos, en el recordatorio del próximo turno y en la ventana de marcar entrada.
+- **Bug del ojo arreglado**: desbloquear el neto con PIN usaba `Alert.prompt` (solo iOS, en Android no hacía nada) — ahora abre el PinLock en un Modal; la biometría sigue igual y si falla cae al PIN.
+- **Alarma**: prueba a los 6 s (da tiempo a cerrar la app) con toasts de éxito/error; nuevas filas en Ajustes con el estado de permisos de **Notificaciones** y **Batería sin restricción** (módulo nativo: `isIgnoringBatteryOptimizations` + abrir ajustes de batería).
+- **Google**: `selectAccount: true` — al conectar se abre el selector de cuenta de Google.
+- **Más**: menú rediseñado con iconos Lucide sin contenedores de colores; **Ajustes** sin duplicados (fuera la sección Google y las filas de Términos/Café de Acerca de).
+- **Sheets**: gesto de cerrar reescrito con Gesture Handler simultáneo al scroll nativo — deslizar ya no se traba.
 
 Historial de versiones por build (del más nuevo al más viejo).
 La misma lista vive dentro de la app en **Ajustes → Acerca de → Novedades**

@@ -70,9 +70,17 @@ export function WeekScreen() {
 
   const inWeek = shifts.filter((s) => weekKey(parseYmd(s.fecha)) === key);
   // Totales de la semana: SOLO turnos ya trabajados (criterio global de la app).
-  const totals = calcWeekTotals(onlyWorked(inWeek), byId, settings.umbralExtraHrs, settings.multExtra);
-  const otPct = settings.umbralExtraHrs > 0 ? Math.min(100, (totals.hours / settings.umbralExtraHrs) * 100) : 0;
-  const otLeft = Math.max(0, settings.umbralExtraHrs - totals.hours);
+  const workedInWeek = onlyWorked(inWeek);
+  const totals = calcWeekTotals(workedInWeek, byId, settings.umbralExtraHrs, settings.multExtra);
+  // Hora extra POR TRABAJO: horas trabajadas de cada empleo por separado.
+  const jobOtRows = jobs
+    .map((j) => ({
+      job: j,
+      hours: workedInWeek
+        .filter((s) => s.jobId === j.id && !s.esLibre)
+        .reduce((a, s) => a + shiftHours(s), 0),
+    }))
+    .filter((r) => r.hours > 0);
 
   const doDuplicate = () => {
     const n = duplicateWeek(key);
@@ -159,26 +167,48 @@ export function WeekScreen() {
           </TouchableOpacity>
         </View>
 
-        {settings.mostrarHoraExtra && settings.umbralExtraHrs > 0 && inWeek.length > 0 && (
+        {settings.mostrarHoraExtra && settings.umbralExtraHrs > 0 && jobOtRows.length > 0 && (
           <TintedCard accent="#E8830C" style={{ marginBottom: SP.md }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: SP.sm }}>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>{t.semana.horaExtra.toUpperCase()}</Text>
-              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>
-                {fmtHoursDual(totals.hours)} / {fmtHoursDual(settings.umbralExtraHrs)}
+              <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
+                {t.semana.horaExtra.toUpperCase()} · {t.semana.porTrabajo.toUpperCase()}
               </Text>
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>×{settings.multExtra}</Text>
             </View>
-            <View style={{ height: 12, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.14)', overflow: 'hidden' }}>
-              <MotiView
-                animate={{ width: `${otPct}%` }}
-                transition={{ type: 'timing', duration: 600 }}
-                style={{ height: 12, borderRadius: 6, backgroundColor: totals.overtimeHours > 0 ? '#F5A623' : '#5EA9FF' }}
-              />
-            </View>
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: SP.sm }}>
-              {totals.overtimeHours > 0
-                ? `${fmtHoursDual(totals.overtimeHours)} ${t.semana.horaExtraDone}`
-                : `${fmtHoursDual(otLeft)} ${t.semana.horaExtraLeft}`}
-            </Text>
+            {jobOtRows.map((r, i) => {
+              const pct = Math.min(100, (r.hours / settings.umbralExtraHrs) * 100);
+              const ot = Math.max(0, r.hours - settings.umbralExtraHrs);
+              return (
+                <View key={r.job.id} style={{ marginTop: i > 0 ? SP.md : 0 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 6 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: r.job.color, marginRight: 8 }} />
+                    <Text style={{ flex: 1, fontFamily: FONT.head, fontWeight: '600', fontSize: 13, color: '#FFFFFF' }} numberOfLines={1}>
+                      {r.job.nombre}
+                    </Text>
+                    <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>
+                      {fmtHoursDual(r.hours)} / {fmtHoursDual(settings.umbralExtraHrs)}
+                    </Text>
+                    {ot > 0 && (
+                      <Text style={{ fontFamily: FONT.mono, fontSize: 12, fontWeight: '700', color: '#F5A623', marginLeft: 8 }}>
+                        +{fmtHoursDual(ot)}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={{ height: 10, borderRadius: 5, backgroundColor: 'rgba(255,255,255,0.14)', overflow: 'hidden' }}>
+                    <MotiView
+                      animate={{ width: `${pct}%` }}
+                      transition={{ type: 'timing', duration: 600 }}
+                      style={{ height: 10, borderRadius: 5, backgroundColor: ot > 0 ? '#F5A623' : '#5EA9FF' }}
+                    />
+                  </View>
+                </View>
+              );
+            })}
+            {totals.overtimeHours > 0 && (
+              <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: SP.md }}>
+                {fmtHoursDual(totals.overtimeHours)} {t.semana.horaExtraDone}
+              </Text>
+            )}
           </TintedCard>
         )}
 

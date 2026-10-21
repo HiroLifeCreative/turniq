@@ -13,6 +13,31 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 20,
+    version: '1.1.2',
+    fecha: '2026-10-20',
+    notas: {
+      es: [
+        'Horas extra POR TRABAJO: el límite semanal se aplica a las horas de cada empleo por separado, ya no a la suma de todos tus trabajos — el dinero ahora cuadra',
+        'PIN del reloj por trabajo (opcional): guárdalo en cada empleo y Turniq te lo muestra al marcar entrada y en el recordatorio del turno',
+        'Arreglado el ojo del neto: volver a mostrar el dinero con PIN ya funciona en Android (antes solo respondía con biometría)',
+        'Alarma: la prueba suena a los 6 segundos para que alcances a cerrar la app, y Ajustes te avisa si faltan los permisos de notificaciones o de batería',
+        'Conectar Google Calendar ahora abre el selector de tu cuenta de Google',
+        'Menú Más rediseñado: iconos limpios sin cuadros de colores, y Ajustes ya no duplica opciones',
+        'Las ventanas (sheets) se cierran deslizando en cualquier parte, sin fallar',
+      ],
+      en: [
+        'Overtime PER JOB: the weekly limit now applies to each job on its own, not to all your jobs added together — your money adds up now',
+        'Clock PIN per job (optional): save the PIN you punch at each workplace and Turniq shows it when you clock in and in the shift reminder',
+        'Fixed the net eye toggle: showing your money again with a PIN now works on Android (before it only responded to biometrics)',
+        'Alarm: the test rings after 6 seconds so you can close the app first, and Settings now warns you if notification or battery permissions are missing',
+        'Connecting Google Calendar now opens your Google account picker',
+        'More menu redesigned: clean icons with no colored boxes, and Settings no longer duplicates options',
+        'Sheets now close by swiping anywhere, reliably',
+      ],
+    },
+  },
+  {
     build: 19,
     version: '1.1.1',
     fecha: '2026-10-20',

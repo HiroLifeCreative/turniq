@@ -91,9 +91,11 @@ export interface WeekTotals {
 }
 
 /**
- * Totales de un conjunto de turnos con horas extra:
- * si las horas semanales > umbral, el excedente va al multiplicador.
- * El extra se prorratea al sueldo promedio ponderado de la semana.
+ * Totales de un conjunto de turnos con horas extra POR TRABAJO
+ * (regla de Nelson): el umbral se aplica a las horas de CADA empleo
+ * por separado, con SU sueldo y SU impuesto. Nunca a la suma de
+ * todos los trabajos (con varios empleos siempre pasarías de 40 h)
+ * ni con sueldos promediados entre trabajos.
  */
 export function calcWeekTotals(
   shifts: ShiftLike[],
@@ -101,30 +103,33 @@ export function calcWeekTotals(
   umbralExtraHrs: number,
   multExtra: number,
 ): WeekTotals {
-  let hours = 0;
-  let weightedPay = 0; // suma horas*sueldo para promedio
-  let tipsBonus = 0;
-  let weightedTax = 0;
-
+  const byJob = new Map<string, { hours: number; tipsBonus: number }>();
   for (const s of shifts) {
     if (s.esLibre) continue; // los días libres no cuentan como horas trabajadas
-    const h = shiftHours(s);
-    const job = jobsById[s.jobId];
-    const rate = job?.sueldoHora ?? 0;
-    const tax = job?.taxPct ?? 0;
-    hours += h;
-    weightedPay += h * rate;
-    tipsBonus += s.propinas + s.bono;
-    weightedTax += h * rate * (tax / 100);
+    const acc = byJob.get(s.jobId) ?? { hours: 0, tipsBonus: 0 };
+    acc.hours += shiftHours(s);
+    acc.tipsBonus += s.propinas + s.bono;
+    byJob.set(s.jobId, acc);
   }
 
-  const regularHours = Math.min(hours, umbralExtraHrs);
-  const overtimeHours = Math.max(0, hours - umbralExtraHrs);
-  const avgRate = hours > 0 ? weightedPay / hours : 0;
-  const avgTaxRate = weightedPay > 0 ? weightedTax / weightedPay : 0;
-
-  const gross = regularHours * avgRate + overtimeHours * avgRate * multExtra + tipsBonus;
-  const net = gross * (1 - avgTaxRate);
+  let hours = 0;
+  let regularHours = 0;
+  let overtimeHours = 0;
+  let gross = 0;
+  let net = 0;
+  for (const [jobId, acc] of byJob) {
+    const job = jobsById[jobId];
+    const rate = job?.sueldoHora ?? 0;
+    const taxRate = (job?.taxPct ?? 0) / 100;
+    const reg = Math.min(acc.hours, umbralExtraHrs);
+    const ot = Math.max(0, acc.hours - umbralExtraHrs);
+    const g = reg * rate + ot * rate * multExtra + acc.tipsBonus;
+    hours += acc.hours;
+    regularHours += reg;
+    overtimeHours += ot;
+    gross += g;
+    net += g * (1 - taxRate);
+  }
   return { hours, regularHours, overtimeHours, gross, net };
 }
 

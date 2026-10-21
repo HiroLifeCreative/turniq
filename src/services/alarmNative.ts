@@ -9,6 +9,8 @@ interface TurniqAlarmNative {
   cancelAllAlarms(): Promise<boolean>;
   canUseFullScreenIntent(): Promise<boolean>;
   openFullScreenIntentSettings(): Promise<boolean>;
+  isIgnoringBatteryOptimizations(): Promise<boolean>;
+  openBatteryOptimizationSettings(): Promise<boolean>;
   getPendingAlarm(): Promise<string | null>;
   clearPendingAlarm(): Promise<boolean>;
 }
@@ -43,6 +45,12 @@ export const nativeCanUseFullScreenIntent = (): Promise<boolean> =>
 
 export const nativeOpenFullScreenIntentSettings = (): Promise<boolean> =>
   safe(() => M!.openFullScreenIntentSettings(), false);
+
+export const nativeIsIgnoringBattery = (): Promise<boolean> =>
+  safe(() => M!.isIgnoringBatteryOptimizations(), true);
+
+export const nativeOpenBatterySettings = (): Promise<boolean> =>
+  safe(() => M!.openBatteryOptimizationSettings(), false);
 
 export const nativeGetPendingAlarm = (): Promise<string | null> => safe(() => M!.getPendingAlarm(), null);
 

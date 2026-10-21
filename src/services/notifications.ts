@@ -223,13 +223,13 @@ export async function scheduleTestAlarm(
   await ensureChannels();
   // La prueba va por la misma vía real de la alarma (nativa en Android)
   if (Platform.OS === 'android' && alarmNativeAvailable) {
-    return nativeScheduleAlarm('prueba', Date.now() + 3000, '', t.testTitle, t.testBody, sound);
+    return nativeScheduleAlarm('prueba', Date.now() + 6000, '', t.testTitle, t.testBody, sound);
   }
   try {
     await Notifications.scheduleNotificationAsync({
       identifier: 'turniq-test',
       content: { title: t.testTitle, body: t.testBody, data: { type: 'test' }, sound: ALARM_FILES[sound] },
-      trigger: { type: 'date', date: new Date(Date.now() + 3000), channelId: alarmChannelId(sound) } as never,
+      trigger: { type: 'date', date: new Date(Date.now() + 6000), channelId: alarmChannelId(sound) } as never,
     });
     return true;
   } catch {
@@ -292,4 +292,11 @@ export async function cancelShiftReminder(shiftId: string): Promise<void> {
   } catch {
     /* noop */
   }
+}
+
+/** ¿Están concedidas las notificaciones? (para el estado en Ajustes). */
+export async function notifPermissionGranted(): Promise<boolean> {
+  if (!Notifications) return false;
+  const { status } = await Notifications.getPermissionsAsync();
+  return status === 'granted';
 }
