@@ -133,6 +133,13 @@ export function useGoogleAuth() {
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: GOOGLE_ANDROID_CLIENT_ID || 'pending.apps.googleusercontent.com',
     webClientId: GOOGLE_WEB_CLIENT_ID || 'pending.apps.googleusercontent.com',
+    // Redirección FIJA con el esquema del paquete: con el array de
+    // esquemas de app.json, AuthSession elegía "turniq" y Google
+    // bloquea la solicitud (Error 400 invalid_request: la política
+    // de OAuth exige un esquema tipo DNS inverso para el cliente
+    // Android, y además el esquema personalizado debe estar
+    // ACTIVADO en el cliente — hecho en consola el 20 oct 2026).
+    redirectUri: AuthSession.makeRedirectUri({ scheme: 'com.hirolifecreative.turniq' }),
     scopes: SCOPES,
     selectAccount: true,
     shouldAutoExchangeCode: true,

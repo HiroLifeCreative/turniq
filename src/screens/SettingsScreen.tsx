@@ -6,7 +6,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useStore } from '../store';
 import { exportBackup, importBackup } from '../services/backup';
 import { mergeBackupData } from '../services/backupConvert';
-import { scheduleTestAlarm, notifPermissionGranted, type AlarmSoundKey } from '../services/notifications';
+import { scheduleTestAlarm, notifPermissionGranted, requestNotifPermission, type AlarmSoundKey } from '../services/notifications';
 import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings, nativeIsIgnoringBattery, nativeOpenBatterySettings } from '../services/alarmNative';
 import { useToast } from '../components/Toast';
 import { APP_VERSION_LABEL } from '../lib/version';
@@ -239,7 +239,18 @@ export function SettingsScreen() {
                 <Text style={{ color: '#30A46C', fontWeight: '700', fontSize: 14 }}>{t.alarma.active}</Text>
               </View>
             ) : (
-              <Btn title={t.alarma.allow} kind="ghost" onPress={() => void Linking.openSettings()} />
+              <Btn
+                title={t.alarma.allow}
+                kind="ghost"
+                onPress={() => {
+                  // Primero el diálogo del sistema; si Android ya no
+                  // lo muestra (permiso negado antes), a los Ajustes.
+                  void requestNotifPermission().then((ok) => {
+                    setNotifOk(ok);
+                    if (!ok) void Linking.openSettings();
+                  });
+                }}
+              />
             )}
           </SettingRow>
           {Platform.OS === 'android' && alarmNativeAvailable && (

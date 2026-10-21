@@ -1,4 +1,9 @@
 # Changelog — Turniq
+## v1.1.3 (build 21) — 2026-10-20
+- **Google ARREGLADO (error 400 invalid_request)**: la página de error de Google lo decía codificado — "Custom URI scheme is not enabled for your Android client". Se activó "Habilitar el esquema de URI personalizado" en Configuración avanzada del cliente Turniq Android (Auth Platform, verificado persistente) y la app fija `redirectUri` al esquema del paquete (`com.hirolifecreative.turniq:/oauthredirect`); antes AuthSession elegía el esquema "turniq" del array de app.json. Verificado en vivo: la URL de autorización ya llega al flujo normal de inicio de sesión.
+- **Engranaje → Más**: los 4 tabs abrían Ajustes vía estado anidado [MasHome, Settings]; ahora abren MasHome.
+- **Sheets**: el scroll interno ahora es `GHScrollView` de gesture-handler (el ScrollView de RN le ganaba la arena de gestos al Pan en Android — por eso deslizar-para-cerrar fallaba en el teléfono pese a dos arreglos previos). Umbral de cierre 70px/700 vel.
+- **Alarma sin sonido (causa probable)**: expo-notifications creaba los canales `turniq-alarma-*` y Android los congela; el receiver nativo los reutilizaba sin poder poner su sonido USAGE_ALARM. El receiver ahora usa canales propios `turniq-sistema-*`. Además Ajustes → Notificaciones "Permitir" ahora pide el permiso con el diálogo del sistema antes de mandar a Ajustes.
 ## v1.1.2 (build 20) — 2026-10-20
 - **Horas extra POR TRABAJO**: el umbral semanal se aplica a cada empleo por separado (sueldo e impuesto propios), no a la suma de todos los trabajos — fin del dinero que no cuadraba. Barra de hora extra en Semana ahora por trabajo; totales de mes/día sin extra fantasma.
 - **PIN del reloj por trabajo** (opcional, `Job.pinMarcaje`): campo en el formulario del empleo, se muestra en la lista de trabajos, en el recordatorio del próximo turno y en la ventana de marcar entrada.

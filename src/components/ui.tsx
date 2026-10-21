@@ -401,9 +401,11 @@ export function Seg<T extends string | number>({
 /** Bottom sheet fluido con Reanimated: spring al abrir, fade en el backdrop.
  *  Cierre deslizando: gesto (Gesture Handler) SIMULTÁNEO al scroll —
  *  arrastrando hacia abajo desde CUALQUIER parte (cuando el scroll
- *  está arriba) el sheet sigue el dedo y se cierra. La versión con
- *  PanResponder dejaba de funcionar cuando el ScrollView nativo
- *  capturaba el gesto (Nelson: "muchas veces funciona y después no"). */
+ *  está arriba) el sheet sigue el dedo y se cierra. Clave en Android:
+ *  el scroll DEBE ser el de Gesture Handler (GHScrollView); con el
+ *  ScrollView normal de RN el gesto nativo le gana la arena al Pan
+ *  y el arrastre dejaba de funcionar en el teléfono (reporte de
+ *  Nelson en builds 19/20, aun tras el primer arreglo). */
 export function Sheet({
   visible,
   onClose,
@@ -422,15 +424,15 @@ export function Sheet({
   const backdrop = useSharedValue(0);
   const scrollOff = useSharedValue(0);
 
-  const onScroll = useAnimatedScrollHandler((e) => {
-    scrollOff.value = e.contentOffset.y;
-  });
+  const onScroll = (e: { nativeEvent: { contentOffset: { y: number } } }) => {
+    scrollOff.value = e.nativeEvent.contentOffset.y;
+  };
 
   const scrollNative = React.useMemo(() => Gesture.Native(), []);
   const pan = React.useMemo(
     () =>
       Gesture.Pan()
-        .activeOffsetY([-8, 8])
+        .activeOffsetY([-4, 4])
         .failOffsetX([-28, 28])
         .simultaneousWithExternalGesture(scrollNative)
         .onUpdate((e) => {
@@ -439,7 +441,7 @@ export function Sheet({
           }
         })
         .onEnd((e) => {
-          if (e.translationY > 90 || e.velocityY > 800) {
+          if (e.translationY > 70 || e.velocityY > 700) {
             runOnJS(onClose)();
           } else {
             translateY.value = withSpring(0, { damping: 28, stiffness: 320, mass: 0.9 });
@@ -513,14 +515,14 @@ export function Sheet({
               </TouchableOpacity>
             </View>
             <GestureDetector gesture={scrollNative}>
-            <Animated.ScrollView
+            <GHScrollView
               showsVerticalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
               scrollEventThrottle={16}
               onScroll={onScroll}
             >
               {children}
-            </Animated.ScrollView>
+            </GHScrollView>
             </GestureDetector>
           </Animated.View>
           </GestureDetector>
@@ -700,7 +702,7 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, ScrollView as GHScrollView } from 'react-native-gesture-handler';
 import { ICON, TYPE } from '../theme/tokens';
 import {
   Settings as LucideSettings,

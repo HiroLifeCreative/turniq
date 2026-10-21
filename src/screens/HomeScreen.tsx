@@ -207,7 +207,7 @@ export function HomeScreen() {
       <Header
         onDark
         title={`${t.inicio.greeting}${settings.nombreUsuario ? `, ${settings.nombreUsuario.split(' ')[0]}` : ''}`}
-        onSettings={() => (nav.navigate as any)('Mas', { state: { index: 1, routes: [{ name: 'MasHome' }, { name: 'Settings' }] } })}
+        onSettings={() => (nav.navigate as any)('Mas', { state: { index: 0, routes: [{ name: 'MasHome' }] } })}
       />
       <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 140 }}>

@@ -13,6 +13,25 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 21,
+    version: '1.1.3',
+    fecha: '2026-10-20',
+    notas: {
+      es: [
+        'Google Calendar y Gmail: conexión ARREGLADA — Google bloqueaba el acceso (error 400) porque al cliente Android le faltaba activar el esquema de URI personalizado; ya está activado en tu consola y la app usa la redirección correcta',
+        'El engranaje del encabezado ahora abre el menú Más en todas las pantallas (antes te llevaba a Ajustes)',
+        'Sheets: deslizar para cerrar ya funciona bien en Android — el scroll interno ahora usa el sistema de gestos correcto',
+        'Alarma: canales de sonido nuevos sin conflictos (antes la alarma podía quedarse sin sonido) y el permiso de notificaciones ahora se pide desde Ajustes con el diálogo del sistema — actívalo para que la alarma suene',
+      ],
+      en: [
+        'Google Calendar & Gmail: connection FIXED — Google blocked sign-in (error 400) because the Android client was missing the enabled custom URI scheme; it is now enabled in your console and the app uses the correct redirect',
+        'The header gear now opens the More menu on every screen (before it took you to Settings)',
+        'Sheets: swipe-to-close now works properly on Android — the inner scroll now uses the right gesture system',
+        'Alarm: new conflict-free sound channels (before, the alarm could end up silent) and the notification permission is now requested from Settings with the system dialog — enable it so the alarm can ring',
+      ],
+    },
+  },
+  {
     build: 20,
     version: '1.1.2',
     fecha: '2026-10-20',

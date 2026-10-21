@@ -300,3 +300,11 @@ export async function notifPermissionGranted(): Promise<boolean> {
   const { status } = await Notifications.getPermissionsAsync();
   return status === 'granted';
 }
+
+/** Pide el permiso de notificaciones al momento (diálogo del sistema
+ * si Android aún lo permite). Devuelve si quedó concedido. Sin este
+ * permiso la alarma del sistema no puede sonar ni mostrarse. */
+export async function requestNotifPermission(): Promise<boolean> {
+  if (!Notifications) return false;
+  return ensureNotifPermission();
+}

@@ -105,7 +105,7 @@ export function WeekScreen() {
 
   return (
     <Screen banded>
-      <Header onDark title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { state: { index: 1, routes: [{ name: 'MasHome' }, { name: 'Settings' }] } })} />
+      <Header onDark title={t.tabs.week} onSettings={() => (nav.navigate as any)('Mas', { state: { index: 0, routes: [{ name: 'MasHome' }] } })} />
       <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>

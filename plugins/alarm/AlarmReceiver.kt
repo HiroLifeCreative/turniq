@@ -35,7 +35,11 @@ class AlarmReceiver : BroadcastReceiver() {
     prefs.edit().putStringSet("ids", ids).apply()
 
     val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    val channelId = "turniq-alarma-$sound"
+    // IDs PROPIOS (turniq-sistema-*): los canales turniq-alarma-* los crea
+    // expo-notifications con otros ajustes y Android los congela para
+    // siempre; si el receiver reutilizara ese canal, la alarma podría
+    // quedar sin sonido. Estos nacen aquí con USAGE_ALARM garantizado.
+    val channelId = "turniq-sistema-$sound"
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       if (nm.getNotificationChannel(channelId) == null) {
         val file = when (sound) {
