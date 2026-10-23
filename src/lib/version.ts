@@ -5,6 +5,6 @@ import Constants from 'expo-constants';
 
 export const APP_VERSION: string = Constants.expoConfig?.version ?? '1.1.0';
 export const APP_BUILD: number =
-  (Constants.expoConfig as { android?: { versionCode?: number } } | null)?.android?.versionCode ?? 21;
+  (Constants.expoConfig as { android?: { versionCode?: number } } | null)?.android?.versionCode ?? 22;
 /** Etiqueta corta tipo "v1.1.0 (18)". */
 export const APP_VERSION_LABEL = `v${APP_VERSION} (${APP_BUILD})`;

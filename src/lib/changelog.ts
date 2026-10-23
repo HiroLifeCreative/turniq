@@ -13,6 +13,23 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 22,
+    version: '1.1.4',
+    fecha: '2026-10-23',
+    notas: {
+      es: [
+        'Estadísticas ARREGLADA: ahora aplica la hora extra por trabajo y por semana como el resto de la app (antes la ignoraba y los números no cuadraban), y el promedio por semana ya divide entre semanas de verdad, no entre meses',
+        'Editar entrada EN VIVO: con un turno en curso, el botón "Editar entrada" junto a Marcar salida te deja corregir la hora real (con atajos de −30/−15/−5/+5 min) — el contador y el neto estimado se recalculan al momento',
+        'Todo en tiempo real: la hoja de detalle de un turno ahora lee los datos vivos — si editas una hora, se refleja al instante sin cerrar y volver a abrir',
+      ],
+      en: [
+        'Statistics FIXED: it now applies overtime per job and per week like the rest of the app (before it ignored overtime and totals did not add up), and the weekly average now divides by real weeks, not months',
+        'Edit clock-in LIVE: with a shift in progress, the "Edit clock-in" button next to Clock out lets you fix the actual time (with −30/−15/−5/+5 min shortcuts) — the timer and estimated net recalculate instantly',
+        'Everything in real time: the shift detail sheet now reads live data — edit a time and it updates on the spot, no need to close and reopen',
+      ],
+    },
+  },
+  {
     build: 21,
     version: '1.1.3',
     fecha: '2026-10-20',

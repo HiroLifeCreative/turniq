@@ -4,8 +4,8 @@ import {  View, Text, ScrollView, Dimensions } from 'react-native';
 import { ContentSheet,  Screen, Card, Label, TopBar, useTheme, useT } from '../components/ui';
 import { useStore, jobsById } from '../store';
 import { SP, FONT, TYPE, R } from '../theme/tokens';
-import { parseYmd } from '../lib/dates';
-import { calcWeekTotals, fmtMoney, fmtHours, onlyWorked } from '../lib/calc';
+import { parseYmd, weekKey } from '../lib/dates';
+import { calcRangeTotals, calcRangeShiftPay, fmtMoney, fmtHours, onlyWorked } from '../lib/calc';
 import { MotiView } from 'moti';
 import { useNavigation } from '@react-navigation/native';
 
@@ -21,6 +21,9 @@ export function StatsScreen() {
   const byId = jobsById(jobs);
   // TODAS las estadísticas: solo turnos ya trabajados (criterio global de la app).
   const wShifts = onlyWorked(shifts);
+  // Valor de cada turno con la regla real: hora extra POR TRABAJO × SEMANA
+  // (antes se calculaba sin hora extra y no cuadraba con Semana/Inicio).
+  const pay = calcRangeShiftPay(wShifts, byId, settings.umbralExtraHrs, settings.multExtra);
 
   // Por día de semana (0=lunes..6=domingo)
   const byDow = Array.from({ length: 7 }, () => ({ h: 0, n: 0 }));
@@ -28,22 +31,24 @@ export function StatsScreen() {
     if (s.esLibre) continue;
     const d = parseYmd(s.fecha);
     const dow = (d.getDay() + 6) % 7;
-    const one = calcWeekTotals([s], byId, 1e9, 1);
+    const one = pay.get(s.id);
+    if (!one) continue;
     byDow[dow]!.h += one.hours;
     byDow[dow]!.n += one.net;
   }
   const bestDow = byDow.reduce((bi, cur, i) => (cur.n > byDow[bi]!.n ? i : bi), 0);
   const maxDowN = Math.max(...byDow.map((d) => d.n), 1);
 
-  // Promedios
-  const total = calcWeekTotals(wShifts, byId, 1e9, 1);
-  const weeks = new Set(wShifts.map((s) => s.fecha.slice(0, 7))).size;
+  // Promedios (semanas REALES lun–dom, no meses)
+  const total = calcRangeTotals(wShifts, byId, settings.umbralExtraHrs, settings.multExtra);
+  const weeks = new Set(wShifts.map((s) => weekKey(parseYmd(s.fecha)))).size;
   const avgPerWeek = weeks > 0 ? total.net / weeks : 0;
 
   // Trabajo con más horas
   const perJobH = new Map<string, number>();
   for (const s of wShifts) {
-    const one = calcWeekTotals([s], byId, 1e9, 1);
+    const one = pay.get(s.id);
+    if (!one) continue;
     perJobH.set(s.jobId, (perJobH.get(s.jobId) ?? 0) + one.hours);
   }
   let topJobId = '';
@@ -64,7 +69,7 @@ export function StatsScreen() {
       const d = parseYmd(s.fecha);
       return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth();
     });
-    const m = calcWeekTotals(list, byId, 1e9, 1);
+    const m = calcRangeTotals(list, byId, settings.umbralExtraHrs, settings.multExtra);
     months.push({ label: (t.months[ref.getMonth()] ?? '').slice(0, 3), net: m.net });
   }
   const maxMonth = Math.max(...months.map((m) => m.net), 1);

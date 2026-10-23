@@ -1,4 +1,9 @@
 # Changelog — Turniq
+## v1.1.4 (build 22) — 2026-10-23
+- **Estadísticas (reporte de Nelson)**: todos sus totales usaban umbral infinito (1e9) — la hora extra no existía ahí y nunca cuadraba con Semana/Inicio. Nuevo `calcRangeTotals`/`calcRangeShiftPay` en calc.ts: agrupa por (trabajo × semana lun–dom), aplica el umbral por grupo y reparte el recargo entre los turnos del grupo ∝ horas. StatsScreen lo usa en totales, desglose por día, trabajo top y barras de 6 meses. Además el "promedio por semana" dividía entre MESES (`fecha.slice(0,7)`) — ahora cuenta semanas reales con `weekKey`.
+- **Editar entrada en vivo (pedido de Nelson)**: botón "Editar entrada · HH:MM" bajo Marcar salida cuando hay turno en curso; hoja con TimeField + chips −30/−15/−5/+5 y texto guía; al guardar escribe `horaEntradaReal` vía updateShift y el anillo/contador/neto se recalculan solos. Strings nuevas ES/EN (`inicio.editEntry/realEntry/editEntryHint`, `toast.entryFixed`).
+- **Realtime en sheets (pedido de Nelson)**: `ShiftDetailSheet` ya no recibe el objeto turno (copia congelada al tocar) — recibe `shiftId` y selecciona el turno VIVO del store; Home/Week guardan solo el id. Editar las horas trabajadas dentro de la hoja ahora se refleja al instante en la misma hoja abierta.
+
 ## v1.1.3 (build 21) — 2026-10-20
 - **Google ARREGLADO (error 400 invalid_request)**: la página de error de Google lo decía codificado — "Custom URI scheme is not enabled for your Android client". Se activó "Habilitar el esquema de URI personalizado" en Configuración avanzada del cliente Turniq Android (Auth Platform, verificado persistente) y la app fija `redirectUri` al esquema del paquete (`com.hirolifecreative.turniq:/oauthredirect`); antes AuthSession elegía el esquema "turniq" del array de app.json. Verificado en vivo: la URL de autorización ya llega al flujo normal de inicio de sesión.
 - **Engranaje → Más**: los 4 tabs abrían Ajustes vía estado anidado [MasHome, Settings]; ahora abren MasHome.

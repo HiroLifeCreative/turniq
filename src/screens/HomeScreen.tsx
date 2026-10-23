@@ -8,14 +8,14 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
-import { ShiftForm } from '../components/ShiftForm';
+import { ShiftForm, TimeField } from '../components/ShiftForm';
 import { PinLock } from './PinLock';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
 import { useStore, jobsById, type Shift } from '../store';
 import type { TabsParamList } from '../navigation/types';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
-import { todayYmd, nowHm, hmToMin, hmTo12h, weekKey, parseYmd, startOfWeek, ymd } from '../lib/dates';
+import { todayYmd, nowHm, hmToMin, minToHm, hmTo12h, weekKey, parseYmd, startOfWeek, ymd } from '../lib/dates';
 import { fmtHours, fmtMoney, calcWeekTotals, workState, isOvernight } from '../lib/calc';
 import { MotiView } from 'moti';
 import Svg, { Circle } from 'react-native-svg';
@@ -42,9 +42,11 @@ export function HomeScreen() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Shift | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
-  const [detailShift, setDetailShift] = useState<Shift | null>(null);
+  const [detailShiftId, setDetailShiftId] = useState<string | null>(null);
   const [clockJobId, setClockJobId] = useState<string | null>(null);
   const [clockSheetOpen, setClockSheetOpen] = useState(false);
+  const [editEntryOpen, setEditEntryOpen] = useState(false);
+  const [entryDraft, setEntryDraft] = useState('');
   const [pinAsk, setPinAsk] = useState(false);
   const [, setTick] = useState(0);
   const setSettings = useStore((s) => s.setSettings);
@@ -198,6 +200,28 @@ export function HomeScreen() {
       updateShift(openShift.id, { horaSalidaReal: nowHm() });
       toast.success(t.toast.clockOut);
     }
+  };
+
+  // Corregir la hora de entrada EN VIVO: marcó en el reloj del
+  // trabajo pero olvidó marcar en la app. Al guardar, el anillo, el
+  // contador y el neto estimado se recalculan solos (leen del store).
+  const openEditEntry = () => {
+    if (!openShift) return;
+    setEntryDraft(openShift.horaEntradaReal ?? openShift.horaEntrada);
+    setEditEntryOpen(true);
+  };
+  const adjustEntry = (deltaMin: number) => {
+    const base = hmToMin(entryDraft);
+    if (Number.isNaN(base)) return;
+    setEntryDraft(minToHm(((base + deltaMin) % 1440 + 1440) % 1440));
+  };
+  const saveEntry = () => {
+    if (!openShift) return;
+    if (Number.isNaN(hmToMin(entryDraft))) return;
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    updateShift(openShift.id, { horaEntradaReal: entryDraft });
+    setEditEntryOpen(false);
+    toast.success(t.toast.entryFixed);
   };
 
   const cardBg = darkMode ? DARK_CARD : DARK_CARD;
@@ -355,6 +379,16 @@ export function HomeScreen() {
             <TouchableOpacity onPress={clockOut} activeOpacity={0.85} style={{ backgroundColor: stateColor, borderRadius: 999, paddingVertical: 18, alignItems: 'center', overflow: 'hidden' }}>
               <Text style={{ fontFamily: FONT.headBold, fontSize: 17, color: '#fff' }}>{t.today.clockOut}</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              onPress={openEditEntry}
+              activeOpacity={0.7}
+              style={{ marginTop: SP.sm, height: 46, borderRadius: 999, borderWidth: 0.5, borderColor: p.line, backgroundColor: p.card, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+            >
+              <Icon name="edit" size={ICON.sm} color={p.text} />
+              <Text style={{ fontWeight: '700', fontSize: TYPE.body, color: p.text }}>
+                {t.inicio.editEntry} · {hmTo12h(openShift.horaEntradaReal ?? openShift.horaEntrada, esFmt)}
+              </Text>
+            </TouchableOpacity>
           </MotiView>
         ) : dayShifts.length > 0 ? (
           <View style={{ marginBottom: SP.md }}>
@@ -429,6 +463,34 @@ export function HomeScreen() {
             })}
         </Sheet>
 
+        {/* Corregir la hora de entrada del turno en curso */}
+        <Sheet visible={editEntryOpen} onClose={() => setEditEntryOpen(false)} title={t.inicio.editEntry}>
+          <TimeField label={t.inicio.realEntry} value={entryDraft} onChange={setEntryDraft} placeholder="--:--" />
+          <View style={{ flexDirection: 'row', gap: SP.sm, marginTop: SP.md }}>
+            {[-30, -15, -5, 5].map((d) => (
+              <TouchableOpacity
+                key={d}
+                onPress={() => adjustEntry(d)}
+                activeOpacity={0.7}
+                style={{ flex: 1, height: 42, borderRadius: R.pill, borderWidth: 0.5, borderColor: p.line, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text }}>{d > 0 ? `+${d}` : `−${Math.abs(d)}`} min</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={{ fontSize: TYPE.caption, color: p.text2, marginTop: SP.md, lineHeight: 18 }}>{t.inicio.editEntryHint}</Text>
+          <TouchableOpacity
+            onPress={saveEntry}
+            activeOpacity={0.85}
+            style={{ marginTop: SP.lg, marginBottom: SP.md, height: 52, borderRadius: R.pill, backgroundColor: '#0392FF', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+          >
+            <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: '#C4E9FF' }}>{t.common.save}</Text>
+            <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="check" size={18} color="#fff" />
+            </View>
+          </TouchableOpacity>
+        </Sheet>
+
         {/* Añadir turno */}
         <TouchableOpacity
           onPress={() => { setEditing(null); setFormOpen(true); }}
@@ -495,7 +557,7 @@ export function HomeScreen() {
       </ScrollView>
       </ContentSheet>
 
-      <ShiftDetailSheet shift={detailShift} onClose={() => setDetailShift(null)} onEdit={(s) => { setEditing(s); setFormOpen(true); }} />
+      <ShiftDetailSheet shiftId={detailShiftId} onClose={() => setDetailShiftId(null)} onEdit={(s) => { setEditing(s); setFormOpen(true); }} />
       <ShiftForm visible={formOpen} onClose={() => setFormOpen(false)} editing={editing} defaultDate={today} />
       <Confirm
         visible={confirmId !== null}

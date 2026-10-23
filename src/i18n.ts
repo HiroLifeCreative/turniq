@@ -27,6 +27,9 @@ const es = {
     enVivo: 'En vivo',
     tuSemanaEmpieza: 'Tu semana empieza aquí',
     agregaTrabajos: 'Añade tus trabajos y después programa tus turnos.',
+    editEntry: 'Editar entrada',
+    realEntry: 'Entrada real',
+    editEntryHint: '¿Marcaste en el reloj del trabajo y olvidaste marcar en la app? Pon la hora real: el contador y el dinero se recalculan al momento.',
   },
   semana: {
     turno: 'turno',
@@ -49,6 +52,7 @@ const es = {
   },
   toast: {
     clockIn: 'Entrada marcada',
+    entryFixed: 'Hora de entrada corregida',
     clockOut: 'Salida marcada',
     shiftSaved: 'Turno guardado',
     shiftDeleted: 'Turno eliminado',
@@ -399,6 +403,9 @@ const en: Strings = {
     enVivo: 'Live',
     tuSemanaEmpieza: 'Your week starts here',
     agregaTrabajos: 'Add your jobs, then schedule your shifts.',
+    editEntry: 'Edit clock-in',
+    realEntry: 'Actual clock-in',
+    editEntryHint: 'Clocked in at work but forgot to tap the app? Set the real time here: the timer and money recalculate instantly.',
   },
   semana: {
     turno: 'shift',
@@ -421,6 +428,7 @@ const en: Strings = {
   },
   toast: {
     clockIn: 'Clocked in',
+    entryFixed: 'Clock-in time corrected',
     clockOut: 'Clocked out',
     shiftSaved: 'Shift saved',
     shiftDeleted: 'Shift deleted',

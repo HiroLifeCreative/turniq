@@ -1,5 +1,5 @@
 /** Cálculos de horas y dinero. */
-import { hmToMin, ymd } from './dates';
+import { hmToMin, ymd, parseYmd, weekKey } from './dates';
 
 /** ¿El rango cruza medianoche? (salida definida y <= entrada) */
 export function isOvernight(entrada: string, salida: string | null): boolean {
@@ -46,6 +46,7 @@ export interface JobLike {
 export interface ShiftLike {
   id: string;
   jobId: string;
+  fecha?: string; // YYYY-MM-DD (opcional: las plantillas no tienen fecha)
   esLibre?: boolean;
   horaEntrada: string;
   horaSalida: string | null; // null = turno abierto
@@ -131,6 +132,80 @@ export function calcWeekTotals(
     net += g * (1 - taxRate);
   }
   return { hours, regularHours, overtimeHours, gross, net };
+}
+
+/** Agrupa turnos por (trabajo, semana lun–dom). */
+function groupByJobWeek(shifts: ShiftLike[]): Map<string, ShiftLike[]> {
+  const groups = new Map<string, ShiftLike[]>();
+  for (const s of shifts) {
+    if (s.esLibre) continue;
+    const key = `${s.jobId}|${weekKey(parseYmd(s.fecha ?? '1970-01-05'))}`;
+    const arr = groups.get(key) ?? [];
+    arr.push(s);
+    groups.set(key, arr);
+  }
+  return groups;
+}
+
+/**
+ * Totales de un rango de VARIAS semanas con la regla de Nelson:
+ * la hora extra se aplica POR TRABAJO y POR SEMANA (cada grupo
+ * trabajo×semana lleva su propio umbral de 40 h). Usar esto en
+ * Estadísticas y en cualquier total que abarque más de una semana;
+ * calcWeekTotals solo es correcto si el conjunto es UNA semana.
+ */
+export function calcRangeTotals(
+  shifts: ShiftLike[],
+  jobsById: Record<string, JobLike>,
+  umbralExtraHrs: number,
+  multExtra: number,
+): WeekTotals {
+  const total: WeekTotals = { hours: 0, regularHours: 0, overtimeHours: 0, gross: 0, net: 0 };
+  for (const list of groupByJobWeek(shifts).values()) {
+    const g = calcWeekTotals(list, jobsById, umbralExtraHrs, multExtra);
+    total.hours += g.hours;
+    total.regularHours += g.regularHours;
+    total.overtimeHours += g.overtimeHours;
+    total.gross += g.gross;
+    total.net += g.net;
+  }
+  return total;
+}
+
+export interface ShiftPay {
+  hours: number;
+  gross: number;
+  net: number;
+}
+
+/**
+ * Valor de CADA turno con la misma regla por trabajo × semana: el
+ * recargo de las horas extra del grupo se reparte entre sus turnos
+ * en proporción a las horas de cada uno. Así los desgloses de
+ * Estadísticas (por día, por trabajo, por mes) cuadran con los
+ * totales semanales en vez de ignorar la hora extra.
+ */
+export function calcRangeShiftPay(
+  shifts: ShiftLike[],
+  jobsById: Record<string, JobLike>,
+  umbralExtraHrs: number,
+  multExtra: number,
+): Map<string, ShiftPay> {
+  const out = new Map<string, ShiftPay>();
+  for (const list of groupByJobWeek(shifts).values()) {
+    const job = jobsById[list[0]!.jobId];
+    const rate = job?.sueldoHora ?? 0;
+    const taxRate = (job?.taxPct ?? 0) / 100;
+    const totH = list.reduce((a, s) => a + shiftHours(s), 0);
+    const otH = Math.max(0, totH - umbralExtraHrs);
+    const premiumPerHour = totH > 0 ? (otH * rate * (multExtra - 1)) / totH : 0;
+    for (const s of list) {
+      const h = shiftHours(s);
+      const gross = h * rate + h * premiumPerHour + s.propinas + s.bono;
+      out.set(s.id, { hours: h, gross, net: gross * (1 - taxRate) });
+    }
+  }
+  return out;
 }
 
 export const fmtMoney = (n: number): string =>

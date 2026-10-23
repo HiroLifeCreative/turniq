@@ -30,17 +30,21 @@ function StackRow({ label, value, sub, color }: { label: string; value: string; 
 }
 
 export function ShiftDetailSheet({
-  shift,
+  shiftId,
   onClose,
   onEdit,
 }: {
-  shift: Shift | null;
+  shiftId: string | null;
   onClose: () => void;
   onEdit: (s: Shift) => void;
 }) {
   const t = useT();
   const p = useTheme();
   const jobs = useStore((s) => s.jobs);
+  // Turno VIVO desde el store (por id): si una hora cambia — aquí,
+  // en Inicio o donde sea — la hoja abierta lo refleja al instante,
+  // sin tener que cerrarla y volverla a abrir.
+  const shift = useStore((s) => (shiftId ? s.shifts.find((x) => x.id === shiftId) ?? null : null));
   const deleteShift = useStore((s) => s.deleteShift);
   const updateShift = useStore((s) => s.updateShift);
   const settings = useStore((s) => s.settings);

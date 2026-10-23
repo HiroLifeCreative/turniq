@@ -50,7 +50,7 @@ export function WeekScreen() {
   const [editing, setEditing] = useState<Shift | null>(null);
   const [newDate, setNewDate] = useState<string | undefined>(undefined);
   const [menuShift, setMenuShift] = useState<Shift | null>(null);
-  const [detailShift, setDetailShift] = useState<Shift | null>(null);
+  const [detailShiftId, setDetailShiftId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [dupMsg, setDupMsg] = useState(false);
 
@@ -287,7 +287,7 @@ export function WeekScreen() {
                       key={s.id}
                       disabled={locked}
                       labels={{ edit: t.swipe.edit, duplicate: t.swipe.duplicate, delete: t.swipe.delete }}
-                      onEdit={() => setDetailShift(s)}
+                      onEdit={() => setDetailShiftId(s.id)}
                       onDuplicate={() => {
                         duplicateShift(s.id);
                         toast.success(t.toast.shiftDuplicated);
@@ -296,7 +296,7 @@ export function WeekScreen() {
                       startOpen={swipeTest && s.id === firstShiftId}
                     >
                     <TouchableOpacity
-                      onPress={() => setDetailShift(s)}
+                      onPress={() => setDetailShiftId(s.id)}
                       activeOpacity={0.7}
                       style={{
                         borderRadius: 20,
@@ -444,9 +444,9 @@ export function WeekScreen() {
 
       {/* Detalle del turno al tocar la tarjeta */}
       <ShiftDetailSheet
-        shift={detailShift}
-        onClose={() => setDetailShift(null)}
-        onEdit={(s) => { setEditing(s); setNewDate(undefined); setDetailShift(null); setFormOpen(true); }}
+        shiftId={detailShiftId}
+        onClose={() => setDetailShiftId(null)}
+        onEdit={(s) => { setEditing(s); setNewDate(undefined); setDetailShiftId(null); setFormOpen(true); }}
       />
 
       <ShiftForm visible={formOpen} onClose={() => setFormOpen(false)} editing={editing} defaultDate={newDate} />
