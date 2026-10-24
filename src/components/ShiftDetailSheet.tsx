@@ -6,7 +6,7 @@ import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import { hmTo12h, parseYmd, shortDate } from '../lib/dates';
 import { scheduledHours, workedHours, fmtHours, fmtMoney, isOvernight } from '../lib/calc';
-import { TimeField } from './ShiftForm';
+import { TimeField, DateField } from './ShiftForm';
 
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
   const p = useTheme();
@@ -49,7 +49,9 @@ export function ShiftDetailSheet({
   const updateShift = useStore((s) => s.updateShift);
   const settings = useStore((s) => s.settings);
   const [confirm, setConfirm] = React.useState(false);
+  const [confirmDel, setConfirmDel] = React.useState(false);
   const [editWorked, setEditWorked] = React.useState(false);
+  const [wDate, setWDate] = React.useState('');
   const [wIn, setWIn] = React.useState('');
   const [wOut, setWOut] = React.useState('');
 
@@ -119,6 +121,7 @@ export function ShiftDetailSheet({
         </View>
         <TouchableOpacity
           onPress={() => {
+            setWDate(shift.fecha);
             setWIn(shift.horaEntradaReal ?? shift.horaEntrada);
             setWOut(shift.horaSalidaReal ?? shift.horaSalida ?? '');
             setEditWorked(true);
@@ -138,18 +141,29 @@ export function ShiftDetailSheet({
         )}
       </Sheet>
 
-      {/* Editar horas trabajadas */}
+      {/* Editar horas trabajadas: fecha + horas reales + eliminar.
+          La fecha se puede corregir (por si marcó en el día equivocado)
+          y el turno se puede borrar entero (por si marcó por error). */}
       <Sheet visible={editWorked} onClose={() => setEditWorked(false)} title={t.shift.editWorked}>
+        <DateField label={t.shift.date} value={wDate} onChange={setWDate} />
+        <View style={{ height: SP.md }} />
         <TimeField label={t.shift.checkIn} value={wIn} onChange={setWIn} placeholder="--:--" />
         <TimeField label={t.shift.checkOut} value={wOut} onChange={setWOut} placeholder="--:--" />
         <TouchableOpacity
-          onPress={() => { updateShift(shift.id, { horaEntradaReal: wIn, horaSalidaReal: wOut || null }); setEditWorked(false); }}
+          onPress={() => { updateShift(shift.id, { ...(wDate ? { fecha: wDate } : {}), horaEntradaReal: wIn, horaSalidaReal: wOut || null }); setEditWorked(false); }}
           style={{ marginTop: SP.lg, marginBottom: SP.md, height: 52, borderRadius: R.pill, backgroundColor: p.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
         >
           <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: '#fff' }}>{t.common.save}</Text>
           <View style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(255,255,255,0.25)', alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="check" size={18} color="#fff" />
           </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => setConfirmDel(true)}
+          style={{ height: 50, borderRadius: R.pill, backgroundColor: 'rgba(209,52,56,0.10)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+        >
+          <Icon name="trash" size={ICON.sm} color={p.danger} />
+          <Text style={{ fontWeight: '700', color: p.danger, fontSize: TYPE.body }}>{t.common.delete}</Text>
         </TouchableOpacity>
       </Sheet>
       <Confirm
@@ -159,6 +173,14 @@ export function ShiftDetailSheet({
         noLabel={t.today.cancel}
         onYes={() => { deleteShift(shift.id); setConfirm(false); onClose(); }}
         onNo={() => setConfirm(false)}
+      />
+      <Confirm
+        visible={confirmDel}
+        message={t.today.confirmDelete}
+        yesLabel={t.today.delete}
+        noLabel={t.today.cancel}
+        onYes={() => { deleteShift(shift.id); setConfirmDel(false); setEditWorked(false); onClose(); }}
+        onNo={() => setConfirmDel(false)}
       />
     </>
   );

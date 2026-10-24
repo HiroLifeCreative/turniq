@@ -3,7 +3,11 @@
  *  1. app.json: sube `version` (parche +1; menor +1 si trae una función
  *     grande) y `android.versionCode` (+1 siempre, coincide con el build).
  *  2. Agrega la entrada del build ARRIBA de esta lista y en CHANGELOG.md.
- *  3. Las etiquetas de versión en la app se leen solas desde app.json. */
+ *  3. Las etiquetas de versión en la app se leen solas desde app.json.
+ *  NOTA DE ESTILO (24 oct 2026): las notas son profesionales y neutras —
+ *  sin segunda persona, sin citas, sin detalles internos de
+ *  implementación y sin énfasis con mayúsculas. La fecha siempre va en
+ *  formato YYYY-MM-DD: la pantalla Novedades la parsea como tal. */
 export interface ChangelogEntry {
   build: number;
   version: string;
@@ -15,66 +19,68 @@ export const CHANGELOG: ChangelogEntry[] = [
   {
     build: 28,
     version: '1.1.10',
-    fecha: '24 oct 2026',
+    fecha: '2026-10-24',
     notas: {
       es: [
-        'Iconos del navbar animados al tocar, a pedido de Nelson (estilo AnimateIcons): cada pestaña hace un pop con spring y un pequeño vaivén al pulsarla, también sobre la pestaña ya activa',
-        'Vuelve el ojito en la tarjeta principal, a pedido de Nelson: oculta el dinero con •••••, sin blur y sin pedir PIN para mostrar (el cambio es directo, para que nunca se quede bloqueado)',
+        'Animación de los iconos de la barra de navegación al tocarlos: cada pestaña responde con un efecto de escala y un leve balanceo, también al tocar la pestaña activa.',
+        'Control de privacidad en la tarjeta principal: el dinero se oculta con ••••• y se muestra de nuevo al tocar el botón, sin desenfoque y sin solicitar PIN.',
+        'Edición de horas trabajadas: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.',
       ],
       en: [
-        'Navbar icons animate on tap, at Nelson’s request (AnimateIcons style): each tab pops with a spring and a small wiggle when pressed, including on the already active tab',
-        'The eye button is back on the main card, at Nelson’s request: it hides money behind •••••, no blur and no PIN asked to reveal it (the toggle is instant, so it can never get stuck)',
+        'Navigation bar icons now animate on tap: each tab responds with a scale effect and a subtle wiggle, including the active tab.',
+        'Privacy control on the main card: amounts are hidden behind ••••• and revealed by tapping the button, without blur and without requiring a PIN.',
+        'Worked-hours editing: the shift date can now be changed and the shift deleted, with prior confirmation.',
       ],
     },
   },
   {
     build: 27,
     version: '1.1.9',
-    fecha: '24 oct 2026',
+    fecha: '2026-10-24',
     notas: {
       es: [
-        'Sin blur: el dinero ya no se oculta — a pedido de Nelson, porque el modo privado se bloqueaba y no se podía quitar. El neto, el neto en vivo y los chips siempre se ven claros, como antes del blur; se retiran el botón del ojito y el interruptor de Dinero oculto (el PIN de bloqueo de la app sigue intacto)',
+        'Se retiró el efecto de desenfoque del modo privado: los montos se muestran siempre con claridad. El botón de privacidad y el interruptor de Dinero oculto se eliminaron; el bloqueo de la app con PIN no se modificó.',
       ],
       en: [
-        'No more blur: money is never hidden — at Nelson’s request, because private mode got stuck hidden and could not be turned off. Net, live net and chips are always shown clear, as before the blur; the eye button and the Hidden money switch are removed (the app PIN lock stays intact)',
+        'The private-mode blur effect was removed: amounts are always shown clearly. The privacy button and the Hidden money switch were removed; the app PIN lock was not modified.',
       ],
     },
   },
   {
     build: 26,
     version: '1.1.8',
-    fecha: '24 oct 2026',
+    fecha: '2026-10-24',
     notas: {
       es: [
-        'Privacidad: los chips de dinero ya no se desbordan — el lienzo del blur era más ancho que el chip y la mancha se salía por los lados; ahora el chip recorta su contenido en su borde redondeado',
-        'Pie de Más con traducción: el crédito y el copyright ahora cambian con el idioma de la app (ES/EN)',
+        'Corrección: el contenido de los chips de dinero ya no se desborda de su borde redondeado.',
+        'El pie de la pantalla Más ahora respeta el idioma seleccionado en la app.',
       ],
       en: [
-        'Privacy: money chips no longer overflow — the blur canvas was wider than the chip and the smear spilled past its edges; the chip now clips its content at its rounded border',
-        'More footer with translation: the credit and copyright lines now follow the app language (ES/EN)',
+        'Fix: money chip content no longer overflows its rounded border.',
+        'The More screen footer now follows the app language.',
       ],
     },
   },
   {
     build: 25,
     version: '1.1.7',
-    fecha: '24 oct 2026',
+    fecha: '2026-10-24',
     notas: {
       es: [
-        'Privacidad: el botón del ojito AHORA ES GRANDE y dice Mostrar/Ocultar — el icono solo de 24×24 era imposible de acertar (Nelson: "no pasa nada al tocarlo")',
-        'Ajustes: interruptor nuevo "Dinero oculto" en Seguridad — salida de emergencia para apagar el modo privado sin PIN si el ojito falla',
-        'NUEVO: pantalla Permisos (Más → Permisos) — todos los permisos que Turniq necesita con su estado real y un botón Permitir en cada uno, más la prueba de alarma de 6 s: Android no concede la pantalla completa ni la batería sin restricción solo por instalar, hay que encenderlos a mano',
-        'Pantalla Permisos: 2 tarjetas más — Alarmas y recordatorios (SCHEDULE_EXACT_ALARM, ahora declarado en el manifiesto) y Mostrar sobre otras apps (SYSTEM_ALERT_WINDOW) — la familia de la alarma queda completa: 5 permisos en Android',
-        'Pie de Más: icono de Instagram + @SoyNelsonHerrera (abre el perfil), "Desarrollado por Nelson Herrera", "© 2026 HiroLifeStudio · Todos los derechos reservados" — todo en el gris del pie (lucide eliminó los iconos de marcas, así que el glifo de Instagram se dibuja a mano con el mismo trazo)',
-        'Pie de Más: quitado el texto @SoyNelsonHerrera — queda solo el icono, que sigue siendo tocable (abre el perfil)',
+        'Botón de privacidad ampliado, con las etiquetas Mostrar y Ocultar.',
+        'Nuevo interruptor «Dinero oculto» en Ajustes → Seguridad.',
+        'Nueva pantalla Permisos (Más → Permisos): muestra el estado de cada permiso requerido y permite otorgarlo, además de incluir una prueba de alarma de 6 segundos.',
+        'Pantalla Permisos: se agregaron los permisos de alarmas y recordatorios y de mostrar sobre otras apps; la lista queda completa con 5 permisos en Android.',
+        'Pie de la pantalla Más: icono de Instagram con enlace al perfil, crédito de desarrollo y aviso de derechos reservados.',
+        'Pie de la pantalla Más: se retiró el texto del usuario de Instagram; el icono conserva su enlace.',
       ],
       en: [
-        'Privacy: the eye button is now BIG and labeled Show/Hide — the lone 24×24 icon was impossible to hit ("nothing happens when I tap it")',
-        'Settings: new "Hidden money" switch in Security — emergency exit to turn private mode off without a PIN if the eye fails',
-        'NEW: Permissions screen (More → Permissions) — every permission Turniq needs with its live status and an Allow button each, plus the 6-second alarm test: Android does not grant full-screen intent or battery exemption just by installing, so they have to be switched on by hand',
-        'Permissions screen: 2 more cards — Alarms & reminders (SCHEDULE_EXACT_ALARM, now declared in the manifest) and Display over other apps (SYSTEM_ALERT_WINDOW) — so the alarm family is complete: 5 items on Android',
-        'More footer: Instagram icon + @SoyNelsonHerrera (opens the profile), "Developed by Nelson Herrera", "© 2026 HiroLifeStudio · All rights reserved" — all in the footer gray (lucide dropped brand icons, so the Instagram glyph is drawn by hand with the same stroke)',
-        'More footer: Instagram handle text removed — icon alone, still tappable (opens the profile)',
+        'Privacy button enlarged, labeled Show and Hide.',
+        'New “Hidden money” switch in Settings → Security.',
+        'New Permissions screen (More → Permissions): shows the status of each required permission with an option to grant it, plus a 6-second alarm test.',
+        'Permissions screen: alarm and reminder permission and display-over-other-apps permission added; the list is complete with 5 permissions on Android.',
+        'More screen footer: Instagram icon linking to the profile, development credit and copyright notice.',
+        'More screen footer: Instagram handle text removed; the icon keeps its link.',
       ],
     },
   },
@@ -84,16 +90,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-24',
     notas: {
       es: [
-        'Privacidad: el blur AHORA SÍ difumina — el cristal esmerilado de expo-blur no difuminaba en Android (solo oscurecía el monto, que quedaba legible); ahora el monto se renderiza con filtro SVG (feGaussianBlur) y queda ilegible de verdad',
-        'Privacidad: bordes del blur SUAVES — el primer filtro recortaba el desenfoque y dejaba borde duro; ahora el lienzo tiene margen de 3σ y el blur se desvanece completo, sin cambiar el tamaño en pantalla',
-        'Semana: ELIMINADO el botón flotante + (no te gustaba) — las tres acciones siguen disponibles: agregar turno en cada día, duplicar semana al final de la pantalla y plantillas en Más',
-        'Ganancias: la lista por trabajo AHORA muestra la semana y tiene sus propias flechas — antes seguía la semana de arriba sin decir cuál era y quedaba pegada a \'Per year\', por eso parecía anual; además ahora incluye la hora extra por trabajo (antes el neto por trabajo la omitía)',
+        'Modo privado: el desenfoque ahora oculta los montos por completo, con bordes suaves.',
+        'Semana: se retiró el botón flotante (+). Agregar turno sigue disponible en cada día, duplicar semana al final de la pantalla y plantillas en Más.',
+        'Ganancias: la lista por trabajo muestra su semana, con sus propias flechas de navegación, e incluye la hora extra por trabajo.',
       ],
       en: [
-        'Privacy: the blur REALLY blurs now — the expo-blur frosted glass did not blur on Android (it only dimmed the amount, which stayed readable); the amount now renders with an SVG filter (feGaussianBlur) and is truly unreadable',
-        'Privacy: blur edges now SOFT — the first filter clipped the blur and left a hard edge; the canvas now has a 3σ margin so the blur fades out fully, without changing on-screen size',
-        'Week: the floating + button is REMOVED (you did not like it) — the three actions remain available: add shift on each day, duplicate week at the bottom of the screen, and templates in More',
-        'Earnings: the per-job list NOW shows its week and has its own arrows — before it silently followed the week selected at the top and sat right under \'Per year\', so it looked annual; it now also includes per-job overtime (the per-job net used to omit it)',
+        'Private mode: blur now fully hides amounts, with soft edges.',
+        'Week: floating (+) button removed. Adding a shift remains available on each day, duplicating a week at the bottom of the screen, and templates in More.',
+        'Earnings: the per-job list shows its week, with its own navigation arrows, and includes per-job overtime.',
       ],
     },
   },
@@ -103,14 +107,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-24',
     notas: {
       es: [
-        'Modo privado mejorado: los montos quedan tras un cristal esmerilado (blur, estilo iOS) en vez de mostrarse como puntitos — el blur gaussiano real de expo-backdrop no es compatible con Expo SDK 52 y se retiró tras fallar el build 24',
-        'Semana: botón flotante + con acciones rápidas (agregar turno, duplicar semana, plantillas) — la bandeja nativa morphlet se retiró: su spec de codegen no la entiende React Native 0.76',
-        'Términos ahora es un acordeón: secciones que se abren y cierran, mucho más cómodo de leer',
+        'Modo privado: los montos se muestran con desenfoque estilo iOS en lugar de puntos.',
+        'Semana: botón flotante (+) con acciones rápidas: agregar turno, duplicar semana y plantillas.',
+        'Términos: secciones plegables para una lectura más cómoda.',
       ],
       en: [
-        'Privacy mode improved: amounts now BLUR with a real native blur (iOS style) instead of showing as dots',
-        'Week: a floating + button that morphs into a quick-actions tray (add shift, duplicate week, templates)',
-        'Terms is now an accordion: sections expand and collapse, much easier to read',
+        'Private mode: amounts are shown with iOS-style blur instead of dots.',
+        'Week: floating (+) button with quick actions: add shift, duplicate week and templates.',
+        'Terms: collapsible sections for easier reading.',
       ],
     },
   },
@@ -120,14 +124,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-23',
     notas: {
       es: [
-        'Estadísticas ARREGLADA: ahora aplica la hora extra por trabajo y por semana como el resto de la app (antes la ignoraba y los números no cuadraban), y el promedio por semana ya divide entre semanas de verdad, no entre meses',
-        'Editar entrada EN VIVO: con un turno en curso, el botón "Editar entrada" junto a Marcar salida te deja corregir la hora real (con atajos de −30/−15/−5/+5 min) — el contador y el neto estimado se recalculan al momento',
-        'Todo en tiempo real: la hoja de detalle de un turno ahora lee los datos vivos — si editas una hora, se refleja al instante sin cerrar y volver a abrir',
+        'Estadísticas: la hora extra se aplica por trabajo y por semana, y el promedio semanal se calcula sobre semanas reales.',
+        'Editar entrada en vivo: con un turno en curso, permite corregir la hora real de entrada con atajos de −30, −15, −5 y +5 minutos; el contador y el neto estimado se recalculan al instante.',
+        'Detalle del turno en tiempo real: los cambios de hora se reflejan sin cerrar y volver a abrir la hoja.',
       ],
       en: [
-        'Statistics FIXED: it now applies overtime per job and per week like the rest of the app (before it ignored overtime and totals did not add up), and the weekly average now divides by real weeks, not months',
-        'Edit clock-in LIVE: with a shift in progress, the "Edit clock-in" button next to Clock out lets you fix the actual time (with −30/−15/−5/+5 min shortcuts) — the timer and estimated net recalculate instantly',
-        'Everything in real time: the shift detail sheet now reads live data — edit a time and it updates on the spot, no need to close and reopen',
+        'Statistics: overtime is applied per job and per week, and the weekly average is calculated over real weeks.',
+        'Live clock-in editing: with a shift in progress, the actual clock-in time can be corrected with −30, −15, −5 and +5 minute shortcuts; the timer and estimated net recalculate instantly.',
+        'Shift detail in real time: time changes are reflected without closing and reopening the sheet.',
       ],
     },
   },
@@ -137,16 +141,16 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
-        'Google Calendar y Gmail: conexión ARREGLADA — Google bloqueaba el acceso (error 400) porque al cliente Android le faltaba activar el esquema de URI personalizado; ya está activado en tu consola y la app usa la redirección correcta',
-        'El engranaje del encabezado ahora abre el menú Más en todas las pantallas (antes te llevaba a Ajustes)',
-        'Sheets: deslizar para cerrar ya funciona bien en Android — el scroll interno ahora usa el sistema de gestos correcto',
-        'Alarma: canales de sonido nuevos sin conflictos (antes la alarma podía quedarse sin sonido) y el permiso de notificaciones ahora se pide desde Ajustes con el diálogo del sistema — actívalo para que la alarma suene',
+        'Google Calendar y Gmail: conexión restablecida con la redirección correcta.',
+        'El engranaje del encabezado abre el menú Más en todas las pantallas.',
+        'Hojas inferiores: el gesto de deslizar para cerrar funciona correctamente en Android.',
+        'Alarma: nuevos canales de sonido y solicitud del permiso de notificaciones desde Ajustes con el diálogo del sistema.',
       ],
       en: [
-        'Google Calendar & Gmail: connection FIXED — Google blocked sign-in (error 400) because the Android client was missing the enabled custom URI scheme; it is now enabled in your console and the app uses the correct redirect',
-        'The header gear now opens the More menu on every screen (before it took you to Settings)',
-        'Sheets: swipe-to-close now works properly on Android — the inner scroll now uses the right gesture system',
-        'Alarm: new conflict-free sound channels (before, the alarm could end up silent) and the notification permission is now requested from Settings with the system dialog — enable it so the alarm can ring',
+        'Google Calendar and Gmail: connection restored with the correct redirect.',
+        'The header gear opens the More menu on every screen.',
+        'Bottom sheets: swipe-to-close works correctly on Android.',
+        'Alarm: new sound channels and notification permission request from Settings with the system dialog.',
       ],
     },
   },
@@ -156,22 +160,22 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
-        'Horas extra POR TRABAJO: el límite semanal se aplica a las horas de cada empleo por separado, ya no a la suma de todos tus trabajos — el dinero ahora cuadra',
-        'PIN del reloj por trabajo (opcional): guárdalo en cada empleo y Turniq te lo muestra al marcar entrada y en el recordatorio del turno',
-        'Arreglado el ojo del neto: volver a mostrar el dinero con PIN ya funciona en Android (antes solo respondía con biometría)',
-        'Alarma: la prueba suena a los 6 segundos para que alcances a cerrar la app, y Ajustes te avisa si faltan los permisos de notificaciones o de batería',
-        'Conectar Google Calendar ahora abre el selector de tu cuenta de Google',
-        'Menú Más rediseñado: iconos limpios sin cuadros de colores, y Ajustes ya no duplica opciones',
-        'Las ventanas (sheets) se cierran deslizando en cualquier parte, sin fallar',
+        'Horas extra por trabajo: el límite semanal se aplica a las horas de cada empleo por separado.',
+        'PIN de marcaje por trabajo (opcional): se guarda en cada empleo y se muestra al marcar entrada y en el recordatorio del turno.',
+        'Corrección: mostrar el dinero con PIN funciona en Android.',
+        'Alarma: la prueba suena a los 6 segundos y Ajustes avisa si faltan los permisos de notificaciones o de batería.',
+        'La conexión con Google Calendar abre el selector de cuenta de Google.',
+        'Menú Más rediseñado: iconos limpios y Ajustes sin opciones duplicadas.',
+        'Las hojas inferiores se cierran deslizando en cualquier parte.',
       ],
       en: [
-        'Overtime PER JOB: the weekly limit now applies to each job on its own, not to all your jobs added together — your money adds up now',
-        'Clock PIN per job (optional): save the PIN you punch at each workplace and Turniq shows it when you clock in and in the shift reminder',
-        'Fixed the net eye toggle: showing your money again with a PIN now works on Android (before it only responded to biometrics)',
-        'Alarm: the test rings after 6 seconds so you can close the app first, and Settings now warns you if notification or battery permissions are missing',
-        'Connecting Google Calendar now opens your Google account picker',
-        'More menu redesigned: clean icons with no colored boxes, and Settings no longer duplicates options',
-        'Sheets now close by swiping anywhere, reliably',
+        'Overtime per job: the weekly limit applies to each job’s hours separately.',
+        'Clock PIN per job (optional): saved per job and shown when clocking in and in the shift reminder.',
+        'Fix: revealing amounts with a PIN works on Android.',
+        'Alarm: the test rings after 6 seconds, and Settings warns when notification or battery permissions are missing.',
+        'Google Calendar connection opens the Google account picker.',
+        'More menu redesigned: clean icons and Settings without duplicated options.',
+        'Bottom sheets close by swiping anywhere.',
       ],
     },
   },
@@ -181,14 +185,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
-        'Conexión con Google rehecha: inicio de sesión oficial, sin pegar códigos raros',
-        'Sincronización automática con Google Calendar: al crear, editar o borrar un turno, su evento se crea, se actualiza o se borra solo',
-        'Gmail ya no muestra errores sin estar conectado, y Calendario ya no se cierra',
+        'Conexión con Google renovada con inicio de sesión oficial.',
+        'Sincronización automática con Google Calendar: crear, editar o borrar un turno crea, actualiza o borra su evento.',
+        'Gmail ya no muestra errores sin conexión y Calendario ya no se cierra de forma inesperada.',
       ],
       en: [
-        'Google connection rebuilt: official sign-in, no pasting codes',
-        'Automatic Google Calendar sync: when you create, edit or delete a shift, its event is created, updated or deleted on its own',
-        'Gmail no longer shows errors while disconnected, and Calendar no longer closes',
+        'Google connection renewed with official sign-in.',
+        'Automatic Google Calendar sync: creating, editing or deleting a shift creates, updates or deletes its event.',
+        'Gmail no longer shows errors while disconnected, and Calendar no longer closes unexpectedly.',
       ],
     },
   },
@@ -198,24 +202,24 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
-        'Icono nuevo: fondo oscuro con la T y el punto azul, a juego con la pantalla de arranque',
-        'Plantillas: pantalla nueva para crear, editar, eliminar y asignar plantillas a un día',
-        'Ajustes: sección Google con acceso directo a Calendario Google y Gmail',
-        'Importar un respaldo ahora fusiona tus datos sin borrar nada, y acepta archivos de Mis Horarios',
-        'Los totales de dinero muestran solo lo que ya trabajaste (Inicio, Semana, Ganancias, Calendario, Estadísticas y Reportes)',
-        'Turnos que cruzan medianoche: se marcan con «+1 día» y las horas se calculan bien',
-        'El menú Más ahora sí se alcanza al volver desde Ajustes',
-        'Novedades: esta pantalla con el historial de versiones',
+        'Icono nuevo: fondo oscuro con la T y el punto azul, a juego con la pantalla de arranque.',
+        'Plantillas: pantalla nueva para crear, editar, eliminar y asignar plantillas a un día.',
+        'Ajustes: sección Google con acceso directo a Google Calendar y Gmail.',
+        'Importar un respaldo fusiona los datos sin borrar nada y acepta archivos de Mis Horarios.',
+        'Los totales de dinero muestran solo lo trabajado (Inicio, Semana, Ganancias, Calendario, Estadísticas y Reportes).',
+        'Turnos que cruzan medianoche: se marcan con «+1 día» y sus horas se calculan correctamente.',
+        'El menú Más es accesible al volver desde Ajustes.',
+        'Novedades: pantalla con el historial de versiones.',
       ],
       en: [
-        'New icon: dark background with the T and the blue dot, matching the splash screen',
-        'Templates: new screen to create, edit, delete and assign templates to a day',
-        'Settings: Google section with direct access to Google Calendar and Gmail',
-        'Importing a backup now merges your data without deleting anything, and accepts Mis Horarios files',
-        'Money totals now show only what you have already worked (Home, Week, Earnings, Calendar, Stats and Reports)',
-        'Overnight shifts: marked with "+1 day" and hours are calculated correctly',
-        'The More menu is now reachable when going back from Settings',
-        "What's new: this version history screen",
+        'New icon: dark background with the T and the blue dot, matching the splash screen.',
+        'Templates: new screen to create, edit, delete and assign templates to a day.',
+        'Settings: Google section with direct access to Google Calendar and Gmail.',
+        'Importing a backup merges data without deleting anything and accepts Mis Horarios files.',
+        'Money totals show only worked time (Home, Week, Earnings, Calendar, Statistics and Reports).',
+        'Overnight shifts: marked with “+1 day” and their hours calculated correctly.',
+        'The More menu is reachable when returning from Settings.',
+        'What’s new: version history screen.',
       ],
     },
   },
@@ -225,14 +229,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
-        'Alarma real de Android: suena a pantalla completa aunque la app esté cerrada, con sonidos a elegir y posponer',
-        'Aviso en pantalla cuando estás trabajando y recordatorio si olvidas marcar la salida',
-        'Diseño unificado: botones sólidos, navegación más compacta y animaciones suaves',
+        'Alarma real de Android: suena a pantalla completa aunque la app esté cerrada, con sonidos a elegir y posponer.',
+        'Aviso en pantalla durante el trabajo y recordatorio si se olvida marcar la salida.',
+        'Diseño unificado: botones sólidos, navegación más compacta y animaciones suaves.',
       ],
       en: [
-        'Real Android alarm: rings full-screen even with the app closed, with sounds to choose from and snooze',
-        'On-screen notice while you are working and a reminder if you forget to clock out',
-        'Unified design: solid buttons, more compact navigation and smooth animations',
+        'Real Android alarm: rings full-screen even with the app closed, with selectable sounds and snooze.',
+        'On-screen notice while working and a reminder if clock-out is forgotten.',
+        'Unified design: solid buttons, more compact navigation and smooth animations.',
       ],
     },
   },
@@ -242,14 +246,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-20',
     notas: {
       es: [
-        'Diseño unificado en toda la app: tarjetas redondeadas, franja superior oscura y barra inferior de vidrio',
-        'Desliza un turno a los lados para duplicarlo, editarlo o eliminarlo',
-        'Avisos (toasts) nuevos al guardar, duplicar o borrar',
+        'Diseño unificado en toda la app: tarjetas redondeadas, franja superior oscura y barra inferior de vidrio.',
+        'Deslizar un turno a los lados para duplicarlo, editarlo o eliminarlo.',
+        'Avisos al guardar, duplicar o borrar.',
       ],
       en: [
-        'Unified design across the app: rounded cards, dark top band and glass bottom bar',
-        'Swipe a shift sideways to duplicate, edit or delete it',
-        'New toast notices when saving, duplicating or deleting',
+        'Unified design across the app: rounded cards, dark top band and glass bottom bar.',
+        'Swipe a shift sideways to duplicate, edit or delete it.',
+        'Notices when saving, duplicating or deleting.',
       ],
     },
   },
@@ -259,10 +263,10 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-19',
     notas: {
       es: [
-        'Corrección importante: tus datos ya no se borran al actualizar la app',
+        'Corrección: los datos ya no se borran al actualizar la app.',
       ],
       en: [
-        'Important fix: your data is no longer wiped when updating the app',
+        'Fix: data is no longer wiped when updating the app.',
       ],
     },
   },

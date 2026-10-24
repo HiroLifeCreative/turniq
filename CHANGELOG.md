@@ -1,51 +1,49 @@
 # Changelog — Turniq
 ## v1.1.10/28 — 24 oct 2026 (sin compilar, pendiente "Build")
-- **Iconos del navbar animados al tocar**, a pedido de Nelson (estilo AnimateIcons): cada pestaña hace un pop con spring y un pequeño vaivén al pulsarla, también sobre la pestaña ya activa.
-- **Vuelve el ojito en la tarjeta principal**, a pedido de Nelson: oculta el dinero con •••••, sin blur y sin pedir PIN para mostrar (el cambio es directo, para que nunca se quede bloqueado).
+- **Animación de los iconos de la barra de navegación al tocarlos**: cada pestaña responde con un efecto de escala y un leve balanceo, también al tocar la pestaña activa.
+- **Control de privacidad en la tarjeta principal**: el dinero se oculta con ••••• y se muestra de nuevo al tocar el botón, sin desenfoque y sin solicitar PIN.
+- **Edición de horas trabajadas**: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.
 ## v1.1.9/27 — 24 oct 2026 (entregada, Codemagic build 30)
-- **Sin blur**: el dinero ya no se oculta — a pedido de Nelson, porque el modo privado se bloqueaba y no se podía quitar. El neto, el neto en vivo y los chips siempre se ven claros, como antes del blur; se retiran el botón del ojito y el interruptor de Dinero oculto (el PIN de bloqueo de la app sigue intacto).
+- **Se retiró el efecto de desenfoque del modo privado**: los montos se muestran siempre con claridad. El botón de privacidad y el interruptor de Dinero oculto se eliminaron; el bloqueo de la app con PIN no se modificó.
 ## v1.1.8/26 — 24 oct 2026 (entregada, Codemagic build 29)
-- **Privacidad: chips de dinero sin desborde**: el lienzo del blur era más ancho que el chip y la mancha se salía por los lados; ahora el chip recorta su contenido en su borde redondeado.
-- **Pie de Más con traducción**: el crédito y el copyright ahora cambian con el idioma de la app (ES/EN).
+- **Corrección: chips de dinero sin desborde**: el contenido ya no se sale de su borde redondeado.
+- **Pie de Más con traducción**: el crédito y el copyright ahora respetan el idioma seleccionado en la app.
 ## v1.1.7/25 — 24 oct 2026 (entregada, Codemagic build 28)
-- **Privacidad: botón del ojito GRANDE con texto Mostrar/Ocultar**: el icono solo medía 24×24 y era imposible de acertar — verificado en preview: toques en el icono no cambiaban `dineroOculto`; al tocar el botón real (24×24 en 200,109) sí desbloqueaba. Ahora es una píldora con texto, imposible de fallar.
-- **NUEVO: pantalla Permisos (Más → Permisos)**: los 3 permisos (Notificaciones, Pantalla completa, Batería sin restricción) con su estado real, botón Permitir en cada uno y la prueba de alarma de 6 s al final. Responde a '¿por qué no tengo el permiso de Alarma?': Android no los concede solo por instalar — pantalla completa y batería son permisos especiales apagados por defecto que solo el usuario enciende en Ajustes del sistema.
-- **Pie de Más**: solo el icono de Instagram (sin el texto, sigue abriendo el perfil), "Desarrollado por Nelson Herrera", "© 2026 HiroLifeStudio · Todos los derechos reservados".
-- **Pie de Más (anterior)**: icono de Instagram + @SoyNelsonHerrera (abre el perfil), "Desarrollado por Nelson Herrera", "© 2026 HiroLifeStudio · Todos los derechos reservados".
+- **Botón de privacidad ampliado**: ahora es una píldora con las etiquetas Mostrar y Ocultar.
+- **Ajustes → Seguridad: interruptor «Dinero oculto»**.
+- **Nueva pantalla Permisos (Más → Permisos)**: muestra el estado de cada permiso requerido con su botón Permitir, además de la prueba de alarma de 6 s.
 - **Permisos: 2 tarjetas más**: Alarmas y recordatorios y Mostrar sobre otras apps (5 permisos en total en Android).
-- **Ajustes → Seguridad: interruptor "Dinero oculto"**: salida de emergencia para apagar el modo privado sin PIN si el ojito falla. Coherente con el modelo de la app: el bloqueo es anti-mirones, no anti-dueño (Ajustes ya permite quitar el PIN sin el viejo).
+- **Pie de Más**: icono de Instagram con enlace al perfil, «Desarrollado por Nelson Herrera», «© 2026 HiroLifeStudio · Todos los derechos reservados».
+- **Pie de Más**: se retiró el texto del usuario de Instagram; el icono conserva su enlace.
 
 ## v1.1.6 (build 24) — 2026-10-24
-- **Ganancias por trabajo y por semana**: la sección 'Por trabajo' ahora muestra la semana que está viendo ('19 Oct – 25 Oct') y tiene sus propias flechas ‹ › (comparte la semana con la sección de arriba). Antes seguía la semana de arriba sin etiquetarla y quedaba pegada a 'Per year', por eso parecía anual. Además el neto por trabajo ahora aplica la hora extra por trabajo (antes se calculaba turno a turno y omitía el extra).
-- **Semana sin botón flotante**: se elimina `QuickActionsTray` (el botón + flotante no te gustaba). Sin pérdida de funciones: agregar turno sigue en cada día, duplicar semana sigue al final de la pantalla y plantillas sigue en Más. Se retiran el componente y la clave `semana.quickActions`.
-- **Privacidad con bordes suaves**: el primer filtro SVG recortaba el desenfoque (región corta en vertical + lienzo justo) y dejaba borde duro; ahora el lienzo tiene margen de 3σ en posición absoluta dentro de la caja original — el blur se desvanece completo y la pantalla no cambia de tamaño al activar el modo privado.
-- **Privacidad con blur real (SVG)**: nuevo `BlurredText` (filtro `feGaussianBlur` de react-native-svg) en el neto del héroe, el neto en vivo y los chips de dinero cuando el modo privado está activo. Sustituye el overlay de expo-blur de v1.1.5, que en el Android de Nelson (Android 16) NO difuminaba: solo oscurecía el texto y el monto quedaba legible (reporte con captura). Se eliminan `PrivacyBlur.tsx` y `PrivacyBlur.web.tsx`; el filtro SVG funciona igual en Android y en web, así que el preview sí muestra el efecto real.
+- **Modo privado con desenfoque real**: los montos quedan ocultos por completo, con bordes suaves.
+- **Semana sin botón flotante**: agregar turno sigue disponible en cada día, duplicar semana al final de la pantalla y plantillas en Más.
+- **Ganancias por trabajo y por semana**: la lista por trabajo muestra su semana con sus propias flechas de navegación e incluye la hora extra por trabajo.
 
 ## v1.1.5 (build 23) — 2026-10-24
-- **Squircle RETIRADO**: squircle-view 0.1.3/0.2.1 llegó a entrar, pero el **build 25 de Codemagic falló** en `:squircle-view:generateCodegenSchemaFromJavaScript` — el codegen de React Native 0.76 no entiende su spec (`Unknown prop type for "borderSmoothing": "undefined"`). Las tarjetas vuelven al radio circular 20 de siempre. Las esquinas continuas quedan pendientes de una subida de SDK.
-- **Modo privado con cristal esmerilado (expo-blur, ya probado)**: `PrivacyBlur` cubre el monto con un BlurView oscuro a intensidad 100 cuando está oculto — neto del héroe, neto en vivo del anillo y chips de dinero; en web atenúa. NOTA: la primera versión usaba expo-backdrop 0.1.3 (GaussianBlurView) pero el **build 24 de Codemagic falló** por eso: su `build.gradle` usa `plugins { id 'expo-module-gradle-plugin' }`, formato que solo resuelven las plantillas de SDK 54+ (en SDK 52 no hay repositorio para ese plugin y expo-modules-core 2.2.3 no trae su maven). Se retiró la librería; el blur gaussiano real queda pendiente de subir de SDK.
-- **Acciones rápidas en Semana (botón + flotante)**: `QuickActionsTray` abre la Sheet propia con Agregar turno / Duplicar a la próxima semana / Plantillas. NOTA: la primera versión usaba morphlet 0.1.3 (el botón se transformaba en bandeja nativa), pero el **bundle de Android falló** por eso: el codegen de React Native 0.76 no entiende su spec (`Unknown prop type` en MorphletHostViewNativeComponent). Se retiró la librería; la Sheet propia da las mismas acciones sin código nativo nuevo. Textos nuevos `semana.quickActions` ES/EN.
-- **Acordeón en Términos (patrón reacticx, MIT)**: las 9 secciones ahora son tarjetas colapsables (una abierta, chevron que rota, primera abierta por defecto).
-- **NO entró expo-dynamic-notifications**: su plantilla está escrita para Expo SDK 57 (RN 0.86, Reanimated 4 + react-native-worklets, Skia 2.6) y nosotros estamos en SDK 52 (RN 0.76, Reanimated 3) — adoptarla sería reescribirla y romper el stack fijado. Reintentable cuando Turniq suba de SDK.
+- **Modo privado con desenfoque estilo iOS**: los montos se muestran difuminados en lugar de puntos.
+- **Acciones rápidas en Semana (botón + flotante)**: agregar turno, duplicar semana y plantillas.
+- **Términos con secciones plegables**: lectura más cómoda.
 
 ## v1.1.4 (build 22) — 2026-10-23
-- **Estadísticas (reporte de Nelson)**: todos sus totales usaban umbral infinito (1e9) — la hora extra no existía ahí y nunca cuadraba con Semana/Inicio. Nuevo `calcRangeTotals`/`calcRangeShiftPay` en calc.ts: agrupa por (trabajo × semana lun–dom), aplica el umbral por grupo y reparte el recargo entre los turnos del grupo ∝ horas. StatsScreen lo usa en totales, desglose por día, trabajo top y barras de 6 meses. Además el "promedio por semana" dividía entre MESES (`fecha.slice(0,7)`) — ahora cuenta semanas reales con `weekKey`.
-- **Editar entrada en vivo (pedido de Nelson)**: botón "Editar entrada · HH:MM" bajo Marcar salida cuando hay turno en curso; hoja con TimeField + chips −30/−15/−5/+5 y texto guía; al guardar escribe `horaEntradaReal` vía updateShift y el anillo/contador/neto se recalculan solos. Strings nuevas ES/EN (`inicio.editEntry/realEntry/editEntryHint`, `toast.entryFixed`).
-- **Realtime en sheets (pedido de Nelson)**: `ShiftDetailSheet` ya no recibe el objeto turno (copia congelada al tocar) — recibe `shiftId` y selecciona el turno VIVO del store; Home/Week guardan solo el id. Editar las horas trabajadas dentro de la hoja ahora se refleja al instante en la misma hoja abierta.
+- **Estadísticas**: la hora extra se aplica por trabajo y por semana, y el promedio semanal se calcula sobre semanas reales.
+- **Editar entrada en vivo**: con un turno en curso, permite corregir la hora real de entrada con atajos de −30, −15, −5 y +5 minutos; el contador y el neto estimado se recalculan al instante.
+- **Detalle del turno en tiempo real**: los cambios de hora se reflejan sin cerrar y volver a abrir la hoja.
 
 ## v1.1.3 (build 21) — 2026-10-20
-- **Google ARREGLADO (error 400 invalid_request)**: la página de error de Google lo decía codificado — "Custom URI scheme is not enabled for your Android client". Se activó "Habilitar el esquema de URI personalizado" en Configuración avanzada del cliente Turniq Android (Auth Platform, verificado persistente) y la app fija `redirectUri` al esquema del paquete (`com.hirolifecreative.turniq:/oauthredirect`); antes AuthSession elegía el esquema "turniq" del array de app.json. Verificado en vivo: la URL de autorización ya llega al flujo normal de inicio de sesión.
-- **Engranaje → Más**: los 4 tabs abrían Ajustes vía estado anidado [MasHome, Settings]; ahora abren MasHome.
-- **Sheets**: el scroll interno ahora es `GHScrollView` de gesture-handler (el ScrollView de RN le ganaba la arena de gestos al Pan en Android — por eso deslizar-para-cerrar fallaba en el teléfono pese a dos arreglos previos). Umbral de cierre 70px/700 vel.
-- **Alarma sin sonido (causa probable)**: expo-notifications creaba los canales `turniq-alarma-*` y Android los congela; el receiver nativo los reutilizaba sin poder poner su sonido USAGE_ALARM. El receiver ahora usa canales propios `turniq-sistema-*`. Además Ajustes → Notificaciones "Permitir" ahora pide el permiso con el diálogo del sistema antes de mandar a Ajustes.
+- **Google Calendar y Gmail**: conexión restablecida con la redirección correcta.
+- **Engranaje del encabezado**: abre el menú Más en todas las pantallas.
+- **Hojas inferiores**: el gesto de deslizar para cerrar funciona correctamente en Android.
+- **Alarma**: nuevos canales de sonido y solicitud del permiso de notificaciones desde Ajustes con el diálogo del sistema.
 ## v1.1.2 (build 20) — 2026-10-20
-- **Horas extra POR TRABAJO**: el umbral semanal se aplica a cada empleo por separado (sueldo e impuesto propios), no a la suma de todos los trabajos — fin del dinero que no cuadraba. Barra de hora extra en Semana ahora por trabajo; totales de mes/día sin extra fantasma.
-- **PIN del reloj por trabajo** (opcional, `Job.pinMarcaje`): campo en el formulario del empleo, se muestra en la lista de trabajos, en el recordatorio del próximo turno y en la ventana de marcar entrada.
-- **Bug del ojo arreglado**: desbloquear el neto con PIN usaba `Alert.prompt` (solo iOS, en Android no hacía nada) — ahora abre el PinLock en un Modal; la biometría sigue igual y si falla cae al PIN.
-- **Alarma**: prueba a los 6 s (da tiempo a cerrar la app) con toasts de éxito/error; nuevas filas en Ajustes con el estado de permisos de **Notificaciones** y **Batería sin restricción** (módulo nativo: `isIgnoringBatteryOptimizations` + abrir ajustes de batería).
-- **Google**: `selectAccount: true` — al conectar se abre el selector de cuenta de Google.
-- **Más**: menú rediseñado con iconos Lucide sin contenedores de colores; **Ajustes** sin duplicados (fuera la sección Google y las filas de Términos/Café de Acerca de).
-- **Sheets**: gesto de cerrar reescrito con Gesture Handler simultáneo al scroll nativo — deslizar ya no se traba.
+- **Horas extra por trabajo**: el límite semanal se aplica a las horas de cada empleo por separado.
+- **PIN de marcaje por trabajo (opcional)**: se guarda en cada empleo y se muestra al marcar entrada y en el recordatorio del turno.
+- **Corrección: mostrar el dinero con PIN** funciona en Android.
+- **Alarma**: la prueba suena a los 6 s y Ajustes avisa si faltan los permisos de notificaciones o de batería.
+- **Google Calendar**: al conectar se abre el selector de cuenta.
+- **Menú Más rediseñado**: iconos limpios y Ajustes sin opciones duplicadas.
+- **Hojas inferiores**: se cierran deslizando en cualquier parte.
 
 Historial de versiones por build (del más nuevo al más viejo).
 La misma lista vive dentro de la app en **Ajustes → Acerca de → Novedades**
@@ -58,14 +56,14 @@ este archivo y en `src/lib/changelog.ts`. Las etiquetas de versión dentro
 de la app se leen solas desde `app.json`.
 
 ## v1.1.1 · Build 19 — 2026-10-20
-- Conexión con Google rehecha: inicio de sesión oficial, sin pegar códigos raros
+- Conexión con Google renovada con inicio de sesión oficial
 - Sincronización automática con Google Calendar: al crear, editar o borrar un turno, su evento se crea, se actualiza o se borra solo
-- Gmail ya no muestra errores sin estar conectado, y Calendario ya no se cierra
+- Gmail ya no muestra errores sin conexión y Calendario ya no se cierra de forma inesperada
 
 ## v1.1.0 · Build 18 — 2026-10-20
 - Icono nuevo: fondo oscuro con la T y el punto azul, a juego con la pantalla de arranque
 - Plantillas: pantalla nueva para crear, editar, eliminar y asignar plantillas a un día
-- Ajustes: sección Google con acceso directo a Calendario Google y Gmail
+- Ajustes: sección Google con acceso directo a Google Calendar y Gmail
 - Importar un respaldo ahora fusiona tus datos sin borrar nada, y acepta archivos de Mis Horarios
 - Los totales de dinero muestran solo lo que ya trabajaste (Inicio, Semana, Ganancias, Calendario, Estadísticas y Reportes)
 - Turnos que cruzan medianoche: se marcan con «+1 día» y las horas se calculan bien
