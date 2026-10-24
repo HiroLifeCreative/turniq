@@ -61,17 +61,18 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
           {/* Pie: versión + Instagram + crédito, todo en el gris del
               pie original (p.text3). El texto del crédito lo dictó
               Nelson (24 oct 2026): desarrollo suyo, copyright de
-              HiroLifeStudio. No se traduce: es texto de marca. */}
+              HiroLifeStudio. No se traduce: es texto de marca.
+              El icono de Instagram va SOLO, sin el texto del usuario
+              (24 oct 2026, 09:00), pero sigue abriendo el perfil. */}
           <Text style={{ textAlign: 'center', fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>
             Turniq {APP_VERSION}
           </Text>
           <TouchableOpacity
             onPress={() => void Linking.openURL('https://www.instagram.com/SoyNelsonHerrera')}
             activeOpacity={0.6}
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: SP.sm, gap: 6 }}
+            style={{ alignItems: 'center', justifyContent: 'center', marginTop: SP.sm, padding: 8 }}
           >
             <Icon name="instagram" size={16} color={p.text3} />
-            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>@SoyNelsonHerrera</Text>
           </TouchableOpacity>
           <Text style={{ textAlign: 'center', fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: SP.sm }}>
             Desarrollado por Nelson Herrera

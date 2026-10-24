@@ -23,6 +23,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         'NUEVO: pantalla Permisos (Más → Permisos) — todos los permisos que Turniq necesita con su estado real y un botón Permitir en cada uno, más la prueba de alarma de 6 s: Android no concede la pantalla completa ni la batería sin restricción solo por instalar, hay que encenderlos a mano',
         'Pantalla Permisos: 2 tarjetas más — Alarmas y recordatorios (SCHEDULE_EXACT_ALARM, ahora declarado en el manifiesto) y Mostrar sobre otras apps (SYSTEM_ALERT_WINDOW) — la familia de la alarma queda completa: 5 permisos en Android',
         'Pie de Más: icono de Instagram + @SoyNelsonHerrera (abre el perfil), "Desarrollado por Nelson Herrera", "© 2026 HiroLifeStudio · Todos los derechos reservados" — todo en el gris del pie (lucide eliminó los iconos de marcas, así que el glifo de Instagram se dibuja a mano con el mismo trazo)',
+        'Pie de Más: quitado el texto @SoyNelsonHerrera — queda solo el icono, que sigue siendo tocable (abre el perfil)',
       ],
       en: [
         'Privacy: the eye button is now BIG and labeled Show/Hide — the lone 24×24 icon was impossible to hit ("nothing happens when I tap it")',
@@ -30,6 +31,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         'NEW: Permissions screen (More → Permissions) — every permission Turniq needs with its live status and an Allow button each, plus the 6-second alarm test: Android does not grant full-screen intent or battery exemption just by installing, so they have to be switched on by hand',
         'Permissions screen: 2 more cards — Alarms & reminders (SCHEDULE_EXACT_ALARM, now declared in the manifest) and Display over other apps (SYSTEM_ALERT_WINDOW) — so the alarm family is complete: 5 items on Android',
         'More footer: Instagram icon + @SoyNelsonHerrera (opens the profile), "Developed by Nelson Herrera", "© 2026 HiroLifeStudio · All rights reserved" — all in the footer gray (lucide dropped brand icons, so the Instagram glyph is drawn by hand with the same stroke)',
+        'More footer: Instagram handle text removed — icon alone, still tappable (opens the profile)',
       ],
     },
   },
