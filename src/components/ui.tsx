@@ -731,6 +731,20 @@ import {
   Scale as LucideScale,
   KeyRound as LucideKeyRound,
 } from 'lucide-react-native';
+import Svg, { Rect, Path, Line } from 'react-native-svg';
+
+/** Glifo de Instagram (lucide eliminó los iconos de marcas en la
+ *  versión instalada): mismo trazo que los iconos lucide — viewBox 24,
+ *  stroke 2, puntas redondas. Se usa como un icono más vía `Icon`. */
+function InstagramIcon({ size = 24, color = '#000', strokeWidth = 2 }: { size?: number; color?: string; strokeWidth?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <Path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <Line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </Svg>
+  );
+}
 
 const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
   settings: LucideSettings,
@@ -758,6 +772,7 @@ const LUCIDE_ICONS: Record<string, React.ComponentType<any>> = {
   coffee: LucideCoffee,
   scale: LucideScale,
   key: LucideKeyRound,
+  instagram: InstagramIcon,
 };
 
 export function Icon({ name, size = ICON.md, color }: { name: string; size?: number; color: string }) {
