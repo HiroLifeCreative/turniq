@@ -1,4 +1,12 @@
 # Changelog — Turniq
+## v1.1.5 (build 23) — 2026-10-24
+- **Squircle (squircle-view 0.2.1, rit3zh)**: `Card`, `TintedCard`, `ContentSheet`, héroe de Inicio y tarjetas de próximos turnos envueltos en `SquircleView` (borderSmoothing 0.6, la curva continua de Apple). En web cae a View normal (el preview no lo muestra; se juzga en el teléfono). TipsScreen: su Card con padding externo se ajustó al nuevo Card (padding interno fijo).
+- **Modo privado con blur real (expo-backdrop 0.1.3)**: nuevo `PrivacyBlur` (nativo `GaussianBlurView`; en web atenúa) aplicado al neto del héroe (r13), al neto en vivo del anillo (r9) y a los chips de dinero (r7) — adiós puntitos "••••".
+- **Bandeja de acciones rápidas (morphlet 0.1.3)**: `QuickActionsTray` flotante en Semana (botón + sólido que se transforma en bandeja: Agregar turno / Duplicar a la próxima semana / Plantillas, con `useTray().close()` antes de cada acción). Fallback web con la Sheet propia. Textos nuevos `semana.quickActions` ES/EN.
+- **Acordeón en Términos (patrón reacticx, MIT)**: las 9 secciones ahora son tarjetas colapsables (una abierta, chevron que rota, primera abierta por defecto).
+- **app.json**: `newArchEnabled: true` explícito (lo exigen squircle-view y morphlet; Expo 52 ya lo traía por defecto).
+- **NO entró expo-dynamic-notifications**: su plantilla está escrita para Expo SDK 57 (RN 0.86, Reanimated 4 + react-native-worklets, Skia 2.6) y nosotros estamos en SDK 52 (RN 0.76, Reanimated 3) — adoptarla sería reescribirla y romper el stack fijado. Reintentable cuando Turniq suba de SDK.
+
 ## v1.1.4 (build 22) — 2026-10-23
 - **Estadísticas (reporte de Nelson)**: todos sus totales usaban umbral infinito (1e9) — la hora extra no existía ahí y nunca cuadraba con Semana/Inicio. Nuevo `calcRangeTotals`/`calcRangeShiftPay` en calc.ts: agrupa por (trabajo × semana lun–dom), aplica el umbral por grupo y reparte el recargo entre los turnos del grupo ∝ horas. StatsScreen lo usa en totales, desglose por día, trabajo top y barras de 6 meses. Además el "promedio por semana" dividía entre MESES (`fecha.slice(0,7)`) — ahora cuenta semanas reales con `weekKey`.
 - **Editar entrada en vivo (pedido de Nelson)**: botón "Editar entrada · HH:MM" bajo Marcar salida cuando hay turno en curso; hoja con TimeField + chips −30/−15/−5/+5 y texto guía; al guardar escribe `horaEntradaReal` vía updateShift y el anillo/contador/neto se recalculan solos. Strings nuevas ES/EN (`inicio.editEntry/realEntry/editEntryHint`, `toast.entryFixed`).

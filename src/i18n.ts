@@ -32,6 +32,7 @@ const es = {
     editEntryHint: '¿Marcaste en el reloj del trabajo y olvidaste marcar en la app? Pon la hora real: el contador y el dinero se recalculan al momento.',
   },
   semana: {
+    quickActions: 'Acciones rápidas',
     turno: 'turno',
     turnos: 'turnos',
     pasado: 'Horario pasado',
@@ -408,6 +409,7 @@ const en: Strings = {
     editEntryHint: 'Clocked in at work but forgot to tap the app? Set the real time here: the timer and money recalculate instantly.',
   },
   semana: {
+    quickActions: 'Quick actions',
     turno: 'shift',
     turnos: 'shifts',
     pasado: 'Past',

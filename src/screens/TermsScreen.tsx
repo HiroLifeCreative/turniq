@@ -1,10 +1,11 @@
 /** Términos y condiciones + política de datos locales. */
 import React from 'react';
-import {  View, Text, ScrollView } from 'react-native';
+import {  View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ContentSheet,  Screen, TopBar, useTheme, useT } from '../components/ui';
+import { ContentSheet,  Screen, TopBar, Icon, useTheme, useT } from '../components/ui';
+import { MotiView } from 'moti';
 import { useStore } from '../store';
-import { SP, FONT, TYPE } from '../theme/tokens';
+import { SP, FONT, TYPE, ICON } from '../theme/tokens';
 
 interface Section {
   h: string;
@@ -148,6 +149,9 @@ export function TermsScreen() {
   const nav = useNavigation();
   const idioma = useStore((s) => s.settings.idioma);
   const content = CONTENT[idioma === 'en' ? 'en' : 'es'];
+  // Acordeón (patrón adaptado del catálogo reacticx, MIT): una
+  // sección abierta a la vez; la primera entra abierta.
+  const [open, setOpen] = React.useState(0);
 
   return (
     <Screen banded>
@@ -155,16 +159,50 @@ export function TermsScreen() {
       <ContentSheet>
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
         <Text style={{ fontSize: TYPE.caption, color: p.text3, marginBottom: SP.lg }}>{content.updated}</Text>
-        {content.sections.map((s) => (
-          <View key={s.h} style={{ marginBottom: SP.lg }}>
-            <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: p.text, marginBottom: SP.xs }}>{s.h}</Text>
-            {s.body.map((par, i) => (
-              <Text key={i} style={{ fontSize: TYPE.caption + 1, lineHeight: 21, color: p.text2, marginBottom: SP.xs }}>
-                {par}
-              </Text>
-            ))}
-          </View>
-        ))}
+        {content.sections.map((s, i) => {
+          const isOpen = open === i;
+          return (
+            <View
+              key={s.h}
+              style={{
+                backgroundColor: p.card,
+                borderRadius: 20,
+                borderWidth: 0.5,
+                borderColor: p.line,
+                marginBottom: SP.sm,
+                overflow: 'hidden',
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setOpen(isOpen ? -1 : i)}
+                activeOpacity={0.7}
+                style={{ flexDirection: 'row', alignItems: 'center', padding: SP.lg }}
+              >
+                <Text style={{ flex: 1, fontFamily: FONT.headBold, fontSize: TYPE.body, color: p.text }}>{s.h}</Text>
+                <MotiView
+                  animate={{ rotate: isOpen ? '180deg' : '0deg' }}
+                  transition={{ type: 'timing', duration: 220 }}
+                >
+                  <Icon name="chevronDown" size={ICON.md} color={p.text3} />
+                </MotiView>
+              </TouchableOpacity>
+              {isOpen && (
+                <MotiView
+                  from={{ opacity: 0, translateY: -6 }}
+                  animate={{ opacity: 1, translateY: 0 }}
+                  transition={{ type: 'timing', duration: 220 }}
+                  style={{ paddingHorizontal: SP.lg, paddingBottom: SP.lg }}
+                >
+                  {s.body.map((par, j) => (
+                    <Text key={j} style={{ fontSize: TYPE.caption + 1, lineHeight: 21, color: p.text2, marginBottom: SP.xs }}>
+                      {par}
+                    </Text>
+                  ))}
+                </MotiView>
+              )}
+            </View>
+          );
+        })}
       </ScrollView>
       </ContentSheet>
     </Screen>

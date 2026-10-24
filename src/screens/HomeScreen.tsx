@@ -9,6 +9,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
 import { ShiftForm, TimeField } from '../components/ShiftForm';
+import { PrivacyBlur } from '../components/PrivacyBlur';
+import { SquircleView } from 'squircle-view';
 import { PinLock } from './PinLock';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
@@ -92,9 +94,6 @@ export function HomeScreen() {
     }
   };
   const hidden = settings.dineroOculto;
-  const MoneyHidden = () => (
-    <Text style={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: 2, color: 'rgba(255,255,255,0.5)' }}>••••••</Text>
-  );
 
   const today = todayYmd();
   const byId = jobsById(jobs);
@@ -241,13 +240,17 @@ export function HomeScreen() {
           from={{ opacity: 0, translateY: 16 }}
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ type: 'timing', duration: 500 }}
-          style={{ borderRadius: 28, marginBottom: SP.md, overflow: 'hidden' }}
+          style={{ borderRadius: 28, marginBottom: SP.md }}
+        >
+        <SquircleView
+          borderSmoothing={0.6}
+          style={{ borderRadius: 28, backgroundColor: DARK_CARD, overflow: 'hidden', shadowColor: '#6B7A99', shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 8 }}
         >
         <LinearGradient
           colors={[DARK_CARD_2, DARK_CARD]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 28, padding: SP.xl, overflow: 'hidden', shadowColor: '#6B7A99', shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 8 }}
+          style={{ borderRadius: 28, padding: SP.xl, overflow: 'hidden' }}
         >
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
@@ -272,9 +275,7 @@ export function HomeScreen() {
             )}
           </View>
 
-          {hidden ? (
-            <MoneyHidden />
-          ) : (
+          <PrivacyBlur active={hidden} radius={13}>
             <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
               <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
               <AnimatedRollingNumbers
@@ -284,7 +285,7 @@ export function HomeScreen() {
                 textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
               />
             </View>
-          )}
+          </PrivacyBlur>
 
           {/* Reloj en vivo con ANILLO de progreso (estilo Focus) */}
           {openShift && (() => {
@@ -333,9 +334,7 @@ export function HomeScreen() {
                     <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                       {t.inicio.netoEstimado}
                     </Text>
-                    {hidden ? (
-                      <Text style={{ fontFamily: FONT.headBold, fontSize: 24, letterSpacing: 2, color: 'rgba(255,255,255,0.5)' }}>••••</Text>
-                    ) : (
+                    <PrivacyBlur active={hidden} radius={9}>
                       <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                         <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
                         <AnimatedRollingNumbers
@@ -345,7 +344,7 @@ export function HomeScreen() {
                           textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
                         />
                       </View>
-                    )}
+                    </PrivacyBlur>
                     {openShift.horaSalida && (
                       <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
                         {t.inicio.salidaProg} {hmTo12h(openShift.horaSalida, esFmt)} · {Math.round(pct * 100)}%
@@ -365,12 +364,15 @@ export function HomeScreen() {
               { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes, money: true },
             ].map((c, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center' }}>
-                <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.money && hidden ? '••••' : c.v}</Text>
+                <PrivacyBlur active={hidden && c.money} radius={7}>
+                  <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
+                </PrivacyBlur>
                 <Text style={{ fontFamily: FONT.mono, fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l}</Text>
               </View>
             ))}
           </View>
         </LinearGradient>
+        </SquircleView>
         </MotiView>
 
         {/* CLOCK */}
@@ -521,7 +523,11 @@ export function HomeScreen() {
             const isToday = s.fecha === today;
             return (
               <MotiView key={s.id} from={{ opacity: 0, translateY: 12 }} animate={{ opacity: 1, translateY: 0 }} transition={{ delay: idx * 80 }}>
-                <TouchableOpacity onPress={goWeek} activeOpacity={0.7} style={{ marginBottom: SP.sm, borderRadius: 20, shadowColor: '#6B7A99', shadowOpacity: 0.2, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 5 }}>
+                <TouchableOpacity onPress={goWeek} activeOpacity={0.7} style={{ marginBottom: SP.sm }}>
+                  <SquircleView
+                    borderSmoothing={0.6}
+                    style={{ borderRadius: 20, backgroundColor: p.bg === '#0B0B0C' ? '#17171A' : '#F8F9FB', overflow: 'hidden', shadowColor: '#6B7A99', shadowOpacity: 0.2, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 5 }}
+                  >
                   <LinearGradient
                     colors={p.bg === '#0B0B0C' ? ['#1E1E22', '#17171A'] : ['#FFFFFF', '#F8F9FB']}
                     start={{ x: 0, y: 0 }}
@@ -549,6 +555,7 @@ export function HomeScreen() {
                       </View>
                     )}
                   </LinearGradient>
+                  </SquircleView>
                 </TouchableOpacity>
               </MotiView>
             );

@@ -7,6 +7,7 @@ import {Screen, H1, Card, TintedCard, Btn, Label, Confirm, useTheme, useT, Heade
 import { MotiView } from 'moti';
 import { ShiftForm } from '../components/ShiftForm';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
+import { QuickActionsTray } from '../components/QuickActionsTray';
 import { useToast } from '../components/Toast';
 import { SwipeRow } from '../components/SwipeRow';
 import { useStore, jobsById, type Shift } from '../store';
@@ -450,6 +451,13 @@ export function WeekScreen() {
       />
 
       <ShiftForm visible={formOpen} onClose={() => setFormOpen(false)} editing={editing} defaultDate={newDate} />
+
+      {/* Bandeja flotante + : acciones rápidas de la semana (morphlet) */}
+      <QuickActionsTray
+        onNewShift={() => { setEditing(null); setNewDate(offset === 0 ? todayYmd() : ymd(monday)); setFormOpen(true); }}
+        onDuplicateWeek={doDuplicate}
+        onOpenTemplates={() => (nav.navigate as any)('Mas', { state: { index: 1, routes: [{ name: 'MasHome' }, { name: 'Templates' }] } })}
+      />
       <Confirm
         visible={confirmId !== null}
         message={t.today.confirmDelete}
