@@ -3,6 +3,7 @@ import React from 'react';
 import { Text, View, TouchableOpacity, useWindowDimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MotiView } from 'moti';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
@@ -72,6 +73,99 @@ function MasNavigator() {
       <MasStack.Screen name="Gmail" component={GmailScreen} />
       <MasStack.Screen name="Terms" component={TermsScreen} />
     </MasStack.Navigator>
+  );
+}
+
+/** Una pestaña del dock: píldora azul con spring al activarse + icono
+ *  animado AL TOCAR (pedido de Nelson, estilo AnimateIcons): pop con
+ *  spring y pequeño vaivén. Se dispara en cada pulsación, también sobre
+ *  la pestaña ya activa (ahí no navega, pero el icono sí se anima).
+ *  Componente aparte para que cada pestaña tenga su propio shared value
+ *  de Reanimated sin romper las reglas de hooks dentro del map. */
+function DockTab({
+  route,
+  focused,
+  navigation,
+  BTN_H,
+  W_ON,
+  W_OFF,
+  ICON_SZ,
+  activeFg,
+  inactiveFg,
+}: {
+  route: { key: string; name: string };
+  focused: boolean;
+  navigation: BottomTabBarProps['navigation'];
+  BTN_H: number;
+  W_ON: number;
+  W_OFF: number;
+  ICON_SZ: number;
+  activeFg: string;
+  inactiveFg: string;
+}) {
+  const fg = focused ? activeFg : inactiveFg;
+  const scale = useSharedValue(1);
+  const rotate = useSharedValue(0);
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }, { rotate: `${rotate.value}deg` }],
+  }));
+  const playTap = () => {
+    scale.value = withSequence(
+      withSpring(1.35, { damping: 11, stiffness: 320 }),
+      withSpring(1, { damping: 15, stiffness: 280 }),
+    );
+    rotate.value = withSequence(
+      withTiming(-10, { duration: 90 }),
+      withTiming(8, { duration: 90 }),
+      withTiming(0, { duration: 130 }),
+    );
+  };
+  return (
+    <MotiView
+      animate={{ width: focused ? W_ON : W_OFF }}
+      transition={{ type: 'spring', damping: 26, stiffness: 320 }}
+      style={{
+        height: BTN_H,
+        borderRadius: 999,
+        overflow: 'hidden',
+        backgroundColor: focused ? '#0392FF' : 'transparent',
+        shadowColor: '#0392FF',
+        shadowOpacity: focused ? 0.38 : 0,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 3 },
+        elevation: focused ? 4 : 0,
+      }}
+    >
+      <TouchableOpacity
+        accessibilityRole="button"
+        accessibilityState={{ selected: focused }}
+        activeOpacity={0.7}
+        onPress={() => {
+          playTap();
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!focused && !event.defaultPrevented) {
+            void Haptics.selectionAsync();
+            navigation.navigate(route.name as never);
+          }
+        }}
+        style={{
+          flex: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 10,
+          borderRadius: 999,
+        }}
+      >
+        <Animated.View style={iconStyle}>
+          <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON_SZ} color={fg} />
+        </Animated.View>
+      </TouchableOpacity>
+    </MotiView>
   );
 }
 
@@ -151,53 +245,21 @@ function TabsNavigator() {
           >
             {props.state.routes.map((route, index) => {
               const focused = activeIdx === index;
-              const fg = focused ? activeFg : p.text3;
               // SIN texto en ningún tab (Nelson): solo iconos. La activa es
               // píldora azul un poco más ancha; inactivas compactas de 50px.
               return (
-                <MotiView
+                <DockTab
                   key={route.key}
-                  animate={{ width: focused ? W_ON : W_OFF }}
-                  transition={{ type: 'spring', damping: 26, stiffness: 320 }}
-                  style={{
-                    height: BTN_H,
-                    borderRadius: 999,
-                    overflow: 'hidden',
-                    backgroundColor: focused ? '#0392FF' : 'transparent',
-                    shadowColor: '#0392FF',
-                    shadowOpacity: focused ? 0.38 : 0,
-                    shadowRadius: 10,
-                    shadowOffset: { width: 0, height: 3 },
-                    elevation: focused ? 4 : 0,
-                  }}
-                >
-                  <TouchableOpacity
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: focused }}
-                    activeOpacity={0.7}
-                    onPress={() => {
-                      const event = props.navigation.emit({
-                        type: 'tabPress',
-                        target: route.key,
-                        canPreventDefault: true,
-                      });
-                      if (!focused && !event.defaultPrevented) {
-                        void Haptics.selectionAsync();
-                        props.navigation.navigate(route.name as never);
-                      }
-                    }}
-                    style={{
-                      flex: 1,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 10,
-                      borderRadius: 999,
-                    }}
-                  >
-                    <Icon name={TAB_ICONS[route.name as keyof TabsParamList]} size={ICON_SZ} color={fg} />
-                  </TouchableOpacity>
-                </MotiView>
+                  route={route}
+                  focused={focused}
+                  navigation={props.navigation}
+                  BTN_H={BTN_H}
+                  W_ON={W_ON}
+                  W_OFF={W_OFF}
+                  ICON_SZ={ICON_SZ}
+                  activeFg={activeFg}
+                  inactiveFg={p.text3}
+                />
               );
             })}
           </View>

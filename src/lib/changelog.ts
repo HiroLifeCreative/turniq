@@ -13,6 +13,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 28,
+    version: '1.1.10',
+    fecha: '24 oct 2026',
+    notas: {
+      es: [
+        'Iconos del navbar animados al tocar, a pedido de Nelson (estilo AnimateIcons): cada pestaña hace un pop con spring y un pequeño vaivén al pulsarla, también sobre la pestaña ya activa',
+      ],
+      en: [
+        'Navbar icons animate on tap, at Nelson’s request (AnimateIcons style): each tab pops with a spring and a small wiggle when pressed, including on the already active tab',
+      ],
+    },
+  },
+  {
     build: 27,
     version: '1.1.9',
     fecha: '24 oct 2026',

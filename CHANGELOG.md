@@ -1,4 +1,6 @@
 # Changelog — Turniq
+## v1.1.10/28 — 24 oct 2026 (sin compilar, pendiente "Build")
+- **Iconos del navbar animados al tocar**, a pedido de Nelson (estilo AnimateIcons): cada pestaña hace un pop con spring y un pequeño vaivén al pulsarla, también sobre la pestaña ya activa.
 ## v1.1.9/27 — 24 oct 2026 (entregada, Codemagic build 30)
 - **Sin blur**: el dinero ya no se oculta — a pedido de Nelson, porque el modo privado se bloqueaba y no se podía quitar. El neto, el neto en vivo y los chips siempre se ven claros, como antes del blur; se retiran el botón del ojito y el interruptor de Dinero oculto (el PIN de bloqueo de la app sigue intacto).
 ## v1.1.8/26 — 24 oct 2026 (entregada, Codemagic build 29)
