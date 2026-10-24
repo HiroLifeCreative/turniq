@@ -4,8 +4,8 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { Sheet, Icon, Confirm, useTheme, useT } from './ui';
 import { useStore, jobsById, type Shift } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
-import { hmTo12h, parseYmd, shortDate } from '../lib/dates';
-import { scheduledHours, workedHours, fmtHours, fmtMoney, isOvernight } from '../lib/calc';
+import { hmTo12h, parseYmd, shortDate, todayYmd, rangeLabelWithDates } from '../lib/dates';
+import { scheduledHours, workedHours, fmtHours, fmtMoney } from '../lib/calc';
 import { TimeField, DateField } from './ShiftForm';
 
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
@@ -52,6 +52,7 @@ export function ShiftDetailSheet({
   const [confirmDel, setConfirmDel] = React.useState(false);
   const [editWorked, setEditWorked] = React.useState(false);
   const [wDate, setWDate] = React.useState('');
+  const [wDateSalida, setWDateSalida] = React.useState('');
   const [wIn, setWIn] = React.useState('');
   const [wOut, setWOut] = React.useState('');
 
@@ -84,12 +85,12 @@ export function ShiftDetailSheet({
 
         <StackRow
           label={t.shift.scheduled}
-          value={`${hmTo12h(shift.horaEntrada, esFmt)} – ${shift.horaSalida ? hmTo12h(shift.horaSalida, esFmt) : '…'}${isOvernight(shift.horaEntrada, shift.horaSalida) ? ` ${t.shift.nextDay}` : ''}`}
+          value={rangeLabelWithDates(shift.fecha, shift.horaEntrada, shift.fechaSalida, shift.horaSalida, esFmt, t.months)}
           sub={fmtHours(hrsProg)}
         />
         <StackRow
           label={t.shift.worked}
-          value={hasWorked ? `${hmTo12h(shift.horaEntradaReal!, esFmt)} – ${shift.horaSalidaReal ? hmTo12h(shift.horaSalidaReal, esFmt) : '…'}${shift.horaSalidaReal && isOvernight(shift.horaEntradaReal!, shift.horaSalidaReal) ? ` ${t.shift.nextDay}` : ''}` : '—'}
+          value={hasWorked ? rangeLabelWithDates(shift.fecha, shift.horaEntradaReal!, shift.fechaSalidaReal ?? shift.fechaSalida, shift.horaSalidaReal ?? null, esFmt, t.months) : '—'}
           sub={hasWorked ? fmtHours(hrsWork) : undefined}
           color={hasWorked ? p.success : undefined}
         />
@@ -122,6 +123,7 @@ export function ShiftDetailSheet({
         <TouchableOpacity
           onPress={() => {
             setWDate(shift.fecha);
+            setWDateSalida(shift.fechaSalidaReal ?? shift.fechaSalida ?? shift.fecha);
             setWIn(shift.horaEntradaReal ?? shift.horaEntrada);
             setWOut(shift.horaSalidaReal ?? shift.horaSalida ?? '');
             setEditWorked(true);
@@ -133,7 +135,7 @@ export function ShiftDetailSheet({
         </TouchableOpacity>
         {isOpen && (
           <TouchableOpacity
-            onPress={() => { updateShift(shift.id, { horaSalidaReal: new Date().toTimeString().slice(0, 5) }); onClose(); }}
+            onPress={() => { updateShift(shift.id, { horaSalidaReal: new Date().toTimeString().slice(0, 5), fechaSalidaReal: todayYmd() }); onClose(); }}
             style={{ marginTop: SP.sm, height: 52, borderRadius: R.pill, backgroundColor: p.primary, alignItems: 'center', justifyContent: 'center' }}
           >
             <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: '#fff' }}>{t.today.clockOut} →</Text>
@@ -141,16 +143,18 @@ export function ShiftDetailSheet({
         )}
       </Sheet>
 
-      {/* Editar horas trabajadas: fecha + horas reales + eliminar.
-          La fecha se puede corregir (por si marcó en el día equivocado)
-          y el turno se puede borrar entero (por si marcó por error). */}
+      {/* Editar horas trabajadas: fechas + horas reales + eliminar.
+          Las fechas se pueden corregir (por si marcó en el día equivocado
+          o el turno terminó otro día) y el turno se puede borrar entero. */}
       <Sheet visible={editWorked} onClose={() => setEditWorked(false)} title={t.shift.editWorked}>
-        <DateField label={t.shift.date} value={wDate} onChange={setWDate} />
+        <DateField label={t.shift.startDate} value={wDate} onChange={setWDate} />
+        <View style={{ height: SP.md }} />
+        <DateField label={t.shift.endDate} value={wDateSalida} onChange={setWDateSalida} />
         <View style={{ height: SP.md }} />
         <TimeField label={t.shift.checkIn} value={wIn} onChange={setWIn} placeholder="--:--" />
         <TimeField label={t.shift.checkOut} value={wOut} onChange={setWOut} placeholder="--:--" />
         <TouchableOpacity
-          onPress={() => { updateShift(shift.id, { ...(wDate ? { fecha: wDate } : {}), horaEntradaReal: wIn, horaSalidaReal: wOut || null }); setEditWorked(false); }}
+          onPress={() => { updateShift(shift.id, { ...(wDate ? { fecha: wDate } : {}), ...(wDateSalida ? { fechaSalidaReal: wDateSalida } : {}), horaEntradaReal: wIn, horaSalidaReal: wOut || null }); setEditWorked(false); }}
           style={{ marginTop: SP.lg, marginBottom: SP.md, height: 52, borderRadius: R.pill, backgroundColor: p.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}
         >
           <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.body, color: '#fff' }}>{t.common.save}</Text>

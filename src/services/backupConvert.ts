@@ -119,6 +119,7 @@ export function convertMisHorarios(raw: BackupLike): NormalizedBackup {
       id: s.id,
       jobId: s.job,
       fecha: start.fecha,
+      fechaSalida: end.fecha,
       horaEntrada: start.hm,
       horaSalida: end.hm,
       breakMin: s.break ?? 0,
@@ -127,7 +128,10 @@ export function convertMisHorarios(raw: BackupLike): NormalizedBackup {
       notas: s.note ?? '',
     };
     if (s.in) out.horaEntradaReal = tzParts(s.in, tz).hm;
-    if (s.out) out.horaSalidaReal = tzParts(s.out, tz).hm;
+    if (s.out) {
+      out.horaSalidaReal = tzParts(s.out, tz).hm;
+      out.fechaSalidaReal = tzParts(s.out, tz).fecha;
+    }
     if (s.station) {
       const sid = stationId.get(`${s.job}|${s.station}`);
       if (sid) out.estacionIds = [sid];

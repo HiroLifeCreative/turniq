@@ -14,8 +14,8 @@ import { useToast } from '../components/Toast';
 import { useStore, jobsById, type Shift } from '../store';
 import type { TabsParamList } from '../navigation/types';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
-import { todayYmd, nowHm, hmToMin, minToHm, hmTo12h, weekKey, parseYmd, startOfWeek, ymd } from '../lib/dates';
-import { fmtHours, fmtMoney, calcWeekTotals, workState, isOvernight } from '../lib/calc';
+import { todayYmd, nowHm, hmToMin, minToHm, hmTo12h, weekKey, parseYmd, startOfWeek, ymd, rangeLabelWithDates } from '../lib/dates';
+import { fmtHours, fmtMoney, calcWeekTotals, workState } from '../lib/calc';
 import { MotiView } from 'moti';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -171,7 +171,7 @@ export function HomeScreen() {
   const clockOut = () => {
     if (openShift) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      updateShift(openShift.id, { horaSalidaReal: nowHm() });
+      updateShift(openShift.id, { horaSalidaReal: nowHm(), fechaSalidaReal: todayYmd() });
       toast.success(t.toast.clockOut);
     }
   };
@@ -403,8 +403,7 @@ export function HomeScreen() {
                     {countdown ? `${t.inicio.empiezaEn} ${countdown}` : t.inicio.empiezaYa}
                   </Text>
                   <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2, marginTop: 2 }} numberOfLines={1}>
-                    {nextJob?.nombre} · {nextDayLabel} · {hmTo12h(nextShift.horaEntrada, esFmt)}
-                    {nextShift.horaSalida ? ` – ${hmTo12h(nextShift.horaSalida, esFmt)}` : ''}{isOvernight(nextShift.horaEntrada, nextShift.horaSalida) ? ` ${t.shift.nextDay}` : ''}
+                    {nextJob?.nombre} · {nextDayLabel} · {rangeLabelWithDates(nextShift.fecha, nextShift.horaEntrada, nextShift.fechaSalida, nextShift.horaSalida, esFmt, t.months)}
                   </Text>
                   {!!nextJob?.pinMarcaje && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
@@ -436,7 +435,7 @@ export function HomeScreen() {
                   <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: job?.color ?? p.primary, marginRight: SP.md }} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: p.text }}>
-                      {job?.nombre ?? ''} · {hmTo12h(s.horaEntrada, esFmt)} - {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}{isOvernight(s.horaEntrada, s.horaSalida) ? ` ${t.shift.nextDay}` : ''}
+                      {job?.nombre ?? ''} · {rangeLabelWithDates(s.fecha, s.horaEntrada, s.fechaSalida, s.horaSalida, esFmt, t.months)}
                     </Text>
                     {!!job?.pinMarcaje && (
                       <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 3 }}>
@@ -527,7 +526,7 @@ export function HomeScreen() {
                         <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text }} numberOfLines={1}>{job?.nombre}</Text>
                       </View>
                       <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text2, marginTop: 4 }}>
-                        {hmTo12h(s.horaEntrada, esFmt)} – {s.horaSalida ? hmTo12h(s.horaSalida, esFmt) : '…'}{isOvernight(s.horaEntrada, s.horaSalida) ? ` ${t.shift.nextDay}` : ''}
+                        {rangeLabelWithDates(s.fecha, s.horaEntrada, s.fechaSalida, s.horaSalida, esFmt, t.months)}
                       </Text>
                       {!!estNames.length && <Text style={{ fontSize: 13, color: p.text3, marginTop: 2 }}>{estNames.join(', ')}</Text>}
                     </View>

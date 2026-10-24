@@ -13,7 +13,7 @@ import { getAccessToken, syncShiftEvent, deleteShiftEvent } from './google';
 /** Firma de los campos que se reflejan en el evento (gcalEventId no:
  * si contara, guardar el propio id relanzaría la sincronización). */
 const sig = (s: Shift): string =>
-  [s.fecha, s.horaEntrada, s.horaSalida ?? '', s.jobId, s.notas ?? '', s.propinas ?? 0, s.bono ?? 0].join('|');
+  [s.fecha, s.fechaSalida ?? '', s.horaEntrada, s.horaSalida ?? '', s.jobId, s.notas ?? '', s.propinas ?? 0, s.bono ?? 0].join('|');
 
 let started = false;
 

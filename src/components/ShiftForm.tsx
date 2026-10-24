@@ -5,9 +5,9 @@ import { Sheet, Field, Label, Btn, Icon, useTheme, useT } from './ui';
 import { useToast } from './Toast';
 import { IosTimePicker, IosDatePicker } from './IosPickers';
 import { useStore, type Shift } from '../store';
-import { fmtHours } from '../lib/calc';
+import { fmtHours, rangeHoursBetween } from '../lib/calc';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
-import { todayYmd, hmTo12h } from '../lib/dates';
+import { todayYmd, hmTo12h, shortDate, parseYmd, addDaysYmd } from '../lib/dates';
 
 /** Campo de hora con picker estilo iOS (respeta 12h/24h del ajuste). */
 export function TimeField({
@@ -158,6 +158,7 @@ export function ShiftForm({
   const [jobId, setJobId] = useState('');
   const [estacionIds, setEstacionIds] = useState<string[]>([]);
   const [fecha, setFecha] = useState(defaultDate ?? todayYmd());
+  const [fechaSalida, setFechaSalida] = useState(defaultDate ?? todayYmd());
   const [entrada, setEntrada] = useState('09:00');
   const [salida, setSalida] = useState('');
   const [breakMin, setBreakMin] = useState('0');
@@ -172,6 +173,14 @@ export function ShiftForm({
         setJobId(editing.jobId);
         setEstacionIds(editing.estacionIds ?? []);
         setFecha(editing.fecha);
+        // Fecha de salida explícita (24 oct 2026, fin del '+1 día'):
+        // la guardada, o la derivada vieja si el turno no la trae.
+        setFechaSalida(
+          editing.fechaSalida ??
+            (editing.horaSalida != null && editing.horaSalida <= editing.horaEntrada
+              ? addDaysYmd(editing.fecha, 1)
+              : editing.fecha),
+        );
         setEntrada(editing.horaEntrada);
         setSalida(editing.horaSalida ?? '');
         setBreakMin(String(editing.breakMin));
@@ -183,6 +192,7 @@ export function ShiftForm({
         setJobId(jobs[0]?.id ?? '');
         setEstacionIds([]);
         setFecha(defaultDate ?? todayYmd());
+        setFechaSalida(defaultDate ?? todayYmd());
         setEntrada('09:00');
         setSalida('');
         setBreakMin('0');
@@ -197,45 +207,49 @@ export function ShiftForm({
   }, [visible]);
 
   const job = jobs.find((j) => j.id === jobId);
-  const canSave = (esLibre || jobId !== '') && /^\d{2}:\d{2}$/.test(entrada);
+  const canSave =
+    (esLibre || jobId !== '') &&
+    /^\d{2}:\d{2}$/.test(entrada) &&
+    fechaSalida >= fecha;
   const shifts = useStore((s) => s.shifts);
 
-  // Detectar traslape con otros turnos del mismo día
+  // Detectar traslape con otros turnos, comparando rangos con fecha y
+  // hora (un turno nocturno puede invadir el día siguiente).
   const overlapWarning = React.useMemo(() => {
     if (!/^\d{2}:\d{2}$/.test(entrada)) return null;
     const toMin = (hm: string) => {
       const [h, m] = hm.split(':').map(Number);
       return (h ?? 0) * 60 + (m ?? 0);
     };
-    const start = toMin(entrada);
-    const end = salida.trim() !== '' && /^\d{2}:\d{2}$/.test(salida) ? toMin(salida) : start + 1;
-    const endN = end <= start ? end + 1440 : end;
+    const toDay = (ymdStr: string) =>
+      Math.round((parseYmd(ymdStr).getTime() - parseYmd('1970-01-01').getTime()) / 86400000);
+    const start = toDay(fecha) * 1440 + toMin(entrada);
+    const endRaw =
+      salida.trim() !== '' && /^\d{2}:\d{2}$/.test(salida)
+        ? toDay(fechaSalida) * 1440 + toMin(salida)
+        : start + 1;
+    const end = endRaw > start ? endRaw : start + 1;
     for (const s of shifts) {
-      if (s.fecha !== fecha) continue;
       if (editing && s.id === editing.id) continue;
       if (!/^\d{2}:\d{2}$/.test(s.horaEntrada)) continue;
-      const os = toMin(s.horaEntrada);
-      const oe = s.horaSalida && /^\d{2}:\d{2}$/.test(s.horaSalida) ? toMin(s.horaSalida) : os + 1;
-      const oeN = oe <= os ? oe + 1440 : oe;
-      if (start < oeN && os < endN) return s;
+      const os = toDay(s.fecha) * 1440 + toMin(s.horaEntrada);
+      const oeRaw =
+        s.horaSalida && /^\d{2}:\d{2}$/.test(s.horaSalida)
+          ? toDay(s.fechaSalida ?? s.fecha) * 1440 + toMin(s.horaSalida)
+          : os + 1;
+      const oe = oeRaw > os ? oeRaw : os + 1;
+      if (start < oe && os < end) return s;
     }
     return null;
-  }, [shifts, fecha, entrada, salida, editing]);
+  }, [shifts, fecha, fechaSalida, entrada, salida, editing]);
 
   const [showOverlap, setShowOverlap] = useState(false);
 
-  // Turno que cruza medianoche: duración real contando el día siguiente.
-  const overnightDur = (() => {
+  // Duración con fechas explícitas; si termina otro día se muestra su fecha.
+  const multiDayDur = (() => {
     if (!/^\d{2}:\d{2}$/.test(entrada) || !/^\d{2}:\d{2}$/.test(salida)) return null;
-    const toM = (hm: string) => {
-      const [h, m] = hm.split(':').map(Number);
-      return (h ?? 0) * 60 + (m ?? 0);
-    };
-    const st = toM(entrada);
-    let en = toM(salida);
-    if (en > st) return null;
-    en += 1440;
-    return Math.max(0, en - st - (Number(breakMin) || 0)) / 60;
+    if (fechaSalida <= fecha) return null;
+    return rangeHoursBetween(fecha, entrada, fechaSalida, salida, Number(breakMin) || 0);
   })();
 
   const save = () => {
@@ -250,6 +264,7 @@ export function ShiftForm({
       esLibre,
       estacionIds,
       fecha,
+      fechaSalida,
       horaEntrada: entrada,
       horaSalida: salida.trim() === '' ? null : salida,
       breakMin: Number(breakMin) || 0,
@@ -378,27 +393,31 @@ export function ShiftForm({
       )}
 
       <View style={{ flexDirection: 'row', gap: SP.md }}>
-        <DateField label={t.shift.date} value={fecha} onChange={setFecha} />
-        <View style={{ flex: 1 }}>
-          <Field label={t.shift.break} value={breakMin} onChange={setBreakMin} keyboardType="numeric" />
-        </View>
+        <DateField label={t.shift.startDate} value={fecha} onChange={setFecha} />
+        <DateField label={t.shift.endDate} value={fechaSalida} onChange={setFechaSalida} />
       </View>
       <View style={{ flexDirection: 'row', gap: SP.md }}>
         <TimeField label={t.shift.start} value={entrada} onChange={setEntrada} placeholder="09:00" />
         <TimeField label={t.shift.end} value={salida} onChange={setSalida} placeholder="17:00" />
       </View>
-      {overnightDur != null && (
+      {multiDayDur != null && (
         <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.primary, marginTop: SP.sm }}>
-          🌙 {t.shift.endsNextDay} · {fmtHours(overnightDur)}
+          🌙 {shortDate(fechaSalida, t.months)} · {fmtHours(multiDayDur)}
         </Text>
       )}
       <View style={{ flexDirection: 'row', gap: SP.md }}>
         <View style={{ flex: 1 }}>
+          <Field label={t.shift.break} value={breakMin} onChange={setBreakMin} keyboardType="numeric" />
+        </View>
+        <View style={{ flex: 1 }}>
           <Field label={t.shift.tips} value={propinas} onChange={setPropinas} keyboardType="decimal-pad" />
         </View>
+      </View>
+      <View style={{ flexDirection: 'row', gap: SP.md }}>
         <View style={{ flex: 1 }}>
           <Field label={t.shift.bonus} value={bono} onChange={setBono} keyboardType="decimal-pad" />
         </View>
+        <View style={{ flex: 1 }} />
       </View>
       <Field label={t.shift.notes} value={notas} onChange={setNotas} />
       {showOverlap && overlapWarning && (

@@ -196,10 +196,11 @@ export async function syncShiftEvent(
   prevEventId?: string,
 ): Promise<string | undefined> {
   if (!shift.horaSalida) return prevEventId;
-  // Turno overnight (salida <= entrada): el evento termina al día siguiente.
+  // Fin explícito (24 oct 2026): manda fechaSalida; sin ella se mantiene
+  // la regla anterior (salida <= entrada = día siguiente) por compatibilidad.
   const overnight = shift.horaSalida <= shift.horaEntrada;
-  let endFecha = shift.fecha;
-  if (overnight) {
+  let endFecha = shift.fechaSalida ?? shift.fecha;
+  if (!shift.fechaSalida && overnight) {
     const [y, m, d] = shift.fecha.split('-').map(Number);
     const dt = new Date(y ?? 1970, (m ?? 1) - 1, (d ?? 1) + 1);
     const p = (n: number) => String(n).padStart(2, '0');

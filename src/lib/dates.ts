@@ -18,7 +18,26 @@ export function addDays(d: Date, n: number): Date {
   return c;
 }
 
-/** Lunes de la semana que contiene `d` (00:00). */
+/** YYYY-MM-DD + n días. */
+export function addDaysYmd(ymdStr: string, n: number): string {
+  return ymd(addDays(parseYmd(ymdStr), n));
+}
+
+/** Rango con fecha de salida explícita (sin '+1 día'):
+ *  '10:00 p.m. – 2:00 a.m. · 25 Oct' cuando la salida cae otro día. */
+export function rangeLabelWithDates(
+  fechaIn: string,
+  horaIn: string,
+  fechaOut: string | undefined,
+  horaOut: string | null,
+  esFmt: boolean,
+  months: string[],
+): string {
+  const base = `${hmTo12h(horaIn, esFmt)} – ${horaOut ? hmTo12h(horaOut, esFmt) : '…'}`;
+  const fOut = fechaOut ?? fechaIn;
+  if (fOut !== fechaIn) return `${base} · ${shortDate(fOut, months)}`;
+  return base;
+}
 export function startOfWeek(d: Date): Date {
   const c = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   const dow = (c.getDay() + 6) % 7; // lunes=0

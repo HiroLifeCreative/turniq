@@ -9,7 +9,7 @@ import { TimeField, DateField } from '../components/ShiftForm';
 import { useToast } from '../components/Toast';
 import { useStore, jobsById, type ShiftTemplate } from '../store';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
-import { todayYmd, hmTo12h } from '../lib/dates';
+import { todayYmd, hmTo12h, rangeLabelWithDates, addDaysYmd } from '../lib/dates';
 import { isOvernight, scheduledHours, fmtHours } from '../lib/calc';
 
 export function TemplatesScreen() {
@@ -86,7 +86,7 @@ export function TemplatesScreen() {
                 </View>
                 <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text2, marginTop: SP.sm }}>
                   {hmTo12h(tpl.horaEntrada, esFmt)} – {hmTo12h(tpl.horaSalida, esFmt)}
-                  {isOvernight(tpl.horaEntrada, tpl.horaSalida) ? ` ${t.shift.nextDay}` : ''} · {fmtHours(dur)}
+                  · {fmtHours(dur)}
                   {tpl.breakMin > 0 ? ` · ${tpl.breakMin} min ${t.tpl.breakShort}` : ''}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: SP.sm, marginTop: SP.md }}>
@@ -135,8 +135,7 @@ export function TemplatesScreen() {
         {assignTpl && (
           <View>
             <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text, marginBottom: SP.md }}>
-              {assignTpl.nombre} · {hmTo12h(assignTpl.horaEntrada, esFmt)} – {hmTo12h(assignTpl.horaSalida, esFmt)}
-              {isOvernight(assignTpl.horaEntrada, assignTpl.horaSalida) ? ` ${t.shift.nextDay}` : ''}
+              {assignTpl.nombre} · {rangeLabelWithDates(assignDate, assignTpl.horaEntrada, isOvernight(assignTpl.horaEntrada, assignTpl.horaSalida) ? addDaysYmd(assignDate, 1) : assignDate, assignTpl.horaSalida, esFmt, t.months)}
             </Text>
             <View style={{ flexDirection: 'row', gap: SP.md }}>
               <DateField label={t.shift.date} value={assignDate} onChange={setAssignDate} />
@@ -149,6 +148,9 @@ export function TemplatesScreen() {
                   jobId: assignTpl.jobId,
                   estacionIds: assignTpl.estacionIds ?? [],
                   fecha: assignDate,
+                  fechaSalida: isOvernight(assignTpl.horaEntrada, assignTpl.horaSalida)
+                    ? addDaysYmd(assignDate, 1)
+                    : assignDate,
                   horaEntrada: assignTpl.horaEntrada,
                   horaSalida: assignTpl.horaSalida,
                   breakMin: assignTpl.breakMin,
@@ -199,7 +201,6 @@ function TemplateForm({
   const job = jobs.find((j) => j.id === jobId);
   const canSave =
     nombre.trim() !== '' && jobId !== '' && /^\d{2}:\d{2}$/.test(entrada) && /^\d{2}:\d{2}$/.test(salida);
-  const overnight = isOvernight(entrada, salida);
 
   return (
     <View>
@@ -259,11 +260,6 @@ function TemplateForm({
         <TimeField label={t.shift.start} value={entrada} onChange={setEntrada} placeholder="09:00" />
         <TimeField label={t.shift.end} value={salida} onChange={setSalida} placeholder="17:00" />
       </View>
-      {overnight && (
-        <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.primary, marginTop: SP.sm }}>
-          🌙 {t.shift.endsNextDay}
-        </Text>
-      )}
       <View style={{ flexDirection: 'row', gap: SP.md, marginTop: SP.md }}>
         <View style={{ flex: 1 }}>
           <Field label={t.shift.break} value={breakMin} onChange={setBreakMin} keyboardType="numeric" />

@@ -14,23 +14,24 @@ export type WorkState = 'worked' | 'scheduled';
  * Futuros = no.
  */
 export function workState(
-  s: { fecha: string; horaEntrada: string; horaEntradaReal?: string | null; horaSalida: string | null },
+  s: { fecha: string; fechaSalida?: string; horaEntrada: string; horaEntradaReal?: string | null; horaSalida: string | null },
   now: Date,
 ): WorkState {
   const today = ymd(now);
   if (s.fecha < today) return 'worked';
   if (s.fecha > today) return 'scheduled';
   if (s.horaEntradaReal) return 'worked';
-  // Turno que cruza medianoche: hoy NO puede darse por trabajado solo
-  // porque ya pasó la hora de salida — esa hora es de mañana.
-  if (isOvernight(s.horaEntrada, s.horaSalida)) return 'scheduled';
+  // Turno que termina otro día: hoy NO puede darse por trabajado solo
+  // porque ya pasó la hora de salida — esa hora es de otro día.
+  const overnight = s.fechaSalida ? s.fechaSalida > s.fecha : isOvernight(s.horaEntrada, s.horaSalida);
+  if (overnight) return 'scheduled';
   const nowMin = now.getHours() * 60 + now.getMinutes();
   if (s.horaSalida && nowMin >= hmToMin(s.horaSalida)) return 'worked';
   return 'scheduled';
 }
 
 /** Filtra una lista de turnos dejando SOLO los ya trabajados. */
-export function onlyWorked<T extends { fecha: string; horaEntrada: string; horaEntradaReal?: string | null; horaSalida: string | null }>(
+export function onlyWorked<T extends { fecha: string; fechaSalida?: string; horaEntrada: string; horaEntradaReal?: string | null; horaSalida: string | null }>(
   shifts: T[],
   now: Date = new Date(),
 ): T[] {
@@ -47,6 +48,8 @@ export interface ShiftLike {
   id: string;
   jobId: string;
   fecha?: string; // YYYY-MM-DD (opcional: las plantillas no tienen fecha)
+  fechaSalida?: string; // YYYY-MM-DD explícita (sin '+1 día' implícito)
+  fechaSalidaReal?: string; // YYYY-MM-DD real explícita
   esLibre?: boolean;
   horaEntrada: string;
   horaSalida: string | null; // null = turno abierto
@@ -55,6 +58,27 @@ export interface ShiftLike {
   breakMin: number;
   propinas: number;
   bono: number;
+}
+
+/** Horas de un rango con fechas explícitas (descontando break).
+ *  Sin salida = 0. Sin fechaSalida (datos viejos) se mantiene la regla
+ *  anterior: salida <= entrada cuenta como día siguiente. */
+export function rangeHoursBetween(
+  startDate: string,
+  start: string,
+  endDate: string | undefined,
+  end: string | null,
+  breakMin: number,
+): number {
+  if (!end) return 0;
+  let days: number;
+  if (endDate) {
+    days = Math.round((parseYmd(endDate).getTime() - parseYmd(startDate).getTime()) / 86400000);
+  } else {
+    days = hmToMin(end) <= hmToMin(start) ? 1 : 0;
+  }
+  const mins = days * 1440 + hmToMin(end) - hmToMin(start);
+  return Math.max(0, mins - breakMin) / 60;
 }
 
 /** Horas de un rango (descontando break). Sin salida = 0. */
@@ -67,15 +91,23 @@ function rangeHours(start: string, end: string | null, breakMin: number): number
 
 /** Horas programadas de un turno. */
 export function scheduledHours(s: ShiftLike): number {
-  return rangeHours(s.horaEntrada, s.horaSalida, s.breakMin);
+  if (!s.fecha) return rangeHours(s.horaEntrada, s.horaSalida, s.breakMin);
+  return rangeHoursBetween(s.fecha, s.horaEntrada, s.fechaSalida, s.horaSalida, s.breakMin);
 }
 
 /** Horas trabajadas reales (si marcó, usa las reales; si no, las programadas). */
 export function workedHours(s: ShiftLike): number {
   if (s.horaEntradaReal) {
-    return rangeHours(s.horaEntradaReal, s.horaSalidaReal ?? null, s.breakMin);
+    if (!s.fecha) return rangeHours(s.horaEntradaReal, s.horaSalidaReal ?? null, s.breakMin);
+    return rangeHoursBetween(
+      s.fecha,
+      s.horaEntradaReal,
+      s.fechaSalidaReal ?? s.fechaSalida,
+      s.horaSalidaReal ?? null,
+      s.breakMin,
+    );
   }
-  return rangeHours(s.horaEntrada, s.horaSalida, s.breakMin);
+  return scheduledHours(s);
 }
 
 /** Horas trabajadas de un turno (descontando break). Turno abierto = 0. */

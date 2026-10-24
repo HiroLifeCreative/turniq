@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { zustandStorage } from './services/storage';
 import { uid } from './lib/calc';
+import { addDaysYmd } from './lib/dates';
 import type { Lang } from './i18n';
 
 export interface Station {
@@ -27,11 +28,13 @@ export interface Shift {
   jobId: string;
   esLibre?: boolean; // turno libre (no atado a trabajo)
   estacionIds?: string[]; // múltiples estaciones
-  fecha: string; // YYYY-MM-DD
+  fecha: string; // YYYY-MM-DD (entrada)
+  fechaSalida?: string; // YYYY-MM-DD explícita (salida)
   horaEntrada: string; // HH:MM (programada)
   horaSalida: string | null; // programada
   horaEntradaReal?: string | null; // HH:MM real (marcada)
   horaSalidaReal?: string | null; // real (marcada)
+  fechaSalidaReal?: string; // YYYY-MM-DD real explícita
   breakMin: number;
   propinas: number;
   bono: number;
@@ -179,7 +182,11 @@ export const useStore = create<State>()(
         }
         if (ids.length === 0) return 0;
         set((s) => ({
-          shifts: s.shifts.map((sh) => (ids.includes(sh.id) ? { ...sh, horaSalidaReal: tope } : sh)),
+          shifts: s.shifts.map((sh) =>
+            ids.includes(sh.id)
+              ? { ...sh, horaSalidaReal: tope, fechaSalidaReal: addDaysYmd(sh.fecha, 1) }
+              : sh,
+          ),
         }));
         return ids.length;
       },
@@ -264,6 +271,22 @@ export const useStore = create<State>()(
           if (state.settings.sonidoAlarma === undefined) state.settings.sonidoAlarma = 'clasica';
           if (state.settings.posponerMin === undefined) state.settings.posponerMin = 10;
           if (state.settings.cierreAuto === undefined) state.settings.cierreAuto = '04:00';
+          // Fechas de salida explícitas (24 oct 2026, fin del '+1 día'):
+          // los turnos viejos sin fechaSalida la reciben según sus horas
+          // (salida <= entrada = día siguiente, si no el mismo día).
+          for (const sh of state.shifts) {
+            if (sh.fechaSalida === undefined) {
+              sh.fechaSalida =
+                sh.horaSalida != null && sh.horaSalida <= sh.horaEntrada
+                  ? addDaysYmd(sh.fecha, 1)
+                  : sh.fecha;
+            }
+            if (sh.horaSalidaReal && sh.fechaSalidaReal === undefined) {
+              const entReal = sh.horaEntradaReal ?? sh.horaEntrada;
+              sh.fechaSalidaReal =
+                sh.horaSalidaReal <= entReal ? addDaysYmd(sh.fecha, 1) : sh.fecha;
+            }
+          }
           // Usuarios existentes ya aceptaron al usar versiones previas
           if (state.settings.terminosAceptados === undefined) {
             state.settings.terminosAceptados = state.jobs.length > 0 || state.shifts.length > 0;
