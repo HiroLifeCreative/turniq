@@ -1,4 +1,8 @@
 # Changelog — Turniq
+## v1.1.7/25 — 24 oct 2026 (sin compilar, pendiente "Build")
+- **Privacidad: botón del ojito GRANDE con texto Mostrar/Ocultar**: el icono solo medía 24×24 y era imposible de acertar — verificado en preview: toques en el icono no cambiaban `dineroOculto`; al tocar el botón real (24×24 en 200,109) sí desbloqueaba. Ahora es una píldora con texto, imposible de fallar.
+- **Ajustes → Seguridad: interruptor "Dinero oculto"**: salida de emergencia para apagar el modo privado sin PIN si el ojito falla. Coherente con el modelo de la app: el bloqueo es anti-mirones, no anti-dueño (Ajustes ya permite quitar el PIN sin el viejo).
+
 ## v1.1.6 (build 24) — 2026-10-24
 - **Ganancias por trabajo y por semana**: la sección 'Por trabajo' ahora muestra la semana que está viendo ('19 Oct – 25 Oct') y tiene sus propias flechas ‹ › (comparte la semana con la sección de arriba). Antes seguía la semana de arriba sin etiquetarla y quedaba pegada a 'Per year', por eso parecía anual. Además el neto por trabajo ahora aplica la hora extra por trabajo (antes se calculaba turno a turno y omitía el extra).
 - **Semana sin botón flotante**: se elimina `QuickActionsTray` (el botón + flotante no te gustaba). Sin pérdida de funciones: agregar turno sigue en cada día, duplicar semana sigue al final de la pantalla y plantillas sigue en Más. Se retiran el componente y la clave `semana.quickActions`.

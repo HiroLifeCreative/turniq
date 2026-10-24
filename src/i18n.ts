@@ -30,6 +30,8 @@ const es = {
     editEntry: 'Editar entrada',
     realEntry: 'Entrada real',
     editEntryHint: '¿Marcaste en el reloj del trabajo y olvidaste marcar en la app? Pon la hora real: el contador y el dinero se recalculan al momento.',
+    mostrar: 'Mostrar',
+    ocultar: 'Ocultar',
   },
   semana: {
     turno: 'turno',
@@ -269,6 +271,7 @@ const es = {
     pinSet: 'PIN guardado',
     pinRemove: 'Quitar PIN',
     biometric: 'Desbloqueo biométrico',
+    dineroOculto: 'Dinero oculto',
     theme: 'Tema oscuro',
     hora: 'Formato de hora',
     apariencia: 'Apariencia',
@@ -406,6 +409,8 @@ const en: Strings = {
     editEntry: 'Edit clock-in',
     realEntry: 'Actual clock-in',
     editEntryHint: 'Clocked in at work but forgot to tap the app? Set the real time here: the timer and money recalculate instantly.',
+    mostrar: 'Show',
+    ocultar: 'Hide',
   },
   semana: {
     turno: 'shift',
@@ -645,6 +650,7 @@ const en: Strings = {
     pinSet: 'PIN saved',
     pinRemove: 'Remove PIN',
     biometric: 'Biometric unlock',
+    dineroOculto: 'Hidden money',
     theme: 'Dark theme',
     hora: 'Time format',
     apariencia: 'Appearance',

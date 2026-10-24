@@ -13,6 +13,21 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 25,
+    version: '1.1.7',
+    fecha: '24 oct 2026',
+    notas: {
+      es: [
+        'Privacidad: el botón del ojito AHORA ES GRANDE y dice Mostrar/Ocultar — el icono solo de 24×24 era imposible de acertar (Nelson: "no pasa nada al tocarlo")',
+        'Ajustes: interruptor nuevo "Dinero oculto" en Seguridad — salida de emergencia para apagar el modo privado sin PIN si el ojito falla',
+      ],
+      en: [
+        'Privacy: the eye button is now BIG and labeled Show/Hide — the lone 24×24 icon was impossible to hit ("nothing happens when I tap it")',
+        'Settings: new "Hidden money" switch in Security — emergency exit to turn private mode off without a PIN if the eye fails',
+      ],
+    },
+  },
+  {
     build: 24,
     version: '1.1.6',
     fecha: '2026-10-24',

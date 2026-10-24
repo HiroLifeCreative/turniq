@@ -253,8 +253,17 @@ export function HomeScreen() {
               <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                 {t.inicio.netoTrabajado} · {t.inicio.estaSemana}
               </Text>
-              <TouchableOpacity onPress={togglePrivacy} hitSlop={12} style={{ marginLeft: 8, padding: 4 }}>
-                <Icon name={hidden ? 'eyeOff' : 'eye'} size={16} color="rgba(255,255,255,0.6)" />
+              {/* Botón de privacidad GRANDE y con texto (24 oct 2026): el ojito
+                  solo de 24×24 era imposible de acertar — Nelson reportó que
+                  "no pasa nada al tocarlo". Ahora es una píldora con texto. */}
+              <TouchableOpacity
+                onPress={togglePrivacy}
+                style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingVertical: 8, paddingHorizontal: 12 }}
+              >
+                <Icon name={hidden ? 'eyeOff' : 'eye'} size={18} color="rgba(255,255,255,0.85)" />
+                <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.85)', marginLeft: 6 }}>
+                  {hidden ? t.inicio.mostrar : t.inicio.ocultar}
+                </Text>
               </TouchableOpacity>
             </View>
             {stateLabel !== '' && (
