@@ -1,10 +1,16 @@
-/** Bandeja flotante de acciones rápidas (Semana): el botón + se
- *  TRANSFORMA en la bandeja usando morphlet (nativo, New Arch).
- *  En web hay un fallback con la Sheet propia (QuickActionsTray.web). */
+/** Bandeja de acciones rápidas (Semana): botón flotante + que abre
+ *  la Sheet propia con las acciones.
+ *
+ *  NOTA (24 oct 2026): la primera versión usaba morphlet (el botón se
+ *  transformaba en bandeja nativa), pero el bundle de Android FALLÓ
+ *  por eso: la spec de código de morphlet usa patrones que el codegen
+ *  de React Native 0.76 no entiende ("Unknown prop type" en
+ *  MorphletHostViewNativeComponent: WithDefault con boolean crudo y
+ *  objetos anidados). Se retiró la librería; la Sheet propia da las
+ *  mismas tres acciones sin código nativo nuevo. */
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Tray, useTray } from 'morphlet';
-import { Icon, useTheme, useT } from './ui';
+import { Icon, Sheet, useTheme, useT } from './ui';
 import { SP, FONT, TYPE, ICON } from '../theme/tokens';
 
 export interface QuickActions {
@@ -13,14 +19,16 @@ export interface QuickActions {
   onOpenTemplates: () => void;
 }
 
-function Row({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) {
+export function QuickActionsTray({ onNewShift, onDuplicateWeek, onOpenTemplates }: QuickActions) {
+  const t = useT();
   const p = useTheme();
-  const { close } = useTray();
-  return (
+  const [open, setOpen] = React.useState(false);
+
+  const Row = ({ icon, label, fn }: { icon: string; label: string; fn: () => void }) => (
     <TouchableOpacity
       onPress={() => {
-        close();
-        onPress();
+        setOpen(false);
+        fn();
       }}
       activeOpacity={0.7}
       style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 11, paddingHorizontal: 4 }}
@@ -41,55 +49,35 @@ function Row({ icon, label, onPress }: { icon: string; label: string; onPress: (
       <Text style={{ fontFamily: FONT.head, fontWeight: '600', fontSize: TYPE.body, color: p.text }}>{label}</Text>
     </TouchableOpacity>
   );
-}
 
-export function QuickActionsTray({ onNewShift, onDuplicateWeek, onOpenTemplates }: QuickActions) {
-  const t = useT();
-  const p = useTheme();
   return (
-    <View style={{ position: 'absolute', right: SP.lg, bottom: 116, zIndex: 60, alignItems: 'flex-end' }}>
-      <Tray.Root>
-        <Tray.Trigger morph>
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 28,
-              backgroundColor: '#0392FF',
-              alignItems: 'center',
-              justifyContent: 'center',
-              shadowColor: '#0392FF',
-              shadowOpacity: 0.4,
-              shadowRadius: 12,
-              shadowOffset: { width: 0, height: 6 },
-              elevation: 8,
-            }}
-          >
-            <Icon name="plus" size={26} color="#C4E9FF" />
-          </View>
-        </Tray.Trigger>
-        <Tray.Content backgroundColor={p.card} cornerRadius={24}>
-          <Tray.Body>
-            <View style={{ padding: SP.md, minWidth: 272 }}>
-              <Text
-                style={{
-                  fontFamily: FONT.mono,
-                  fontSize: 11,
-                  textTransform: 'uppercase',
-                  color: p.text3,
-                  marginBottom: SP.sm,
-                  marginLeft: 4,
-                }}
-              >
-                {t.semana.quickActions}
-              </Text>
-              <Row icon="plus" label={t.today.addShift} onPress={onNewShift} />
-              <Row icon="copy" label={t.week.duplicate} onPress={onDuplicateWeek} />
-              <Row icon="fileText" label={t.more.templates} onPress={onOpenTemplates} />
-            </View>
-          </Tray.Body>
-        </Tray.Content>
-      </Tray.Root>
-    </View>
+    <>
+      <View style={{ position: 'absolute', right: SP.lg, bottom: 116, zIndex: 60 }}>
+        <TouchableOpacity
+          onPress={() => setOpen(true)}
+          activeOpacity={0.85}
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: '#0392FF',
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#0392FF',
+            shadowOpacity: 0.4,
+            shadowRadius: 12,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 8,
+          }}
+        >
+          <Icon name="plus" size={26} color="#C4E9FF" />
+        </TouchableOpacity>
+      </View>
+      <Sheet visible={open} onClose={() => setOpen(false)} title={t.semana.quickActions}>
+        <Row icon="plus" label={t.today.addShift} fn={onNewShift} />
+        <Row icon="copy" label={t.week.duplicate} fn={onDuplicateWeek} />
+        <Row icon="fileText" label={t.more.templates} fn={onOpenTemplates} />
+      </Sheet>
+    </>
   );
 }
