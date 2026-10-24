@@ -13,6 +13,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 27,
+    version: '1.1.9',
+    fecha: '24 oct 2026',
+    notas: {
+      es: [
+        'Sin blur: el dinero ya no se oculta — a pedido de Nelson, porque el modo privado se bloqueaba y no se podía quitar. El neto, el neto en vivo y los chips siempre se ven claros, como antes del blur; se retiran el botón del ojito y el interruptor de Dinero oculto (el PIN de bloqueo de la app sigue intacto)',
+      ],
+      en: [
+        'No more blur: money is never hidden — at Nelson’s request, because private mode got stuck hidden and could not be turned off. Net, live net and chips are always shown clear, as before the blur; the eye button and the Hidden money switch are removed (the app PIN lock stays intact)',
+      ],
+    },
+  },
+  {
     build: 26,
     version: '1.1.8',
     fecha: '24 oct 2026',

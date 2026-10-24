@@ -1,6 +1,6 @@
-/** Pestaña Inicio — héroe oscuro con reloj en vivo, estados por color, todo redondeado + blur. */
+/** Pestaña Inicio — héroe oscuro con reloj en vivo, estados por color, todo redondeado. */
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
@@ -9,8 +9,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
 import { ShiftForm, TimeField } from '../components/ShiftForm';
-import { BlurredText } from '../components/BlurredText';
-import { PinLock } from './PinLock';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
 import { useStore, jobsById, type Shift } from '../store';
@@ -48,51 +46,8 @@ export function HomeScreen() {
   const [clockSheetOpen, setClockSheetOpen] = useState(false);
   const [editEntryOpen, setEditEntryOpen] = useState(false);
   const [entryDraft, setEntryDraft] = useState('');
-  const [pinAsk, setPinAsk] = useState(false);
   const [, setTick] = useState(0);
   const setSettings = useStore((s) => s.setSettings);
-
-  // Modo privado: ocultar dinero (requiere PIN/biometría para mostrar).
-  // OJO: Alert.prompt es SOLO iOS — en Android no existe y el PIN
-  // "no hacía nada" (bug reportado por Nelson). Ahora el PIN se pide
-  // con el teclado propio de la app (PinLock en un modal).
-  const togglePrivacy = async () => {
-    const hidden = settings.dineroOculto;
-    if (hidden) {
-      // Mostrar: requiere autenticación si hay PIN o biometría
-      const pin = settings.pin;
-      const bio = settings.biometrico;
-      if (!pin && !bio) {
-        setSettings({ dineroOculto: false });
-        return;
-      }
-      if (bio && Platform.OS !== 'web') {
-        try {
-          const LA = require('expo-local-authentication') as typeof import('expo-local-authentication');
-          const has = await LA.hasHardwareAsync();
-          const enrolled = await LA.isEnrolledAsync();
-          if (has && enrolled) {
-            const res = await LA.authenticateAsync({ promptMessage: t.pin.title });
-            if (res.success) {
-              setSettings({ dineroOculto: false });
-              return;
-            }
-            // Biometría cancelada/fallida: se cae al PIN si existe.
-          }
-        } catch { /* fallback a PIN */ }
-      }
-      if (pin) {
-        setPinAsk(true);
-      } else {
-        setSettings({ dineroOculto: false });
-      }
-    } else {
-      // Ocultar: sin autenticación
-      setSettings({ dineroOculto: true });
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    }
-  };
-  const hidden = settings.dineroOculto;
 
   const today = todayYmd();
   const byId = jobsById(jobs);
@@ -253,18 +208,6 @@ export function HomeScreen() {
               <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                 {t.inicio.netoTrabajado} · {t.inicio.estaSemana}
               </Text>
-              {/* Botón de privacidad GRANDE y con texto (24 oct 2026): el ojito
-                  solo de 24×24 era imposible de acertar — Nelson reportó que
-                  "no pasa nada al tocarlo". Ahora es una píldora con texto. */}
-              <TouchableOpacity
-                onPress={togglePrivacy}
-                style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingVertical: 8, paddingHorizontal: 12 }}
-              >
-                <Icon name={hidden ? 'eyeOff' : 'eye'} size={18} color="rgba(255,255,255,0.85)" />
-                <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.85)', marginLeft: 6 }}>
-                  {hidden ? t.inicio.mostrar : t.inicio.ocultar}
-                </Text>
-              </TouchableOpacity>
             </View>
             {stateLabel !== '' && (
               <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingHorizontal: 12, paddingVertical: 6 }}>
@@ -279,19 +222,17 @@ export function HomeScreen() {
             )}
           </View>
 
-          {hidden ? (
-            <BlurredText text={fmtMoney(totals.net)} fontSize={44} color="#fff" />
-          ) : (
-            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-              <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
-              <AnimatedRollingNumbers
-                value={totals.net}
-                toFixed={2}
-                useGrouping
-                textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
-              />
-            </View>
-          )}
+          {/* Sin blur desde v1.1.9 (24 oct 2026, pedido de Nelson: el dinero
+              se bloqueaba y no se podía quitar): el neto siempre visible. */}
+          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+            <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
+            <AnimatedRollingNumbers
+              value={totals.net}
+              toFixed={2}
+              useGrouping
+              textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
+            />
+          </View>
 
           {/* Reloj en vivo con ANILLO de progreso (estilo Focus) */}
           {openShift && (() => {
@@ -340,19 +281,15 @@ export function HomeScreen() {
                     <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                       {t.inicio.netoEstimado}
                     </Text>
-                    {hidden ? (
-                      <BlurredText text={fmtMoney(liveNet)} fontSize={24} color={stateColor} />
-                    ) : (
-                      <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                        <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
-                        <AnimatedRollingNumbers
-                          value={liveNet}
-                          toFixed={2}
-                          useGrouping
-                          textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
-                        />
-                      </View>
-                    )}
+                    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                      <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
+                      <AnimatedRollingNumbers
+                        value={liveNet}
+                        toFixed={2}
+                        useGrouping
+                        textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
+                      />
+                    </View>
                     {openShift.horaSalida && (
                       <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
                         {t.inicio.salidaProg} {hmTo12h(openShift.horaSalida, esFmt)} · {Math.round(pct * 100)}%
@@ -372,11 +309,7 @@ export function HomeScreen() {
               { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes, money: true },
             ].map((c, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center', overflow: 'hidden' }}>
-                {hidden && c.money ? (
-                  <BlurredText text={c.v} fontSize={15} color="#fff" />
-                ) : (
-                  <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
-                )}
+                <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
                 <Text style={{ fontFamily: FONT.mono, fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l}</Text>
               </View>
             ))}
@@ -578,25 +511,6 @@ export function HomeScreen() {
         onYes={() => { if (confirmId) deleteShift(confirmId); setConfirmId(null); }}
         onNo={() => setConfirmId(null)}
       />
-
-      {/* PIN propio para volver a mostrar el dinero (Android incluido) */}
-      <Modal visible={pinAsk} animationType="slide" onRequestClose={() => setPinAsk(false)}>
-        <View style={{ flex: 1 }}>
-          <PinLock
-            onUnlock={() => {
-              setPinAsk(false);
-              setSettings({ dineroOculto: false });
-            }}
-          />
-          <TouchableOpacity
-            onPress={() => setPinAsk(false)}
-            hitSlop={12}
-            style={{ position: 'absolute', top: 54, right: 20, width: 40, height: 40, borderRadius: 20, backgroundColor: p.surface, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Icon name="x" size={18} color={p.text2} />
-          </TouchableOpacity>
-        </View>
-      </Modal>
     </Screen>
   );
 }

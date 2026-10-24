@@ -282,15 +282,6 @@ export function SettingsScreen() {
 
         {/* SEGURIDAD */}
         <Section title={t.settings.seguridad}>
-          {/* Salida de emergencia del modo privado (24 oct 2026): si el ojito
-              del hero falla o no se acierta, desde aquí siempre se puede
-              apagar el dinero oculto sin PIN. El bloqueo es anti-mirones,
-              no anti-dueño: Ajustes ya permite quitar el PIN sin el viejo. */}
-          <SettingRow icon="settings" label={t.settings.dineroOculto} last={false}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-              <IosSwitch value={settings.dineroOculto} onValueChange={(v) => setSettings({ dineroOculto: v })} />
-            </View>
-          </SettingRow>
           <SettingRow icon="settings" label={t.settings.pin} last={!settings.pin}>
             {settings.pin ? (
               <Btn title={t.settings.pinRemove} kind="ghost" onPress={() => setSettings({ pin: null, biometrico: false })} />
