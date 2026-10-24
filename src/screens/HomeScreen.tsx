@@ -10,7 +10,6 @@ import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
 import { ShiftForm, TimeField } from '../components/ShiftForm';
 import { PrivacyBlur } from '../components/PrivacyBlur';
-import { SquircleView } from 'squircle-view';
 import { PinLock } from './PinLock';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
@@ -240,17 +239,13 @@ export function HomeScreen() {
           from={{ opacity: 0, translateY: 16 }}
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ type: 'timing', duration: 500 }}
-          style={{ borderRadius: 28, marginBottom: SP.md }}
-        >
-        <SquircleView
-          borderSmoothing={0.6}
-          style={{ borderRadius: 28, backgroundColor: DARK_CARD, overflow: 'hidden', shadowColor: '#6B7A99', shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 8 }}
+          style={{ borderRadius: 28, marginBottom: SP.md, overflow: 'hidden' }}
         >
         <LinearGradient
           colors={[DARK_CARD_2, DARK_CARD]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 28, padding: SP.xl, overflow: 'hidden' }}
+          style={{ borderRadius: 28, padding: SP.xl, overflow: 'hidden', shadowColor: '#6B7A99', shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 8 }}
         >
 
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.md }}>
@@ -372,7 +367,6 @@ export function HomeScreen() {
             ))}
           </View>
         </LinearGradient>
-        </SquircleView>
         </MotiView>
 
         {/* CLOCK */}
@@ -523,11 +517,7 @@ export function HomeScreen() {
             const isToday = s.fecha === today;
             return (
               <MotiView key={s.id} from={{ opacity: 0, translateY: 12 }} animate={{ opacity: 1, translateY: 0 }} transition={{ delay: idx * 80 }}>
-                <TouchableOpacity onPress={goWeek} activeOpacity={0.7} style={{ marginBottom: SP.sm }}>
-                  <SquircleView
-                    borderSmoothing={0.6}
-                    style={{ borderRadius: 20, backgroundColor: p.bg === '#0B0B0C' ? '#17171A' : '#F8F9FB', overflow: 'hidden', shadowColor: '#6B7A99', shadowOpacity: 0.2, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 5 }}
-                  >
+                <TouchableOpacity onPress={goWeek} activeOpacity={0.7} style={{ marginBottom: SP.sm, borderRadius: 20, shadowColor: '#6B7A99', shadowOpacity: 0.2, shadowRadius: 14, shadowOffset: { width: 0, height: 6 }, elevation: 5 }}>
                   <LinearGradient
                     colors={p.bg === '#0B0B0C' ? ['#1E1E22', '#17171A'] : ['#FFFFFF', '#F8F9FB']}
                     start={{ x: 0, y: 0 }}
@@ -555,7 +545,6 @@ export function HomeScreen() {
                       </View>
                     )}
                   </LinearGradient>
-                  </SquircleView>
                 </TouchableOpacity>
               </MotiView>
             );

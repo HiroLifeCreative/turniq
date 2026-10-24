@@ -53,8 +53,7 @@ export function TipsScreen() {
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 124 }}>
 
         <MotiView from={{ opacity: 0, translateY: 16 }} animate={{ opacity: 1, translateY: 0 }}>
-          <Card style={{ marginBottom: SP.md }}>
-            <View style={{ alignItems: 'center', paddingVertical: SP.sm }}>
+          <Card style={{ alignItems: 'center', padding: SP.xl, marginBottom: SP.md }}>
             <Text style={{ fontSize: 64, marginBottom: SP.md }}>{COFFEE}</Text>
             <Text style={{ fontFamily: FONT.headBold, fontSize: 22, color: p.text, textAlign: 'center', marginBottom: SP.sm }}>
               {t.tips.heading}
@@ -62,7 +61,6 @@ export function TipsScreen() {
             <Text style={{ fontFamily: FONT.mono, fontSize: 13, color: p.text3, textAlign: 'center', lineHeight: 20 }}>
               {t.tips.desc}
             </Text>
-            </View>
           </Card>
         </MotiView>
 

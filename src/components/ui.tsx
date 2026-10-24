@@ -15,7 +15,6 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SquircleView } from 'squircle-view';
 import { StatusBar } from 'expo-status-bar';
 import { MotiView } from 'moti';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -83,8 +82,7 @@ export const Screen = ({
 export const ContentSheet = ({ children }: { children: React.ReactNode }) => {
   const p = useTheme();
   return (
-    <SquircleView
-      borderSmoothing={0.6}
+    <View
       style={{
         flex: 1,
         backgroundColor: p.bg,
@@ -94,7 +92,7 @@ export const ContentSheet = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-    </SquircleView>
+    </View>
   );
 };
 
@@ -106,14 +104,16 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
     ? ['#1E1E22', p.card]
     : ['#FFFFFF', p.card];
   return (
-    <SquircleView
-      borderSmoothing={0.6}
+    <LinearGradient
+      colors={gradColors}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 0, y: 1 }}
       style={[
         {
           borderRadius: 20,
-          backgroundColor: gradColors[1],
           borderWidth: 0.5,
           borderColor: darkMode ? '#2E2E33' : '#EDEFF2',
+          padding: SP.lg,
           shadowColor: '#6B7A99',
           shadowOpacity: 0.22,
           shadowRadius: 18,
@@ -123,15 +123,8 @@ export const Card = ({ children, style }: { children: React.ReactNode; style?: V
         style,
       ]}
     >
-      <LinearGradient
-        colors={gradColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={{ flex: 1, borderRadius: 20, padding: SP.lg }}
-      >
-        {children}
-      </LinearGradient>
-    </SquircleView>
+      {children}
+    </LinearGradient>
   );
 };
 
@@ -183,13 +176,15 @@ export const TintedCard = ({
       transition={{ type: 'spring', damping: 22, stiffness: 240, delay }}
       style={style}
     >
-      <SquircleView
-        borderSmoothing={0.6}
+      <LinearGradient
+        colors={colors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={{
           borderRadius: 20,
-          backgroundColor: '#14161A',
           borderWidth: 0.5,
           borderColor: 'rgba(255,255,255,0.09)',
+          padding: SP.lg,
           shadowColor: '#000000',
           shadowOpacity: 0.28,
           shadowRadius: 18,
@@ -197,15 +192,8 @@ export const TintedCard = ({
           elevation: 6,
         }}
       >
-        <LinearGradient
-          colors={colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ flex: 1, borderRadius: 20, padding: SP.lg }}
-        >
-          {children}
-        </LinearGradient>
-      </SquircleView>
+        {children}
+      </LinearGradient>
     </MotiView>
   );
 };

@@ -18,18 +18,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     fecha: '2026-10-24',
     notas: {
       es: [
-        'Esquinas continuas estilo iOS (squircle) en tarjetas, héroe y hojas: la curva real de Apple en vez del radio circular normal — se nota en el teléfono',
         'Modo privado mejorado: los montos quedan tras un cristal esmerilado (blur, estilo iOS) en vez de mostrarse como puntitos — el blur gaussiano real de expo-backdrop no es compatible con Expo SDK 52 y se retiró tras fallar el build 24',
         'Semana: botón flotante + con acciones rápidas (agregar turno, duplicar semana, plantillas) — la bandeja nativa morphlet se retiró: su spec de codegen no la entiende React Native 0.76',
         'Términos ahora es un acordeón: secciones que se abren y cierran, mucho más cómodo de leer',
-        'New Architecture activada de forma explícita (la piden las piezas nuevas)',
       ],
       en: [
-        'iOS-style continuous (squircle) corners on cards, the hero and sheets: Apple’s real curve instead of plain circular radius — visible on the phone',
         'Privacy mode improved: amounts now BLUR with a real native blur (iOS style) instead of showing as dots',
         'Week: a floating + button that morphs into a quick-actions tray (add shift, duplicate week, templates)',
         'Terms is now an accordion: sections expand and collapse, much easier to read',
-        'New Architecture explicitly enabled (required by the new pieces)',
       ],
     },
   },
