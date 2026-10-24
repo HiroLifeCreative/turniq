@@ -13,6 +13,21 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 26,
+    version: '1.1.8',
+    fecha: '24 oct 2026',
+    notas: {
+      es: [
+        'Privacidad: los chips de dinero ya no se desbordan — el lienzo del blur era más ancho que el chip y la mancha se salía por los lados; ahora el chip recorta su contenido en su borde redondeado',
+        'Pie de Más con traducción: el crédito y el copyright ahora cambian con el idioma de la app (ES/EN)',
+      ],
+      en: [
+        'Privacy: money chips no longer overflow — the blur canvas was wider than the chip and the smear spilled past its edges; the chip now clips its content at its rounded border',
+        'More footer with translation: the credit and copyright lines now follow the app language (ES/EN)',
+      ],
+    },
+  },
+  {
     build: 25,
     version: '1.1.7',
     fecha: '24 oct 2026',

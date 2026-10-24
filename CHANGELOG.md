@@ -1,5 +1,8 @@
 # Changelog — Turniq
-## v1.1.7/25 — 24 oct 2026 (sin compilar, pendiente "Build")
+## v1.1.8/26 — 24 oct 2026 (sin compilar, pendiente "Build")
+- **Privacidad: chips de dinero sin desborde**: el lienzo del blur era más ancho que el chip y la mancha se salía por los lados; ahora el chip recorta su contenido en su borde redondeado.
+- **Pie de Más con traducción**: el crédito y el copyright ahora cambian con el idioma de la app (ES/EN).
+## v1.1.7/25 — 24 oct 2026 (entregada, Codemagic build 28)
 - **Privacidad: botón del ojito GRANDE con texto Mostrar/Ocultar**: el icono solo medía 24×24 y era imposible de acertar — verificado en preview: toques en el icono no cambiaban `dineroOculto`; al tocar el botón real (24×24 en 200,109) sí desbloqueaba. Ahora es una píldora con texto, imposible de fallar.
 - **NUEVO: pantalla Permisos (Más → Permisos)**: los 3 permisos (Notificaciones, Pantalla completa, Batería sin restricción) con su estado real, botón Permitir en cada uno y la prueba de alarma de 6 s al final. Responde a '¿por qué no tengo el permiso de Alarma?': Android no los concede solo por instalar — pantalla completa y batería son permisos especiales apagados por defecto que solo el usuario enciende en Ajustes del sistema.
 - **Pie de Más**: solo el icono de Instagram (sin el texto, sigue abriendo el perfil), "Desarrollado por Nelson Herrera", "© 2026 HiroLifeStudio · Todos los derechos reservados".

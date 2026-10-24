@@ -371,7 +371,7 @@ export function HomeScreen() {
               { v: fmtMoney(totals.gross), l: t.inicio.bruto, money: true },
               { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes, money: true },
             ].map((c, i) => (
-              <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center' }}>
+              <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center', overflow: 'hidden' }}>
                 {hidden && c.money ? (
                   <BlurredText text={c.v} fontSize={15} color="#fff" />
                 ) : (

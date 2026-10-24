@@ -59,11 +59,10 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
           ))}
           <View style={{ height: SP.xxl }} />
           {/* Pie: versión + Instagram + crédito, todo en el gris del
-              pie original (p.text3). El texto del crédito lo dictó
-              Nelson (24 oct 2026): desarrollo suyo, copyright de
-              HiroLifeStudio. No se traduce: es texto de marca.
-              El icono de Instagram va SOLO, sin el texto del usuario
-              (24 oct 2026, 09:00), pero sigue abriendo el perfil. */}
+              pie original (p.text3). El crédito SÍ se traduce (ES/EN)
+              desde v1.1.8, por pedido de Nelson (24 oct 2026, 10:11).
+              El icono de Instagram va SOLO, sin texto, pero sigue
+              abriendo el perfil. */}
           <Text style={{ textAlign: 'center', fontFamily: FONT.mono, fontSize: 12, color: p.text3 }}>
             Turniq {APP_VERSION}
           </Text>
@@ -75,10 +74,10 @@ export function MasScreen({ navigation }: { navigation: NativeStackNavigationPro
             <Icon name="instagram" size={16} color={p.text3} />
           </TouchableOpacity>
           <Text style={{ textAlign: 'center', fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: SP.sm }}>
-            Desarrollado por Nelson Herrera
+            {t.pie.desarrollado}
           </Text>
           <Text style={{ textAlign: 'center', fontFamily: FONT.mono, fontSize: 12, color: p.text3, marginTop: 4 }}>
-            © 2026 HiroLifeStudio · Todos los derechos reservados
+            {t.pie.derechos}
           </Text>
         </ScrollView>
       </ContentSheet>

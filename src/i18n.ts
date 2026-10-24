@@ -374,6 +374,10 @@ const es = {
     overlay: 'Mostrar sobre otras apps',
     overlayHint: 'Permite que la alarma se muestre encima de otras apps y de la pantalla de bloqueo.',
   },
+  pie: {
+    desarrollado: 'Desarrollado por Nelson Herrera',
+    derechos: '© 2026 HiroLifeStudio · Todos los derechos reservados',
+  },
   common: {
     save: 'Guardar',
     confirm: 'Confirmar',
@@ -766,6 +770,10 @@ const en: Strings = {
     exactAlarmHint: 'Lets Turniq schedule alarms at the exact time. Without it, Android may delay alerts.',
     overlay: 'Display over other apps',
     overlayHint: 'Lets the alarm show on top of other apps and the lock screen.',
+  },
+  pie: {
+    desarrollado: 'Developed by Nelson Herrera',
+    derechos: '© 2026 HiroLifeStudio · All rights reserved',
   },
   common: {
     save: 'Save',
