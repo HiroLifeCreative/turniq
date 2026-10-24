@@ -19,11 +19,13 @@ export const CHANGELOG: ChangelogEntry[] = [
     notas: {
       es: [
         'Privacidad: el blur AHORA SÍ difumina — el cristal esmerilado de expo-blur no difuminaba en Android (solo oscurecía el monto, que quedaba legible); ahora el monto se renderiza con filtro SVG (feGaussianBlur) y queda ilegible de verdad',
+        'Privacidad: bordes del blur SUAVES — el primer filtro recortaba el desenfoque y dejaba borde duro; ahora el lienzo tiene margen de 3σ y el blur se desvanece completo, sin cambiar el tamaño en pantalla',
         'Semana: ELIMINADO el botón flotante + (no te gustaba) — las tres acciones siguen disponibles: agregar turno en cada día, duplicar semana al final de la pantalla y plantillas en Más',
         'Ganancias: la lista por trabajo AHORA muestra la semana y tiene sus propias flechas — antes seguía la semana de arriba sin decir cuál era y quedaba pegada a \'Per year\', por eso parecía anual; además ahora incluye la hora extra por trabajo (antes el neto por trabajo la omitía)',
       ],
       en: [
         'Privacy: the blur REALLY blurs now — the expo-blur frosted glass did not blur on Android (it only dimmed the amount, which stayed readable); the amount now renders with an SVG filter (feGaussianBlur) and is truly unreadable',
+        'Privacy: blur edges now SOFT — the first filter clipped the blur and left a hard edge; the canvas now has a 3σ margin so the blur fades out fully, without changing on-screen size',
         'Week: the floating + button is REMOVED (you did not like it) — the three actions remain available: add shift on each day, duplicate week at the bottom of the screen, and templates in More',
         'Earnings: the per-job list NOW shows its week and has its own arrows — before it silently followed the week selected at the top and sat right under \'Per year\', so it looked annual; it now also includes per-job overtime (the per-job net used to omit it)',
       ],
