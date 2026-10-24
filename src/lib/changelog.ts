@@ -19,9 +19,11 @@ export const CHANGELOG: ChangelogEntry[] = [
     notas: {
       es: [
         'Iconos del navbar animados al tocar, a pedido de Nelson (estilo AnimateIcons): cada pestaña hace un pop con spring y un pequeño vaivén al pulsarla, también sobre la pestaña ya activa',
+        'Vuelve el ojito en la tarjeta principal, a pedido de Nelson: oculta el dinero con •••••, sin blur y sin pedir PIN para mostrar (el cambio es directo, para que nunca se quede bloqueado)',
       ],
       en: [
         'Navbar icons animate on tap, at Nelson’s request (AnimateIcons style): each tab pops with a spring and a small wiggle when pressed, including on the already active tab',
+        'The eye button is back on the main card, at Nelson’s request: it hides money behind •••••, no blur and no PIN asked to reveal it (the toggle is instant, so it can never get stuck)',
       ],
     },
   },

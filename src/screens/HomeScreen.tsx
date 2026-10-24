@@ -49,6 +49,16 @@ export function HomeScreen() {
   const [, setTick] = useState(0);
   const setSettings = useStore((s) => s.setSettings);
 
+  // Ojito (24 oct 2026, vuelve a pedido de Nelson): oculta/muestra el
+  // dinero con •••••, SIN blur y SIN pedir PIN/biometría para mostrar.
+  // La trampa de v1.1.7 era justo esa: Mostrar exigía autenticación y
+  // si fallaba, el dinero quedaba bloqueado. Ahora el cambio es directo.
+  const togglePrivacy = () => {
+    setSettings({ dineroOculto: !settings.dineroOculto });
+    void Haptics.selectionAsync();
+  };
+  const hidden = settings.dineroOculto;
+
   const today = todayYmd();
   const byId = jobsById(jobs);
   const esFmt = settings.idioma === 'es';
@@ -208,6 +218,17 @@ export function HomeScreen() {
               <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                 {t.inicio.netoTrabajado} · {t.inicio.estaSemana}
               </Text>
+              {/* Ojito GRANDE con texto (no el de 24×24 que no se acertaba):
+                  toca y el dinero se oculta/muestra al instante, sin PIN. */}
+              <TouchableOpacity
+                onPress={togglePrivacy}
+                style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingVertical: 8, paddingHorizontal: 12 }}
+              >
+                <Icon name={hidden ? 'eyeOff' : 'eye'} size={18} color="rgba(255,255,255,0.85)" />
+                <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.85)', marginLeft: 6 }}>
+                  {hidden ? t.inicio.mostrar : t.inicio.ocultar}
+                </Text>
+              </TouchableOpacity>
             </View>
             {stateLabel !== '' && (
               <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: R.pill, paddingHorizontal: 12, paddingVertical: 6 }}>
@@ -222,17 +243,21 @@ export function HomeScreen() {
             )}
           </View>
 
-          {/* Sin blur desde v1.1.9 (24 oct 2026, pedido de Nelson: el dinero
-              se bloqueaba y no se podía quitar): el neto siempre visible. */}
-          <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-            <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
-            <AnimatedRollingNumbers
-              value={totals.net}
-              toFixed={2}
-              useGrouping
-              textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
-            />
-          </View>
+          {/* Oculto = ••••• (desde v1.1.10): sin blur, y el ojito lo quita
+              al instante sin pedir PIN — así nunca se queda bloqueado. */}
+          {hidden ? (
+            <Text style={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}>•••••</Text>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+              <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
+              <AnimatedRollingNumbers
+                value={totals.net}
+                toFixed={2}
+                useGrouping
+                textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
+              />
+            </View>
+          )}
 
           {/* Reloj en vivo con ANILLO de progreso (estilo Focus) */}
           {openShift && (() => {
@@ -281,15 +306,19 @@ export function HomeScreen() {
                     <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                       {t.inicio.netoEstimado}
                     </Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
-                      <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
-                      <AnimatedRollingNumbers
-                        value={liveNet}
-                        toFixed={2}
-                        useGrouping
-                        textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
-                      />
-                    </View>
+                    {hidden ? (
+                      <Text style={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}>••••</Text>
+                    ) : (
+                      <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
+                        <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
+                        <AnimatedRollingNumbers
+                          value={liveNet}
+                          toFixed={2}
+                          useGrouping
+                          textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
+                        />
+                      </View>
+                    )}
                     {openShift.horaSalida && (
                       <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
                         {t.inicio.salidaProg} {hmTo12h(openShift.horaSalida, esFmt)} · {Math.round(pct * 100)}%
@@ -309,7 +338,11 @@ export function HomeScreen() {
               { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes, money: true },
             ].map((c, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center', overflow: 'hidden' }}>
-                <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
+                {hidden && c.money ? (
+                  <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }}>••••</Text>
+                ) : (
+                  <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
+                )}
                 <Text style={{ fontFamily: FONT.mono, fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l}</Text>
               </View>
             ))}
