@@ -1,6 +1,7 @@
 # Changelog — Turniq
 ## v1.1.7/25 — 24 oct 2026 (sin compilar, pendiente "Build")
 - **Privacidad: botón del ojito GRANDE con texto Mostrar/Ocultar**: el icono solo medía 24×24 y era imposible de acertar — verificado en preview: toques en el icono no cambiaban `dineroOculto`; al tocar el botón real (24×24 en 200,109) sí desbloqueaba. Ahora es una píldora con texto, imposible de fallar.
+- **NUEVO: pantalla Permisos (Más → Permisos)**: los 3 permisos (Notificaciones, Pantalla completa, Batería sin restricción) con su estado real, botón Permitir en cada uno y la prueba de alarma de 6 s al final. Responde a '¿por qué no tengo el permiso de Alarma?': Android no los concede solo por instalar — pantalla completa y batería son permisos especiales apagados por defecto que solo el usuario enciende en Ajustes del sistema.
 - **Ajustes → Seguridad: interruptor "Dinero oculto"**: salida de emergencia para apagar el modo privado sin PIN si el ojito falla. Coherente con el modelo de la app: el bloqueo es anti-mirones, no anti-dueño (Ajustes ya permite quitar el PIN sin el viejo).
 
 ## v1.1.6 (build 24) — 2026-10-24

@@ -23,6 +23,7 @@ import { TemplatesScreen } from '../screens/TemplatesScreen';
 import { ChangelogScreen } from '../screens/ChangelogScreen';
 import { TipsScreen } from '../screens/TipsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { PermissionsScreen } from '../screens/PermissionsScreen';
 import { CalendarScreen } from '../screens/CalendarScreen';
 import { GmailScreen } from '../screens/GmailScreen';
 import { TermsScreen } from '../screens/TermsScreen';
@@ -66,6 +67,7 @@ function MasNavigator() {
       <MasStack.Screen name="Changelog" component={ChangelogScreen} />
       <MasStack.Screen name="Tips" component={TipsScreen} />
       <MasStack.Screen name="Settings" component={SettingsScreen} />
+      <MasStack.Screen name="Permissions" component={PermissionsScreen} />
       <MasStack.Screen name="CalendarSync" component={CalendarScreen} />
       <MasStack.Screen name="Gmail" component={GmailScreen} />
       <MasStack.Screen name="Terms" component={TermsScreen} />
