@@ -158,6 +158,56 @@ class TurniqAlarmModule(private val reactContext: ReactApplicationContext) :
     }
   }
 
+  /** ¿Puede programar alarmas exactas? Android 12+ lo pide aparte
+   *  ("Alarmas y recordatorios"); sin él, el sistema puede retrasar
+   *  los avisos aunque la alarma de pantalla completa funcione. */
+  @ReactMethod
+  fun canScheduleExactAlarms(promise: Promise) {
+    if (Build.VERSION.SDK_INT >= 31) {
+      val am = reactContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+      promise.resolve(am.canScheduleExactAlarms())
+    } else {
+      promise.resolve(true)
+    }
+  }
+
+  @ReactMethod
+  fun openExactAlarmSettings(promise: Promise) {
+    try {
+      if (Build.VERSION.SDK_INT >= 31) {
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+          data = Uri.parse("package:" + reactContext.packageName)
+          addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        reactContext.startActivity(intent)
+      }
+      promise.resolve(true)
+    } catch (e: Exception) {
+      promise.reject("ALARM_ERROR", e.message, e)
+    }
+  }
+
+  /** ¿Puede dibujar sobre otras apps? La app declara
+   *  SYSTEM_ALERT_WINDOW; el interruptor vive en Ajustes del sistema. */
+  @ReactMethod
+  fun canDrawOverlays(promise: Promise) {
+    promise.resolve(Settings.canDrawOverlays(reactContext))
+  }
+
+  @ReactMethod
+  fun openOverlaySettings(promise: Promise) {
+    try {
+      val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
+        data = Uri.parse("package:" + reactContext.packageName)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+      }
+      reactContext.startActivity(intent)
+      promise.resolve(true)
+    } catch (e: Exception) {
+      promise.reject("ALARM_ERROR", e.message, e)
+    }
+  }
+
   /** shiftId de la última alarma disparada (guardado por el receiver). */
   @ReactMethod
   fun getPendingAlarm(promise: Promise) {

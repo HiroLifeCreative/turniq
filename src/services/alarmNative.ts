@@ -9,6 +9,10 @@ interface TurniqAlarmNative {
   cancelAllAlarms(): Promise<boolean>;
   canUseFullScreenIntent(): Promise<boolean>;
   openFullScreenIntentSettings(): Promise<boolean>;
+  canScheduleExactAlarms(): Promise<boolean>;
+  openExactAlarmSettings(): Promise<boolean>;
+  canDrawOverlays(): Promise<boolean>;
+  openOverlaySettings(): Promise<boolean>;
   isIgnoringBatteryOptimizations(): Promise<boolean>;
   openBatteryOptimizationSettings(): Promise<boolean>;
   getPendingAlarm(): Promise<string | null>;
@@ -45,6 +49,18 @@ export const nativeCanUseFullScreenIntent = (): Promise<boolean> =>
 
 export const nativeOpenFullScreenIntentSettings = (): Promise<boolean> =>
   safe(() => M!.openFullScreenIntentSettings(), false);
+
+export const nativeCanScheduleExactAlarms = (): Promise<boolean> =>
+  safe(() => M!.canScheduleExactAlarms(), true);
+
+export const nativeOpenExactAlarmSettings = (): Promise<boolean> =>
+  safe(() => M!.openExactAlarmSettings(), false);
+
+export const nativeCanDrawOverlays = (): Promise<boolean> =>
+  safe(() => M!.canDrawOverlays(), true);
+
+export const nativeOpenOverlaySettings = (): Promise<boolean> =>
+  safe(() => M!.openOverlaySettings(), false);
 
 export const nativeIsIgnoringBattery = (): Promise<boolean> =>
   safe(() => M!.isIgnoringBatteryOptimizations(), true);

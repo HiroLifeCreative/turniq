@@ -23,6 +23,8 @@ const PERMISSIONS = [
   'android.permission.USE_FULL_SCREEN_INTENT',
   'android.permission.WAKE_LOCK',
   'android.permission.VIBRATE',
+  'android.permission.SCHEDULE_EXACT_ALARM',
+  'android.permission.SYSTEM_ALERT_WINDOW',
 ];
 
 function withAlarmSources(config) {

@@ -21,11 +21,13 @@ export const CHANGELOG: ChangelogEntry[] = [
         'Privacidad: el botón del ojito AHORA ES GRANDE y dice Mostrar/Ocultar — el icono solo de 24×24 era imposible de acertar (Nelson: "no pasa nada al tocarlo")',
         'Ajustes: interruptor nuevo "Dinero oculto" en Seguridad — salida de emergencia para apagar el modo privado sin PIN si el ojito falla',
         'NUEVO: pantalla Permisos (Más → Permisos) — todos los permisos que Turniq necesita con su estado real y un botón Permitir en cada uno, más la prueba de alarma de 6 s: Android no concede la pantalla completa ni la batería sin restricción solo por instalar, hay que encenderlos a mano',
+        'Pantalla Permisos: 2 tarjetas más — Alarmas y recordatorios (SCHEDULE_EXACT_ALARM, ahora declarado en el manifiesto) y Mostrar sobre otras apps (SYSTEM_ALERT_WINDOW) — la familia de la alarma queda completa: 5 permisos en Android',
       ],
       en: [
         'Privacy: the eye button is now BIG and labeled Show/Hide — the lone 24×24 icon was impossible to hit ("nothing happens when I tap it")',
         'Settings: new "Hidden money" switch in Security — emergency exit to turn private mode off without a PIN if the eye fails',
         'NEW: Permissions screen (More → Permissions) — every permission Turniq needs with its live status and an Allow button each, plus the 6-second alarm test: Android does not grant full-screen intent or battery exemption just by installing, so they have to be switched on by hand',
+        'Permissions screen: 2 more cards — Alarms & reminders (SCHEDULE_EXACT_ALARM, now declared in the manifest) and Display over other apps (SYSTEM_ALERT_WINDOW) — so the alarm family is complete: 5 items on Android',
       ],
     },
   },

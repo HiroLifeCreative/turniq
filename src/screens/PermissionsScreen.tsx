@@ -22,6 +22,10 @@ import {
   alarmNativeAvailable,
   nativeCanUseFullScreenIntent,
   nativeOpenFullScreenIntentSettings,
+  nativeCanScheduleExactAlarms,
+  nativeOpenExactAlarmSettings,
+  nativeCanDrawOverlays,
+  nativeOpenOverlaySettings,
   nativeIsIgnoringBattery,
   nativeOpenBatterySettings,
 } from '../services/alarmNative';
@@ -45,6 +49,8 @@ export function PermissionsScreen() {
 
   const [notifOk, setNotifOk] = useState<boolean | null>(null);
   const [fsiOk, setFsiOk] = useState<boolean | null>(null);
+  const [exactOk, setExactOk] = useState<boolean | null>(null);
+  const [overlayOk, setOverlayOk] = useState<boolean | null>(null);
   const [battOk, setBattOk] = useState<boolean | null>(null);
 
   const isAndroidNative = Platform.OS === 'android' && alarmNativeAvailable;
@@ -53,6 +59,8 @@ export function PermissionsScreen() {
     void notifPermissionGranted().then(setNotifOk);
     if (isAndroidNative) {
       void nativeCanUseFullScreenIntent().then(setFsiOk);
+      void nativeCanScheduleExactAlarms().then(setExactOk);
+      void nativeCanDrawOverlays().then(setOverlayOk);
       void nativeIsIgnoringBattery().then(setBattOk);
     }
   }, [isAndroidNative]);
@@ -84,6 +92,22 @@ export function PermissionsScreen() {
         hint: t.alarma.fullScreenHint,
         ok: fsiOk,
         onAllow: () => void nativeOpenFullScreenIntentSettings(),
+      },
+      {
+        key: 'exact',
+        icon: 'clock',
+        title: t.permisos.exactAlarm,
+        hint: t.permisos.exactAlarmHint,
+        ok: exactOk,
+        onAllow: () => void nativeOpenExactAlarmSettings(),
+      },
+      {
+        key: 'overlay',
+        icon: 'settings',
+        title: t.permisos.overlay,
+        hint: t.permisos.overlayHint,
+        ok: overlayOk,
+        onAllow: () => void nativeOpenOverlaySettings(),
       },
       {
         key: 'batt',

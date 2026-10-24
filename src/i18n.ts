@@ -369,6 +369,10 @@ const es = {
     falta: 'Falta',
     refresh: 'Volver a revisar',
     notifHint: 'Sin este permiso la alarma no puede sonar ni mostrarse.',
+    exactAlarm: 'Alarmas y recordatorios',
+    exactAlarmHint: 'Permite que Turniq programe alarmas a la hora exacta. Sin él, Android puede retrasar los avisos.',
+    overlay: 'Mostrar sobre otras apps',
+    overlayHint: 'Permite que la alarma se muestre encima de otras apps y de la pantalla de bloqueo.',
   },
   common: {
     save: 'Guardar',
@@ -758,6 +762,10 @@ const en: Strings = {
     falta: 'Missing',
     refresh: 'Check again',
     notifHint: 'Without it, alarms cannot ring or show.',
+    exactAlarm: 'Alarms & reminders',
+    exactAlarmHint: 'Lets Turniq schedule alarms at the exact time. Without it, Android may delay alerts.',
+    overlay: 'Display over other apps',
+    overlayHint: 'Lets the alarm show on top of other apps and the lock screen.',
   },
   common: {
     save: 'Save',
