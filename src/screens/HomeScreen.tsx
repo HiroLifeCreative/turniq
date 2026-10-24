@@ -1,7 +1,7 @@
 /** Pestaña Inicio — héroe oscuro con reloj en vivo, estados por color, todo redondeado. */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
@@ -37,6 +37,7 @@ export function HomeScreen() {
   const addShift = useStore((s) => s.addShift);
   const updateShift = useStore((s) => s.updateShift);
   const deleteShift = useStore((s) => s.deleteShift);
+  const autoCerrarTurnos = useStore((s) => s.autoCerrarTurnos);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Shift | null>(null);
@@ -83,6 +84,16 @@ export function HomeScreen() {
     const id = setInterval(() => setTick((x) => x + 1), 30000);
     return () => clearInterval(id);
   }, [openShift?.id]);
+
+  // Cierre automático al entrar a Inicio (24 oct 2026): si quedó un
+  // turno abierto de un día anterior y ya pasó la hora tope, se cierra
+  // solo a esa hora y se avisa con un toast.
+  useFocusEffect(
+    useCallback(() => {
+      const n = autoCerrarTurnos();
+      if (n > 0) toast.success(t.toast.autoClosed);
+    }, [autoCerrarTurnos]),
+  );
 
   const nowMin = hmToMin(nowHm());
 

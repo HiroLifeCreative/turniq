@@ -60,6 +60,7 @@ export interface Settings {
   formatoHora: '12h' | '24h';
   sonidoAlarma: 'clasica' | 'suave' | 'fuerte';
   posponerMin: number; // minutos al posponer la alarma
+  cierreAuto: string; // HH:MM — hora tope del día siguiente para cerrar solo turnos abiertos (default '04:00')
 }
 
 export interface ShiftTemplate {
@@ -88,6 +89,7 @@ interface State {
   deleteShift: (id: string) => void;
   duplicateShift: (id: string) => void;
   duplicateWeek: (weekMondayYmd: string) => number;
+  autoCerrarTurnos: () => number;
   // templates
   addTemplate: (t: Omit<ShiftTemplate, 'id'>) => string;
   updateTemplate: (id: string, patch: Partial<ShiftTemplate>) => void;
@@ -122,6 +124,7 @@ const defaultSettings: Settings = {
   formatoHora: '12h',
   sonidoAlarma: 'clasica',
   posponerMin: 10,
+  cierreAuto: '04:00',
 };
 
 export const useStore = create<State>()(
@@ -154,6 +157,32 @@ export const useStore = create<State>()(
       updateShift: (id, patch) =>
         set((s) => ({ shifts: s.shifts.map((sh) => (sh.id === id ? { ...sh, ...patch } : sh)) })),
       deleteShift: (id) => set((s) => ({ shifts: s.shifts.filter((sh) => sh.id !== id) })),
+      // Cierre automático (24 oct 2026, pedido de Nelson): todo turno
+      // con entrada real y sin salida real, de un día anterior, se
+      // cierra solo al llegar la hora tope del día siguiente (default
+      // 4:00 a.m., configurable en Ajustes → Trabajo). La salida queda
+      // en HH:MM y el cálculo existente ya maneja el cruce de
+      // medianoche (+1440). Devuelve cuántos turnos cerró.
+      autoCerrarTurnos: () => {
+        const { shifts, settings } = get();
+        const tope = settings.cierreAuto ?? '04:00';
+        const [th, tm] = tope.split(':').map(Number);
+        const now = new Date();
+        const ids: string[] = [];
+        for (const sh of shifts) {
+          if (!sh.horaEntradaReal || sh.horaSalidaReal) continue;
+          const [y, m, d] = sh.fecha.split('-').map(Number);
+          const corte = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1);
+          corte.setDate(corte.getDate() + 1);
+          corte.setHours(th ?? 4, tm ?? 0, 0, 0);
+          if (now >= corte) ids.push(sh.id);
+        }
+        if (ids.length === 0) return 0;
+        set((s) => ({
+          shifts: s.shifts.map((sh) => (ids.includes(sh.id) ? { ...sh, horaSalidaReal: tope } : sh)),
+        }));
+        return ids.length;
+      },
       duplicateShift: (id) =>
         set((s) => {
           const orig = s.shifts.find((sh) => sh.id === id);
@@ -234,6 +263,7 @@ export const useStore = create<State>()(
           if (state.settings.dineroOculto === undefined) state.settings.dineroOculto = false;
           if (state.settings.sonidoAlarma === undefined) state.settings.sonidoAlarma = 'clasica';
           if (state.settings.posponerMin === undefined) state.settings.posponerMin = 10;
+          if (state.settings.cierreAuto === undefined) state.settings.cierreAuto = '04:00';
           // Usuarios existentes ya aceptaron al usar versiones previas
           if (state.settings.terminosAceptados === undefined) {
             state.settings.terminosAceptados = state.jobs.length > 0 || state.shifts.length > 0;

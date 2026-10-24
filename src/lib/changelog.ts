@@ -25,11 +25,13 @@ export const CHANGELOG: ChangelogEntry[] = [
         'Animación de los iconos de la barra de navegación al tocarlos: cada pestaña responde con un efecto de escala y un leve balanceo, también al tocar la pestaña activa.',
         'Control de privacidad en la tarjeta principal: el dinero se oculta con ••••• y se muestra de nuevo al tocar el botón, sin desenfoque y sin solicitar PIN.',
         'Edición de horas trabajadas: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.',
+        'Cierre automático: si un turno queda abierto, se cierra solo a las 4:00 a.m. del día siguiente; la hora tope se cambia en Ajustes → Trabajo.',
       ],
       en: [
         'Navigation bar icons now animate on tap: each tab responds with a scale effect and a subtle wiggle, including the active tab.',
         'Privacy control on the main card: amounts are hidden behind ••••• and revealed by tapping the button, without blur and without requiring a PIN.',
         'Worked-hours editing: the shift date can now be changed and the shift deleted, with prior confirmation.',
+        'Auto close: if a shift is left open, it closes on its own at 4:00 a.m. the next day; the cutoff time can be changed in Settings → Work.',
       ],
     },
   },

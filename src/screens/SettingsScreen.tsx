@@ -9,6 +9,8 @@ import { mergeBackupData } from '../services/backupConvert';
 import { scheduleTestAlarm, notifPermissionGranted, requestNotifPermission, type AlarmSoundKey } from '../services/notifications';
 import { alarmNativeAvailable, nativeCanUseFullScreenIntent, nativeOpenFullScreenIntentSettings, nativeIsIgnoringBattery, nativeOpenBatterySettings } from '../services/alarmNative';
 import { useToast } from '../components/Toast';
+import { IosTimePicker } from '../components/IosPickers';
+import { hmTo12h } from '../lib/dates';
 import { APP_VERSION_LABEL } from '../lib/version';
 import { SP, R, FONT, TYPE, ICON } from '../theme/tokens';
 import type { Lang } from '../i18n';
@@ -61,9 +63,11 @@ export function SettingsScreen() {
   const settings = useStore((s) => s.settings);
   const setSettings = useStore((s) => s.setSettings);
   const resetAll = useStore((s) => s.resetAll);
+  const esFmt = settings.idioma === 'es';
 
   const [pinInput, setPinInput] = useState('');
   const [confirmWipe, setConfirmWipe] = useState(false);
+  const [showCierre, setShowCierre] = useState(false);
   const [fsiOk, setFsiOk] = useState<boolean | null>(null);
   const [notifOk, setNotifOk] = useState<boolean | null>(null);
   const [battOk, setBattOk] = useState<boolean | null>(null);
@@ -185,13 +189,40 @@ export function SettingsScreen() {
               <IosSwitch value={settings.mostrarHoraExtra} onValueChange={(v) => setSettings({ mostrarHoraExtra: v })} />
             </View>
           </SettingRow>
-          <SettingRow icon="wallet" label={t.settings.goal} last={!settings.mostrarMeta}>
+          <SettingRow icon="wallet" label={t.settings.goal} last={false}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: SP.md }}>
               <View style={{ flex: 1 }}>
                 <Field label="" value={String(settings.metaSemanal)} onChange={(v) => setSettings({ metaSemanal: Number(v) || 0 })} keyboardType="numeric" />
               </View>
               <IosSwitch value={settings.mostrarMeta} onValueChange={(v) => setSettings({ mostrarMeta: v })} />
             </View>
+          </SettingRow>
+          {/* Cierre automático (24 oct 2026): hora tope del día siguiente
+              para cerrar solo un turno abierto (default 4:00 a.m.). */}
+          <SettingRow icon="clock" label={t.settings.cierreAuto} last>
+            <TouchableOpacity
+              onPress={() => setShowCierre(true)}
+              activeOpacity={0.7}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: p.surface, borderRadius: R.md, borderWidth: 1, borderColor: p.line, paddingHorizontal: SP.lg, paddingVertical: SP.md }}
+            >
+              <Text style={{ fontFamily: FONT.headBold, fontSize: TYPE.h2, color: p.text }}>
+                {hmTo12h(settings.cierreAuto ?? '04:00', esFmt)}
+              </Text>
+              <Icon name="clock" size={ICON.md} color={p.text3} />
+            </TouchableOpacity>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: p.text3, marginTop: SP.sm }}>
+              {t.settings.cierreAutoHint}
+            </Text>
+            <IosTimePicker
+              visible={showCierre}
+              onClose={() => setShowCierre(false)}
+              value={settings.cierreAuto ?? '04:00'}
+              onChange={(v) => setSettings({ cierreAuto: v })}
+              title={t.settings.cierreAuto}
+              confirmLabel={t.common.confirm}
+              cancelLabel={t.common.cancel}
+              is24h={settings.formatoHora === '24h'}
+            />
           </SettingRow>
         </Section>
 

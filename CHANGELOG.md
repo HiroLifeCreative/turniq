@@ -3,6 +3,7 @@
 - **Animación de los iconos de la barra de navegación al tocarlos**: cada pestaña responde con un efecto de escala y un leve balanceo, también al tocar la pestaña activa.
 - **Control de privacidad en la tarjeta principal**: el dinero se oculta con ••••• y se muestra de nuevo al tocar el botón, sin desenfoque y sin solicitar PIN.
 - **Edición de horas trabajadas**: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.
+- **Cierre automático**: si un turno queda abierto, se cierra solo a las 4:00 a.m. del día siguiente; la hora tope se cambia en Ajustes → Trabajo.
 ## v1.1.9/27 — 24 oct 2026 (entregada, Codemagic build 30)
 - **Se retiró el efecto de desenfoque del modo privado**: los montos se muestran siempre con claridad. El botón de privacidad y el interruptor de Dinero oculto se eliminaron; el bloqueo de la app con PIN no se modificó.
 ## v1.1.8/26 — 24 oct 2026 (entregada, Codemagic build 29)
