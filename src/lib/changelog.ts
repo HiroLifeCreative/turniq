@@ -19,7 +19,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     notas: {
       es: [
         'Esquinas continuas estilo iOS (squircle) en tarjetas, héroe y hojas: la curva real de Apple en vez del radio circular normal — se nota en el teléfono',
-        'Modo privado mejorado: los montos ahora se DIFUMINAN con blur real (estilo iOS) en vez de mostrarse como puntitos',
+        'Modo privado mejorado: los montos quedan tras un cristal esmerilado (blur, estilo iOS) en vez de mostrarse como puntitos — el blur gaussiano real de expo-backdrop no es compatible con Expo SDK 52 y se retiró tras fallar el build 24',
         'Semana: botón flotante + que se transforma en bandeja de acciones rápidas (agregar turno, duplicar semana, plantillas)',
         'Términos ahora es un acordeón: secciones que se abren y cierran, mucho más cómodo de leer',
         'New Architecture activada de forma explícita (la piden las piezas nuevas)',
