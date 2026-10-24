@@ -9,7 +9,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AnimatedRollingNumbers from 'react-native-animated-rolling-numbers';
 import { Screen, Label, Confirm, Header, Icon, Sheet, Card, ContentSheet, useTheme, useT } from '../components/ui';
 import { ShiftForm, TimeField } from '../components/ShiftForm';
-import { PrivacyBlur } from '../components/PrivacyBlur';
+import { BlurredText } from '../components/BlurredText';
 import { PinLock } from './PinLock';
 import { ShiftDetailSheet } from '../components/ShiftDetailSheet';
 import { useToast } from '../components/Toast';
@@ -270,7 +270,9 @@ export function HomeScreen() {
             )}
           </View>
 
-          <PrivacyBlur active={hidden} radius={13}>
+          {hidden ? (
+            <BlurredText text={fmtMoney(totals.net)} fontSize={44} color="#fff" />
+          ) : (
             <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
               <Text style={{ fontFamily: FONT.headBold, fontSize: 28, color: 'rgba(255,255,255,0.7)', marginRight: 2 }}>$</Text>
               <AnimatedRollingNumbers
@@ -280,7 +282,7 @@ export function HomeScreen() {
                 textStyle={{ fontFamily: FONT.headBold, fontSize: 44, letterSpacing: -1.5, color: '#fff' }}
               />
             </View>
-          </PrivacyBlur>
+          )}
 
           {/* Reloj en vivo con ANILLO de progreso (estilo Focus) */}
           {openShift && (() => {
@@ -329,7 +331,9 @@ export function HomeScreen() {
                     <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)' }}>
                       {t.inicio.netoEstimado}
                     </Text>
-                    <PrivacyBlur active={hidden} radius={9}>
+                    {hidden ? (
+                      <BlurredText text={fmtMoney(liveNet)} fontSize={24} color={stateColor} />
+                    ) : (
                       <View style={{ flexDirection: 'row', alignItems: 'baseline' }}>
                         <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: stateColor, marginRight: 1 }}>$</Text>
                         <AnimatedRollingNumbers
@@ -339,7 +343,7 @@ export function HomeScreen() {
                           textStyle={{ fontFamily: FONT.headBold, fontSize: 24, color: stateColor }}
                         />
                       </View>
-                    </PrivacyBlur>
+                    )}
                     {openShift.horaSalida && (
                       <Text style={{ fontFamily: FONT.mono, fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
                         {t.inicio.salidaProg} {hmTo12h(openShift.horaSalida, esFmt)} · {Math.round(pct * 100)}%
@@ -359,9 +363,11 @@ export function HomeScreen() {
               { v: fmtMoney(totals.gross - totals.net), l: t.inicio.taxes, money: true },
             ].map((c, i) => (
               <View key={i} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: SP.md, alignItems: 'center' }}>
-                <PrivacyBlur active={hidden && c.money} radius={7}>
+                {hidden && c.money ? (
+                  <BlurredText text={c.v} fontSize={15} color="#fff" />
+                ) : (
                   <Text style={{ fontFamily: FONT.headBold, fontSize: 15, color: '#fff' }} numberOfLines={1} adjustsFontSizeToFit>{c.v}</Text>
-                </PrivacyBlur>
+                )}
                 <Text style={{ fontFamily: FONT.mono, fontSize: 10, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>{c.l}</Text>
               </View>
             ))}

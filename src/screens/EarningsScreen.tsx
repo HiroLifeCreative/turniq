@@ -29,6 +29,9 @@ export function EarningsScreen() {
   const wk = (mon: Date) => weekKey(mon);
   const inWk = (mon: Date) => shifts.filter((s) => weekKey(parseYmd(s.fecha)) === wk(mon));
   const weekShifts = inWk(thisMon);
+  const weekEnd = addDays(thisMon, 6);
+  const shortMonth = (d: Date) => (t.months[d.getMonth()] ?? '').slice(0, 3);
+  const weekLabel = `${thisMon.getDate()} ${shortMonth(thisMon)} – ${weekEnd.getDate()} ${shortMonth(weekEnd)}`;
 
   const workedShifts = weekShifts.filter((s) => workState(s, now) === 'worked');
   const scheduledShifts = weekShifts.filter((s) => workState(s, now) === 'scheduled');
@@ -64,15 +67,19 @@ export function EarningsScreen() {
   const yearTotal = yearMonths.reduce((a, m) => ({ net: a.net + m.net, gross: a.gross + m.gross, hours: a.hours + m.hours }), { net: 0, gross: 0, hours: 0 });
   const maxYearNet = Math.max(...yearMonths.map((m) => m.net), 1);
 
-  // Por trabajo (semana seleccionada, SOLO trabajados)
-  const perJob = new Map<string, { h: number; g: number; n: number }>();
-  for (const s of workedShifts) {
-    const one = calcWeekTotals([s], byId, 1e9, 1);
-    const e = perJob.get(s.jobId) ?? { h: 0, g: 0, n: 0 };
-    e.h += one.hours;
-    e.g += one.gross;
-    e.n += one.net;
-    perJob.set(s.jobId, e);
+  // Por trabajo (semana seleccionada, SOLO trabajados, con hora extra POR TRABAJO:
+  // el umbral se aplica a los turnos de cada trabajo en esa semana, no turno a turno)
+  const perJob = new Map<string, { h: number; g: number; n: number; ot: number }>();
+  const perJobIds: string[] = [];
+  for (const s of workedShifts) if (!perJobIds.includes(s.jobId)) perJobIds.push(s.jobId);
+  for (const jobId of perJobIds) {
+    const jt = calcWeekTotals(
+      workedShifts.filter((s) => s.jobId === jobId),
+      byId,
+      settings.umbralExtraHrs,
+      settings.multExtra,
+    );
+    perJob.set(jobId, { h: jt.hours, g: jt.gross, n: jt.net, ot: jt.overtimeHours });
   }
 
   const perHour = cur.hours > 0 ? cur.net / cur.hours : 0;
@@ -280,8 +287,14 @@ export function EarningsScreen() {
           </Card>
         )}
 
-        {/* Por trabajo */}
-        <Label>{t.earnings.perJob}</Label>
+        {/* Por trabajo — DE LA SEMANA SELECCIONADA, con su propio navegador */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: SP.sm }}>
+          <View>
+            <Label style={{ marginBottom: 2 }}>{t.earnings.perJob}</Label>
+            <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>{weekLabel}</Text>
+          </View>
+          <NavArrows onPrev={() => setWeekOff((o) => o - 1)} onNext={() => setWeekOff((o) => o + 1)} />
+        </View>
         {[...perJob.entries()].map(([jobId, e]) => {
           const job = byId[jobId];
           return (
@@ -289,7 +302,9 @@ export function EarningsScreen() {
               <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: job?.color ?? p.primary, marginRight: SP.md }} />
               <View style={{ flex: 1 }}>
                 <Text style={{ fontFamily: FONT.headBold, fontSize: 16, color: p.text }}>{job?.nombre}</Text>
-                <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>{fmtHours(e.h)}</Text>
+                <Text style={{ fontFamily: FONT.mono, fontSize: 12, color: p.text2 }}>
+                  {fmtHours(e.h)}{e.ot > 0 ? ` · ${fmtHours(e.ot)} ${t.semana.horaExtra.toLowerCase()}` : ''}
+                </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={{ fontFamily: FONT.headBold, fontSize: 18, color: p.text }}>{fmtMoney(e.n)}</Text>

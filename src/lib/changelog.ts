@@ -13,6 +13,23 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    build: 24,
+    version: '1.1.6',
+    fecha: '2026-10-24',
+    notas: {
+      es: [
+        'Privacidad: el blur AHORA SÍ difumina — el cristal esmerilado de expo-blur no difuminaba en Android (solo oscurecía el monto, que quedaba legible); ahora el monto se renderiza con filtro SVG (feGaussianBlur) y queda ilegible de verdad',
+        'Semana: ELIMINADO el botón flotante + (no te gustaba) — las tres acciones siguen disponibles: agregar turno en cada día, duplicar semana al final de la pantalla y plantillas en Más',
+        'Ganancias: la lista por trabajo AHORA muestra la semana y tiene sus propias flechas — antes seguía la semana de arriba sin decir cuál era y quedaba pegada a \'Per year\', por eso parecía anual; además ahora incluye la hora extra por trabajo (antes el neto por trabajo la omitía)',
+      ],
+      en: [
+        'Privacy: the blur REALLY blurs now — the expo-blur frosted glass did not blur on Android (it only dimmed the amount, which stayed readable); the amount now renders with an SVG filter (feGaussianBlur) and is truly unreadable',
+        'Week: the floating + button is REMOVED (you did not like it) — the three actions remain available: add shift on each day, duplicate week at the bottom of the screen, and templates in More',
+        'Earnings: the per-job list NOW shows its week and has its own arrows — before it silently followed the week selected at the top and sat right under \'Per year\', so it looked annual; it now also includes per-job overtime (the per-job net used to omit it)',
+      ],
+    },
+  },
+  {
     build: 23,
     version: '1.1.5',
     fecha: '2026-10-24',
