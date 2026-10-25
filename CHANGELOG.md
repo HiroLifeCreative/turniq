@@ -5,6 +5,7 @@
 - **Edición de horas trabajadas**: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.
 - **Cierre automático**: si un turno queda abierto, se cierra solo a las 4:00 a.m. del día siguiente; la hora tope se cambia en Ajustes → Trabajo.
 - **Fechas de entrada y salida en el editor del turno**: cada turno guarda su fecha de salida de forma explícita y los turnos que terminan otro día muestran esa fecha en lugar de un marcador.
+- **Estado del turno en Semana**: un turno ya cerrado se muestra como pasado y uno abierto con entrada marcada se muestra en curso, según sus horas reales.
 ## v1.1.9/27 — 24 oct 2026 (entregada, Codemagic build 30)
 - **Se retiró el efecto de desenfoque del modo privado**: los montos se muestran siempre con claridad. El botón de privacidad y el interruptor de Dinero oculto se eliminaron; el bloqueo de la app con PIN no se modificó.
 ## v1.1.8/26 — 24 oct 2026 (entregada, Codemagic build 29)

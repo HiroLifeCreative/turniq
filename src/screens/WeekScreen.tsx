@@ -25,6 +25,15 @@ function shiftStatus(s: Shift, now: Date): Status {
   if (!s.horaSalida && s.fecha < today) return 'missed';
   if (s.fecha < today) return 'past';
   if (s.fecha > today) return 'upcoming';
+  // Hoy: las horas reales mandan. Un turno ya cerrado no está "en curso"
+  // ni "próximo" aunque su horario programado diga otra cosa, y uno
+  // abierto con entrada real está en curso aunque ya pase su salida
+  // programada (falta marcar la salida).
+  if (s.horaSalidaReal && s.horaEntradaReal) {
+    const endDate = s.fechaSalidaReal ?? s.fechaSalida ?? s.fecha;
+    if (parseYmd(endDate).getTime() + hmToMin(s.horaSalidaReal) * 60000 <= now.getTime()) return 'past';
+  }
+  if (s.horaEntradaReal) return 'now';
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const start = hmToMin(s.horaEntrada);
   if (!s.horaSalida) return nowMin < start ? 'upcoming' : 'now';

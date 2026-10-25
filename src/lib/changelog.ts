@@ -27,6 +27,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         'Edición de horas trabajadas: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.',
         'Cierre automático: si un turno queda abierto, se cierra solo a las 4:00 a.m. del día siguiente; la hora tope se cambia en Ajustes → Trabajo.',
         'Fechas de entrada y salida en el editor del turno: cada turno guarda su fecha de salida de forma explícita y los turnos que terminan otro día muestran esa fecha en lugar de un marcador.',
+        'Estado del turno en Semana: un turno ya cerrado se muestra como pasado y uno abierto con entrada marcada se muestra en curso, según sus horas reales.',
       ],
       en: [
         'Navigation bar icons now animate on tap: each tab responds with a scale effect and a subtle wiggle, including the active tab.',
@@ -34,6 +35,7 @@ export const CHANGELOG: ChangelogEntry[] = [
         'Worked-hours editing: the shift date can now be changed and the shift deleted, with prior confirmation.',
         'Auto close: if a shift is left open, it closes on its own at 4:00 a.m. the next day; the cutoff time can be changed in Settings → Work.',
         'Start and end dates in the shift editor: each shift now stores its end date explicitly, and shifts ending on another day show that date instead of a marker.',
+        'Week shift status: a closed shift now shows as past and an open shift with a clock-in shows as in progress, based on actual hours.',
       ],
     },
   },
