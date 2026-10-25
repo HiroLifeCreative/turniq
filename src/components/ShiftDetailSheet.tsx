@@ -152,6 +152,7 @@ export function ShiftDetailSheet({
         <DateField label={t.shift.endDate} value={wDateSalida} onChange={setWDateSalida} />
         <View style={{ height: SP.md }} />
         <TimeField label={t.shift.checkIn} value={wIn} onChange={setWIn} placeholder="--:--" />
+        <View style={{ height: SP.md }} />
         <TimeField label={t.shift.checkOut} value={wOut} onChange={setWOut} placeholder="--:--" />
         <TouchableOpacity
           onPress={() => { updateShift(shift.id, { ...(wDate ? { fecha: wDate } : {}), ...(wDateSalida ? { fechaSalidaReal: wDateSalida } : {}), horaEntradaReal: wIn, horaSalidaReal: wOut || null }); setEditWorked(false); }}
