@@ -1,5 +1,5 @@
 # Changelog — Turniq
-## v1.1.10/28 — 24 oct 2026 (sin compilar, pendiente "Build")
+## v1.1.10/28 — 24 oct 2026 (entregada, Codemagic build 31)
 - **Animación de los iconos de la barra de navegación al tocarlos**: cada pestaña responde con un efecto de escala y un leve balanceo, también al tocar la pestaña activa.
 - **Control de privacidad en la tarjeta principal**: el dinero se oculta con ••••• y se muestra de nuevo al tocar el botón, sin desenfoque y sin solicitar PIN.
 - **Edición de horas trabajadas**: ahora permite modificar la fecha del turno y eliminarlo, con confirmación previa.
